@@ -1,0 +1,92 @@
+{
+  "$schema": "Data Companion Dashboard Config v0.1",
+
+  "gemeente": {
+    "naam": "Avelgem",
+    "niscode": "34003",
+    "fallback_centrum": [50.77, 3.45]
+  },
+
+  "dashboard": {
+    "titel": "Avelgem · Mobiliteitsmonitor",
+    "subtitel": "Vergrijzing en mobiliteit",
+    "kleuren": {
+      "primair": "#7d3c98",
+      "accent": "#f39c12"
+    }
+  },
+
+  "bronvermelding": [
+    { "naam": "Geopunt / Digitaal Vlaanderen", "url": "https://www.geopunt.be" },
+    { "naam": "Statbel", "url": "https://statbel.fgov.be" }
+  ],
+
+  "panelen": [
+    {
+      "titel": "Kerncijfers",
+      "items": [
+        {
+          "type": "indicator",
+          "bron": "static",
+          "titel": "Inwoners",
+          "waarde": "9.770",
+          "eenheid": "",
+          "bronlabel": "Statbel 2024",
+          "actie": "zoom_naar_gemeente"
+        },
+        {
+          "type": "indicator",
+          "bron": "static",
+          "titel": "Vergrijzingsindex",
+          "waarde": "118",
+          "eenheid": "",
+          "bronlabel": "65+ per 100 jongeren"
+        },
+        {
+          "type": "indicator",
+          "bron": "static",
+          "titel": "Deelgemeenten",
+          "waarde": "3",
+          "eenheid": "",
+          "bronlabel": "Avelgem · Bossuit · Outrijve"
+        }
+      ]
+    },
+
+    {
+      "titel": "Kaartlagen",
+      "items": [
+        {
+          "type": "toggle",
+          "bron": "wms",
+          "label": "GRB basiskaart",
+          "kleur": "#7d3c98",
+          "url": "https://geo.api.vlaanderen.be/GRB/wms",
+          "layer": "GRB_BSK",
+          "attribution": "GRB / Digitaal Vlaanderen",
+          "standaard_aan": true
+        },
+        {
+          "type": "toggle",
+          "bron": "wfs",
+          "label": "Buurgemeenten",
+          "kleur": "#f39c12",
+          "url": "https://geo.api.vlaanderen.be/VRBG/wfs",
+          "typename": "VRBG:Refgem",
+          "count": 350,
+          "stijl": {
+            "color": "#f39c12",
+            "weight": 1.2,
+            "fillColor": "#f39c12",
+            "fillOpacity": 0.03,
+            "dashArray": "3 3"
+          },
+          "popup_label": "Gemeente",
+          "popup_titel": "{NAAM}",
+          "popup_body": "NIS-code: {NISCODE}",
+          "standaard_aan": true
+        }
+      ]
+    }
+  ]
+}
