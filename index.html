@@ -1,0 +1,55 @@
+{
+  "$schema": "Data Companion v2 — Gemeente Config",
+  "_comment": "Bronverwijzingen worden opgelost via sources.json.",
+
+  "gemeente": {
+    "naam": "Avelgem",
+    "niscode": "34003",
+    "fallback_centrum": [50.77, 3.45]
+  },
+
+  "dashboard": {
+    "titel": "Avelgem · Mobiliteitsmonitor",
+    "subtitel": "Vergrijzing en mobiliteit in beeld",
+    "kleuren": { "primair": "#7d3c98", "accent": "#f39c12" }
+  },
+
+  "bronvermelding": [
+    { "naam": "Geopunt / Digitaal Vlaanderen", "url": "https://www.geopunt.be" },
+    { "naam": "Statbel", "url": "https://statbel.fgov.be" }
+  ],
+
+  "loketten": [
+    {
+      "id": "kaart",
+      "label": "Kaart",
+      "icoon": "🗺️",
+      "sjabloon": "geodata",
+      "beschrijving": "Geografische context van Avelgem",
+      "groepen": [
+        {
+          "label": "Basiskaart",
+          "lagen": [
+            { "bron": "geopunt:grb", "default_aan": true }
+          ]
+        },
+        {
+          "label": "Administratief",
+          "lagen": [
+            { "bron": "geopunt:gemeentegrenzen", "default_aan": true }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "demografie",
+      "label": "Demografie",
+      "icoon": "👥",
+      "badge": "soon",
+      "sjabloon": "evolutie",
+      "beschrijving": "Bevolkingsevolutie en vergrijzingstrend",
+      "indicatoren": ["inwoners", "vergrijzing", "geboortecijfer"],
+      "periode": { "van": 2014, "tot": 2023 }
+    }
+  ]
+}

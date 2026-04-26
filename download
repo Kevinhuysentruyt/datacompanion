@@ -1,0 +1,63 @@
+{
+  "$schema": "Data Companion v2 — Gemeente Config",
+  "_comment": "Demo-dashboard met twee Vlaamse open databronnen. Gebruikt bronverwijzingen naar sources.json.",
+
+  "gemeente": {
+    "naam": "Demo",
+    "niscode": "44021",
+    "fallback_centrum": [51.05, 3.72],
+    "_toelichting": "Gent als demo-centrum. Pas niscode en centrum aan voor andere gemeente."
+  },
+
+  "dashboard": {
+    "titel": "Data Companion · Demo",
+    "subtitel": "Orthofoto 2021 & Zorgkaart Vlaanderen",
+    "kleuren": { "primair": "#2c3e50", "accent": "#e74c3c" }
+  },
+
+  "bronvermelding": [
+    {
+      "naam": "Orthofotomozaïek 2021 · Digitaal Vlaanderen",
+      "url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen"
+    },
+    {
+      "naam": "Zorgvoorzieningen · Departement Zorg",
+      "url": "https://www.vlaanderen.be/datavindplaats/catalogus/zorgvoorzieningen-erkend-door-het-departement-zorg-gezondheidszorg-en-woonzorg-via-poi-service"
+    }
+  ],
+
+  "loketten": [
+    {
+      "id": "kaart",
+      "label": "Geodata Demo",
+      "icoon": "🗺️",
+      "sjabloon": "geodata",
+      "beschrijving": "Ortholuchtfoto 2021 en erkende zorgvoorzieningen in Vlaanderen",
+      "groepen": [
+        {
+          "label": "Luchtfoto",
+          "lagen": [
+            { "bron": "geopunt:orthofoto_2021", "default_aan": true }
+          ]
+        },
+        {
+          "label": "Zorgkaart",
+          "_comment": "Data wordt gegenereerd via pipelines/zorg_pipeline.py en opgeslagen in data/zorgvoorzieningen.geojson",
+          "lagen": [
+            {
+              "bron": "geopunt:zorgvoorzieningen",
+              "default_aan": false,
+              "_comment": "Zet default_aan op true zodra data/zorgvoorzieningen.geojson beschikbaar is"
+            }
+          ]
+        },
+        {
+          "label": "Referentie",
+          "lagen": [
+            { "bron": "geopunt:grb", "default_aan": false }
+          ]
+        }
+      ]
+    }
+  ]
+}
