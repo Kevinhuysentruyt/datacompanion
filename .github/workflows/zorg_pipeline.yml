@@ -1,0 +1,37 @@
+name: Zorgvoorzieningen data verversen
+
+# Draait elke 1e van de maand om 6:00 's ochtends
+# Kan ook handmatig getriggerd worden via de GitHub Actions UI
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:        # handmatige trigger via UI
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # toegang om te committen
+
+    steps:
+      - name: Code ophalen
+        uses: actions/checkout@v4
+
+      - name: Python instellen
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Afhankelijkheden installeren
+        run: pip install requests
+
+      - name: Pipeline draaien
+        run: python pipelines/zorg_pipeline.py
+
+      - name: Data committen naar GitHub
+        run: |
+          git config user.name  "Data Companion Pipeline"
+          git config user.email "pipeline@datacompanion.be"
+          git add data/zorgvoorzieningen.geojson
+          git diff --staged --quiet || git commit -m "Data update zorgvoorzieningen $(date +%Y-%m-%d)"
+          git push
