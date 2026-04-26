@@ -61,12 +61,12 @@
               "bron": "poi",
               "url": "https://geo.api.vlaanderen.be/POI/ogc/features/v1/collections/POI/items",
               "categorie": "Welzijn, gezondheid en gezin",
-              "subcategorie": "Zorg en gezondheid",
-              "max_items": 200,
+              "badge_grootte": 500,
+              "max_items": 5000,
               "default_aan": false,
               "kleur_marker": "#e74c3c",
-              "icoon_marker": "🏥",
-              "popup_velden": ["naam", "adres", "gemeente", "type"],
+              "popup_label": "Zorgvoorziening",
+              "popup_velden": ["name", "municipality", "category", "address"],
               "attribution": "Zorgvoorzieningen © Departement Zorg · Digitaal Vlaanderen"
             }
           ]
