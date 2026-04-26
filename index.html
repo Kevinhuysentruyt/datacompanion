@@ -2,17 +2,45 @@
 <html lang="nl">
 <!--
 ╔══════════════════════════════════════════════════════════════════╗
-║  Data Companion Framework v2 — Loketten Navigation              ║
+║  DATA COMPANION FRAMEWORK v2.1                                   ║
+║  Config-driven dashboard voor Vlaamse gemeenten                  ║
+║  Auteur: Kevin Huysentruyt — Data Companion                      ║
+║  Laatste update: april 2026                                      ║
+╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
 ║  WERKING:                                                        ║
 ║  URL: ?gemeente=zwevegem                → eerste loket          ║
-║  URL: ?gemeente=zwevegem&loket=cijfers  → specifiek loket       ║
+║  URL: ?gemeente=zwevegem&loket=kaart    → specifiek loket       ║
 ║                                                                  ║
-║  De gemeente-config bevat een 'loketten' array.                  ║
-║  Elk loket heeft een sjabloon (geodata, evolutie, hybride).      ║
+║  Framework laadt configs/[gemeente].json en bouwt het           ║
+║  dashboard volledig op basis van die configuratie.               ║
 ║                                                                  ║
-║  NIEUWE GEMEENTE: maak configs/[naam].json                       ║
-║  NIEUW LOKET: voeg item toe aan loketten-array                   ║
+║  DRIE LAGEN:                                                     ║
+║  1. index.html    = framework (dit bestand, nooit per klant)    ║
+║  2. configs/*.json = gemeente-configuraties (jouw klantwerk)    ║
+║  3. Vlaamse APIs  = databronnen (Geopunt, Basisregisters)       ║
+║                                                                  ║
+║  SNEL STARTEN:                                                   ║
+║  Nieuwe gemeente → maak configs/[naam].json                      ║
+║  Nieuwe laag     → voeg toe aan groepen[].lagen[] in JSON       ║
+║  Nieuwe databron → zie SECTIE 7 SOURCE ROUTER in de JS          ║
+║  Nieuw sjabloon  → zie SECTIE 6 en README.md sectie 14          ║
+║                                                                  ║
+║  JAVASCRIPT SECTIES (gebruik als referentie bij aanpassingen):   ║
+║  1  URL PARSING        leest ?gemeente en ?loket                ║
+║  2  CONFIG LADEN       haalt JSON op via fetch()                ║
+║  3  BRANDING           kleuren, titel, bronvermelding           ║
+║  4  NAVIGATIE          bouwt loketten-tabs                      ║
+║  5  LOKET ACTIVEREN    wisselt tussen loketten                  ║
+║  6  SJABLOON-ROUTER    kiest render-functie                     ║
+║  7  SJABLOON GEODATA   kaart + lagen (functioneel)              ║
+║     SOURCE ROUTER      wms / poi / toekomstige bronnen          ║
+║  8  EVOLUTIE           placeholder (Fase D)                     ║
+║  9  HYBRIDE            placeholder (Fase F)                     ║
+║  10 ERROR HANDLING     foutpagina                               ║
+║  11 CONFIG LINK        debug: actieve config bekijken           ║
+║  12 BROWSER NAV        back/forward knop support                ║
+║  13 INIT               startpunt van de applicatie              ║
 ╚══════════════════════════════════════════════════════════════════╝
 -->
 <head>
@@ -233,16 +261,28 @@
 
 <script>
 // ════════════════════════════════════════════════════════
-//  DATA COMPANION FRAMEWORK v2
-//  Multi-loket dashboard met URL-routing
+//  DATA COMPANION FRAMEWORK v2.1
+//  Config-driven multi-loket dashboard
+//  Zie README.md voor volledige documentatie
 // ════════════════════════════════════════════════════════
 
-// Globale state
+// ── GLOBALE STATE ─────────────────────────────────────────
+// config       = de geladen gemeente-JSON (null tot laadConfig() klaar is)
+// actiefLoket  = het huidig getoonde loket-object
+// mapInstance  = de actieve Leaflet-kaart (null als er geen kaart is)
 let config = null;
 let actiefLoket = null;
 let mapInstance = null;
 
-// ── 1. URL PARSING ───────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  SECTIE 1 — URL PARSING
+//  Leest de URL-parameters bij het laden van de pagina.
+//  ?gemeente=zwevegem  → welke config laden
+//  ?loket=kaart        → welk loket tonen (optioneel)
+//
+//  updateURL() past de URL aan zonder de pagina te herladen
+//  zodat browser back/forward correct werkt.
+// ════════════════════════════════════════════════════════
 function leesURL() {
   const params = new URLSearchParams(window.location.search);
   return {
@@ -259,23 +299,43 @@ function updateURL(gemeente, loketId) {
   window.history.pushState({}, '', url);
 }
 
-// ── 2. CONFIG LADEN ──────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  SECTIE 2 — CONFIG LADEN
+//  Haalt het JSON-configuratiebestand op voor de gemeente.
+//  Pad: configs/[gemeente].json
+//  Fout als het bestand niet bestaat → toonError()
+//
+//  Nieuwe gemeente toevoegen = nieuw JSON-bestand in configs/
+//  Geen code aanpassen nodig.
+// ════════════════════════════════════════════════════════
 async function laadConfig(gemeente) {
   const r = await fetch(`configs/${gemeente}.json`);
   if (!r.ok) throw new Error(`Config '${gemeente}.json' niet gevonden (HTTP ${r.status})`);
   return r.json();
 }
 
-// ── 3. BRANDING TOEPASSEN ────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  SECTIE 3 — BRANDING TOEPASSEN
+//  Past de visuele identiteit toe vanuit de config:
+//  - Paginatitel (browser-tab)
+//  - Header: titel, subtitel, logo-initialen
+//  - Kleuren via CSS custom properties (--primair, --accent)
+//    zodat alle UI-elementen automatisch mee kleuren
+//  - Bronvermelding in de footer
+//
+//  Aanpassen: kleuren en teksten staan in de gemeente-JSON,
+//  niet in deze code.
+// ════════════════════════════════════════════════════════
 function pasBrandingToe(cfg) {
   document.title = `${cfg.gemeente.naam} — Data Companion`;
   document.getElementById('brand-title').textContent = cfg.dashboard?.titel || cfg.gemeente.naam;
   document.getElementById('brand-sub').textContent = cfg.dashboard?.subtitel || '';
 
+  // Logo-initialen = eerste twee letters van gemeente
   const initialen = cfg.gemeente.naam.substring(0, 2).toUpperCase();
   document.getElementById('brand-logo').textContent = initialen;
 
-  // Kleuren via CSS-variabelen
+  // Kleuren via CSS-variabelen — alle UI-elementen passen mee
   const root = document.documentElement;
   if (cfg.dashboard?.kleuren?.primair) {
     root.style.setProperty('--primair', cfg.dashboard.kleuren.primair);
@@ -285,14 +345,26 @@ function pasBrandingToe(cfg) {
     root.style.setProperty('--accent', cfg.dashboard.kleuren.accent);
   }
 
-  // Bronvermelding
+  // Bronvermelding in footer — juridisch vereist voor Vlaamse open data
   const bronEl = document.getElementById('bronvermelding');
   bronEl.innerHTML = (cfg.bronvermelding || []).map(b =>
     `Bron: ${b.url ? `<a href="${b.url}" target="_blank" style="color:inherit">${b.naam}</a>` : b.naam}`
   ).join(' · ');
 }
 
-// ── 4. NAVIGATIE OPBOUWEN ────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  SECTIE 4 — NAVIGATIE OPBOUWEN
+//  Maakt de loketten-tabs in de navigatiebalk.
+//  Elke tab = één loket uit de config.
+//
+//  Config-velden per loket:
+//  - id      → data-loket-id attribuut + URL-parameter
+//  - label   → tekst in de tab
+//  - icoon   → emoji voor de tab
+//  - badge   → optioneel oranje label (bv. "soon", "nieuw")
+//
+//  Nieuw loket toevoegen = toevoegen aan loketten[] in JSON.
+// ════════════════════════════════════════════════════════
 function bouwNavigatie(loketten) {
   const nav = document.getElementById('nav-loketten');
   nav.innerHTML = '';
@@ -311,7 +383,14 @@ function bouwNavigatie(loketten) {
   });
 }
 
-// ── 5. LOKET ACTIVEREN ───────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  SECTIE 5 — LOKET ACTIVEREN
+//  Wordt aangeroepen bij tab-klik of bij initieel laden.
+//  Doet drie dingen:
+//  1. Markeert de actieve tab visueel (.active CSS-klasse)
+//  2. Past de URL aan (zonder herladen) voor browser-nav
+//  3. Roept renderLoket() aan voor de juiste inhoud
+// ════════════════════════════════════════════════════════
 function activeerLoket(loketId) {
   const loket = config.loketten.find(l => l.id === loketId);
   if (!loket) {
@@ -321,43 +400,59 @@ function activeerLoket(loketId) {
 
   actiefLoket = loket;
 
-  // Visueel: actieve tab markeren
+  // Actieve tab markeren via CSS-klasse
   document.querySelectorAll('.nav-loket').forEach(el => {
     el.classList.toggle('active', el.dataset.loketId === loketId);
   });
 
-  // URL bijwerken zonder herladen
+  // URL bijwerken zodat back/forward correct werkt
   updateURL(config.gemeente.naam.toLowerCase(), loketId);
 
-  // Content renderen op basis van sjabloon
+  // Content opbouwen voor dit loket
   renderLoket(loket);
 }
 
-// ── 6. LOKET RENDEREN OP BASIS VAN SJABLOON ──────────────
+// ════════════════════════════════════════════════════════
+//  SECTIE 6 — SJABLOON-ROUTER
+//  Koppelt het sjabloon-type (uit de config) aan de
+//  juiste render-functie.
+//
+//  Huidig beschikbare sjablonen:
+//  - geodata  → renderSjabloonGeodata()   [FUNCTIONEEL]
+//  - evolutie → renderSjabloonEvolutie()  [PLACEHOLDER fase D]
+//  - hybride  → renderSjabloonHybride()   [PLACEHOLDER fase F]
+//
+//  Nieuw sjabloon toevoegen:
+//  1. Schrijf een renderSjabloon[Naam]() functie
+//  2. Voeg toe aan het sjablonen-object hieronder
+//  Zie README.md sectie 14 voor het volledige patroon.
+// ════════════════════════════════════════════════════════
 function renderLoket(loket) {
   const content = document.getElementById('content');
 
-  // Cleanup vorige kaart als die er was
+  // Verwijder vorige Leaflet-kaart correct om geheugenlek te voorkomen
   if (mapInstance) {
     mapInstance.remove();
     mapInstance = null;
   }
 
-  // Sjabloon-router: roep juiste rendering-functie aan
+  // Sjabloon-router: naam → render-functie
+  // UITBREIDEN: voeg nieuwe sjablonen hier toe
   const sjablonen = {
-    'geodata': renderSjabloonGeodata,
+    'geodata':  renderSjabloonGeodata,
     'evolutie': renderSjabloonEvolutie,
-    'hybride': renderSjabloonHybride
+    'hybride':  renderSjabloonHybride
   };
 
   const renderFn = sjablonen[loket.sjabloon];
 
   if (!renderFn) {
+    // Foutmelding als sjabloon niet bestaat
     content.innerHTML = `
       <div class="sjabloon-placeholder">
         <div class="ico">⚠️</div>
         <h3>Onbekend sjabloon: "${loket.sjabloon}"</h3>
-        <p>Beschikbare sjablonen: geodata, evolutie, hybride</p>
+        <p>Beschikbare sjablonen: ${Object.keys(sjablonen).join(', ')}</p>
       </div>
     `;
     return;
@@ -366,6 +461,23 @@ function renderLoket(loket) {
   renderFn(content, loket);
 }
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 7 — SJABLOON: GEODATA (functioneel)
+// ════════════════════════════════════════════════════════
+//  Bouwt een kaart-centric lay-out:
+//  - Linkerpaneel: laag-groepen met toggles
+//  - Rechterkant: Leaflet kaart
+//
+//  Kaart-initialisatie:
+//  1. CartoDB lichte basemap (opacity 0.4) als achtergrond
+//  2. Auto-zoom via Basisregisters NIS-code → boundingBox
+//
+//  Sub-sectie SOURCE ROUTER:
+//  Per laag wordt het "bron"-veld gelezen om te bepalen
+//  hoe de data wordt opgehaald en gevisualiseerd.
+//  Huidige bronnen: "wms", "poi"
+//  Toekomstig: "wfs", "geojson_url", "stadsmonitor", "csv"
+// ════════════════════════════════════════════════════════
 // ── 7. SJABLOON: GEODATA (functioneel) ──────────────────
 function renderSjabloonGeodata(container, loket) {
   container.innerHTML = `
@@ -388,8 +500,9 @@ function renderSjabloonGeodata(container, loket) {
   mapInstance = L.map('map').setView(centrum, 12);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    subdomains: 'abcd'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    opacity: 0.4
   }).addTo(mapInstance);
 
   // Lagen toevoegen op basis van loket-config
@@ -414,23 +527,134 @@ function renderSjabloonGeodata(container, loket) {
         </label>
       `;
 
-      // WMS-laag aanmaken
-      const wmsLayer = L.tileLayer.wms(laag.url, {
-        layers: laag.layer,
-        format: 'image/png',
-        transparent: true,
-        version: '1.3.0',
-        opacity: laag.transparantie || 0.8,
-        attribution: laag.attribution || ''
-      });
+      // ════════════════════════════════════════════════
+      //  SOURCE ROUTER — bepaalt hoe elke laag geladen wordt
+      //  op basis van het "bron"-veld in de config.
+      //
+      //  Huidige bronnen:
+      //  "wms"  → Web Map Service (rasterkaart tiles via Geopunt)
+      //  "poi"  → Points of Interest (Geopunt OGC API Features)
+      //
+      //  Toekomstige bronnen (nog toe te voegen):
+      //  "wfs"         → WFS vectordata als GeoJSON-polygonen
+      //  "geojson_url" → externe GeoJSON-URL ophalen
+      //  "stadsmonitor"→ beleidsindicatoren per gemeente
+      //  "csv"         → eigen klant-data als punten of tabel
+      //
+      //  Nieuw bron-type toevoegen:
+      //  Voeg een } else if (laag.bron === '[type]') { blok toe
+      //  net voor de afsluitende } else { van WMS hieronder.
+      //  Zie README.md sectie 13 voor het volledige patroon.
+      // ════════════════════════════════════════════════
+      // ── SOURCE ROUTER: kies juiste laag op basis van bron-type ──
+      let kaartlaag = null;
 
-      if (laag.default_aan) wmsLayer.addTo(mapInstance);
+      if (laag.bron === 'poi') {
+        // POI-laag: MarkerCluster via Geopunt OGC API Features
+        const cluster = L.layerGroup();
+        kaartlaag = cluster;
 
-      const input = item.querySelector('input');
-      input.addEventListener('change', e => {
-        if (e.target.checked) wmsLayer.addTo(mapInstance);
-        else mapInstance.removeLayer(wmsLayer);
-      });
+        // Data ophalen als laag wordt aangezet
+        async function laadPOI() {
+          if (cluster._geladen) return;
+          cluster._geladen = true;
+
+          try {
+            // Geopunt POI OGC API Features
+            // Categorie-filter via query parameter
+            const params = new URLSearchParams({
+              f: 'application/geo+json',
+              limit: laag.max_items || 100
+            });
+
+            // Thema/categorie filter indien opgegeven
+            if (laag.categorie) {
+              params.set('theme', laag.categorie);
+            }
+
+            const url = `${laag.url}?${params}`;
+            const r = await fetch(url, { headers: { Accept: 'application/geo+json' } });
+
+            if (!r.ok) throw new Error('POI API: HTTP ' + r.status);
+            const data = await r.json();
+
+            if (!data.features?.length) {
+              console.warn('POI: geen features gevonden');
+              return;
+            }
+
+            data.features.forEach(f => {
+              const coords = f.geometry?.coordinates;
+              if (!coords) return;
+
+              const [lon, lat] = coords; // GeoJSON: [lon, lat]
+              const props = f.properties || {};
+
+              // Popup-inhoud op basis van popup_velden in config
+              const velden = (laag.popup_velden || ['naam', 'gemeente']).map(v => {
+                const waarde = props[v] || props[v.toLowerCase()] || props[v.toUpperCase()] || '';
+                return waarde ? `<div><strong>${v}:</strong> ${waarde}</div>` : '';
+              }).join('');
+
+              // Naam ophalen uit properties (verschillende API-namen proberen)
+              const naam = props.name || props.naam || props.NAAM || props.Naam || 'Zorgvoorziening';
+
+              const marker = L.circleMarker([lat, lon], {
+                radius: 7,
+                fillColor: laag.kleur_marker || '#e74c3c',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.9
+              }).bindPopup(`
+                <div class="ptag">Zorgvoorziening</div>
+                <div class="ptit">${naam}</div>
+                <div class="pbod">${velden || 'Geen extra info beschikbaar'}</div>
+              `);
+
+              cluster.addLayer(marker);
+            });
+
+            console.log(`POI: ${data.features.length} zorgvoorzieningen geladen`);
+          } catch (e) {
+            console.error('POI laad-fout:', e.message);
+          }
+        }
+
+        if (laag.default_aan) {
+          cluster.addTo(mapInstance);
+          laadPOI();
+        }
+
+        // Toggle-gedrag
+        const input = item.querySelector('input');
+        input.addEventListener('change', e => {
+          if (e.target.checked) {
+            cluster.addTo(mapInstance);
+            laadPOI(); // lazy loading — laadt maar één keer
+          } else {
+            mapInstance.removeLayer(cluster);
+          }
+        });
+
+      } else {
+        // Standaard WMS-laag
+        kaartlaag = L.tileLayer.wms(laag.url, {
+          layers: laag.layer,
+          format: 'image/png',
+          transparent: true,
+          version: '1.3.0',
+          opacity: laag.transparantie || 0.8,
+          attribution: laag.attribution || ''
+        });
+
+        if (laag.default_aan) kaartlaag.addTo(mapInstance);
+
+        const input = item.querySelector('input');
+        input.addEventListener('change', e => {
+          if (e.target.checked) kaartlaag.addTo(mapInstance);
+          else mapInstance.removeLayer(kaartlaag);
+        });
+      }
 
       groepEl.appendChild(item);
     });
@@ -453,6 +677,16 @@ function renderSjabloonGeodata(container, loket) {
   }
 }
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 8 — SJABLOON: EVOLUTIE (placeholder)
+//  Toont een "in ontwikkeling" bericht.
+//  Te vervangen in Fase D met:
+//  - Stadsmonitor data-pipeline (Python CSV → JSON)
+//  - Chart.js lijngrafiek-renderer
+//  - Vergelijkingsbalken tussen gemeenten
+//  - Sorteerbare tabel
+//  - Tijdsperiode-filter
+// ════════════════════════════════════════════════════════
 // ── 8. SJABLOON: EVOLUTIE (placeholder) ─────────────────
 function renderSjabloonEvolutie(container, loket) {
   container.innerHTML = `
@@ -474,6 +708,15 @@ function renderSjabloonEvolutie(container, loket) {
   `;
 }
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 9 — SJABLOON: HYBRIDE (placeholder)
+//  Toont een "in ontwikkeling" bericht.
+//  Te vervangen in Fase F met:
+//  - Split-layout: kaart links (50%), cijfers rechts (50%)
+//  - Choropleth-renderer (polygonen gekleurd per indicator)
+//  - Tijdslider gedeeld tussen kaart en grafieken
+//  - Cross-filtering: klik op kaart → filter grafieken
+// ════════════════════════════════════════════════════════
 // ── 9. SJABLOON: HYBRIDE (placeholder) ──────────────────
 function renderSjabloonHybride(container, loket) {
   container.innerHTML = `
@@ -491,6 +734,11 @@ function renderSjabloonHybride(container, loket) {
   `;
 }
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 10 — ERROR HANDLING
+//  Vervangt de volledige pagina-inhoud met een foutbericht.
+//  Wordt gebruikt wanneer de config niet geladen kan worden.
+// ════════════════════════════════════════════════════════
 // ── 10. ERROR HANDLING ───────────────────────────────────
 function toonError(titel, body) {
   document.getElementById('loader').classList.add('hidden');
@@ -502,6 +750,12 @@ function toonError(titel, body) {
   `;
 }
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 11 — CONFIG LINK (debug-hulpmiddel)
+//  "Config bekijken" knop in de footer opent de actieve
+//  gemeente-JSON in een nieuw venster. Handig om te
+//  controleren welke configuratie geladen is.
+// ════════════════════════════════════════════════════════
 // ── 11. CONFIG LINK ──────────────────────────────────────
 document.getElementById('link-config').addEventListener('click', e => {
   e.preventDefault();
@@ -512,6 +766,11 @@ document.getElementById('link-config').addEventListener('click', e => {
   }</pre>`);
 });
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 12 — BROWSER NAVIGATIE
+//  Luistert naar de browser back/forward knoppen.
+//  Herstelt het juiste loket op basis van de URL.
+// ════════════════════════════════════════════════════════
 // ── 12. BROWSER NAV (back/forward) ───────────────────────
 window.addEventListener('popstate', () => {
   const params = leesURL();
@@ -519,6 +778,18 @@ window.addEventListener('popstate', () => {
   if (loket) activeerLoket(loket.id);
 });
 
+// ════════════════════════════════════════════════════════
+//  SECTIE 13 — INIT (startpunt van de applicatie)
+//  Wordt automatisch uitgevoerd bij het laden van de pagina.
+//  Volgorde:
+//  1. Lees URL-parameters
+//  2. Laad gemeente-config (JSON)
+//  3. Pas branding toe
+//  4. Bouw navigatie
+//  5. Activeer eerste/gevraagde loket
+//  6. Verberg loader-overlay
+//  Bij fouten: toon foutpagina
+// ════════════════════════════════════════════════════════
 // ── 13. INIT ─────────────────────────────────────────────
 (async () => {
   try {
