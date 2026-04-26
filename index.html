@@ -550,73 +550,104 @@ function renderSjabloonGeodata(container, loket) {
       let kaartlaag = null;
 
       if (laag.bron === 'poi') {
-        // POI-laag: MarkerCluster via Geopunt OGC API Features
+        // POI-laag: badge-gewijze paginering via Geopunt OGC API Features
+        // Haalt records op in badges van 500 tot max_items (standaard 5000)
+        // Elke badge verschijnt meteen op de kaart zodra geladen
         const cluster = L.layerGroup();
         kaartlaag = cluster;
 
-        // Data ophalen als laag wordt aangezet
+        // Voeg één feature toe als marker op de kaart
+        function voegMarkerToe(f) {
+          const coords = f.geometry?.coordinates;
+          if (!coords) return;
+
+          const [lon, lat] = coords; // GeoJSON: [lon, lat] → Leaflet: [lat, lon]
+          const props = f.properties || {};
+
+          // Naam ophalen — OGC API gebruikt 'name' als standaard property
+          const naam = props.name || props.naam || props.NAAM || props.Naam || '(geen naam)';
+
+          // Popup samenstellen vanuit popup_velden in de config
+          const velden = (laag.popup_velden || ['name', 'municipality']).map(v => {
+            const waarde = props[v] || props[v.toLowerCase()] || '';
+            return waarde ? `<div><strong>${v}:</strong> ${waarde}</div>` : '';
+          }).filter(Boolean).join('');
+
+          const marker = L.circleMarker([lat, lon], {
+            radius: 6,
+            fillColor: laag.kleur_marker || '#e74c3c',
+            color: '#fff',
+            weight: 1.5,
+            fillOpacity: 0.9
+          }).bindPopup(`
+            <div class="ptag">${laag.popup_label || 'POI'}</div>
+            <div class="ptit">${naam}</div>
+            <div class="pbod">${velden || 'Geen extra info beschikbaar'}</div>
+          `);
+
+          cluster.addLayer(marker);
+        }
+
+        // Badge-gewijze paginering
+        // Haalt steeds 500 records op (badge_grootte) via offset
+        // Stopt wanneer: geen meer records, of max bereikt (standaard 5000)
         async function laadPOI() {
           if (cluster._geladen) return;
           cluster._geladen = true;
 
+          const badge_grootte = laag.badge_grootte || 500;
+          const max_items    = laag.max_items    || 5000;
+          let offset         = 0;
+          let totaal_geladen = 0;
+
+          // Status-label in het zijpaneel tonen
+          const statusEl = document.createElement('div');
+          statusEl.style.cssText = 'font-size:10px;color:var(--muted);padding:4px 0';
+          item.appendChild(statusEl);
+
           try {
-            // Geopunt POI OGC API Features
-            // Categorie-filter via query parameter
-            const params = new URLSearchParams({
-              f: 'application/geo+json',
-              limit: laag.max_items || 100
-            });
+            while (totaal_geladen < max_items) {
+              // Badge-grootte: neem het kleinste van badge_grootte of wat nog rest
+              const deze_badge = Math.min(badge_grootte, max_items - totaal_geladen);
 
-            // Thema/categorie filter indien opgegeven
-            if (laag.categorie) {
-              params.set('theme', laag.categorie);
+              // URL opbouwen met limit + offset voor paginering
+              const params = new URLSearchParams({
+                f:      'application/geo+json',
+                limit:  deze_badge,
+                offset: offset
+              });
+              if (laag.categorie) params.set('theme', laag.categorie);
+
+              statusEl.textContent = `Laden... ${totaal_geladen} punten`;
+
+              const r = await fetch(`${laag.url}?${params}`, {
+                headers: { Accept: 'application/geo+json' }
+              });
+
+              if (!r.ok) throw new Error('POI API: HTTP ' + r.status);
+              const data = await r.json();
+
+              const features = data.features || [];
+              if (!features.length) break; // Geen records meer → stoppen
+
+              // Verwerk features meteen → markers verschijnen per badge op kaart
+              features.forEach(voegMarkerToe);
+
+              totaal_geladen += features.length;
+              offset         += features.length;
+
+              console.log(`POI badge: ${totaal_geladen} van max ${max_items} geladen`);
+
+              // Als de API minder teruggeeft dan gevraagd → alles geladen
+              if (features.length < deze_badge) break;
             }
 
-            const url = `${laag.url}?${params}`;
-            const r = await fetch(url, { headers: { Accept: 'application/geo+json' } });
+            statusEl.textContent = `✓ ${totaal_geladen} punten geladen`;
+            setTimeout(() => statusEl.remove(), 3000); // verdwijnt na 3 sec
 
-            if (!r.ok) throw new Error('POI API: HTTP ' + r.status);
-            const data = await r.json();
-
-            if (!data.features?.length) {
-              console.warn('POI: geen features gevonden');
-              return;
-            }
-
-            data.features.forEach(f => {
-              const coords = f.geometry?.coordinates;
-              if (!coords) return;
-
-              const [lon, lat] = coords; // GeoJSON: [lon, lat]
-              const props = f.properties || {};
-
-              // Popup-inhoud op basis van popup_velden in config
-              const velden = (laag.popup_velden || ['naam', 'gemeente']).map(v => {
-                const waarde = props[v] || props[v.toLowerCase()] || props[v.toUpperCase()] || '';
-                return waarde ? `<div><strong>${v}:</strong> ${waarde}</div>` : '';
-              }).join('');
-
-              // Naam ophalen uit properties (verschillende API-namen proberen)
-              const naam = props.name || props.naam || props.NAAM || props.Naam || 'Zorgvoorziening';
-
-              const marker = L.circleMarker([lat, lon], {
-                radius: 7,
-                fillColor: laag.kleur_marker || '#e74c3c',
-                color: '#fff',
-                weight: 2,
-                fillOpacity: 0.9
-              }).bindPopup(`
-                <div class="ptag">Zorgvoorziening</div>
-                <div class="ptit">${naam}</div>
-                <div class="pbod">${velden || 'Geen extra info beschikbaar'}</div>
-              `);
-
-              cluster.addLayer(marker);
-            });
-
-            console.log(`POI: ${data.features.length} zorgvoorzieningen geladen`);
           } catch (e) {
             console.error('POI laad-fout:', e.message);
+            statusEl.textContent = `⚠ Laad-fout: ${e.message}`;
           }
         }
 
@@ -625,12 +656,12 @@ function renderSjabloonGeodata(container, loket) {
           laadPOI();
         }
 
-        // Toggle-gedrag
+        // Toggle-gedrag: lazy loading — laadt maar één keer, daarna cached
         const input = item.querySelector('input');
         input.addEventListener('change', e => {
           if (e.target.checked) {
             cluster.addTo(mapInstance);
-            laadPOI(); // lazy loading — laadt maar één keer
+            laadPOI();
           } else {
             mapInstance.removeLayer(cluster);
           }
