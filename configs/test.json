@@ -1,5 +1,5 @@
 {
-  "$schema": "Data Companion v3 — Gemeente Config",
+  "$schema": "Data Companion v3 â Gemeente Config",
   "gemeente": {
     "naam": "Test",
     "niscode": "100000",
@@ -10,7 +10,7 @@
   },
   "dashboard": {
     "titel": "Test in cijfers",
-    "subtitel": "Test · Beleidsdashboard",
+    "subtitel": "Test Â· Beleidsdashboard",
     "kleuren": {
       "primair": "#1a5c3a",
       "accent": "#e67e22"
@@ -30,7 +30,7 @@
     {
       "id": "kaart",
       "label": "Geodata",
-      "icoon": "🗺️",
+      "icoon": "ðºï¸",
       "sjabloon": "geodata",
       "beschrijving": "Interactieve kaart met Vlaamse open databronnen",
       "groepen": [
@@ -48,7 +48,7 @@
     {
       "id": "cijfers",
       "label": "Cijfers & Evoluties",
-      "icoon": "📊",
+      "icoon": "ð",
       "badge": "soon",
       "sjabloon": "evolutie",
       "beschrijving": "Bevolkingsmonitor en sociale indicatoren",
