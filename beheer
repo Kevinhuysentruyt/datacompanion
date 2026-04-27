@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="nl">
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║  DATA COMPANION — Beheerscentrum                                 ║
+║  Auteur: Kevin Huysentruyt — Data Companion                      ║
+║                                                                  ║
+║  Twee tabbladen:                                                  ║
+║  1. Overzicht  — klanten, bronnen, data, pipelines               ║
+║  2. Builder    — dashboards visueel bouwen en bewerken           ║
+║                                                                  ║
+║  Token: GitHub PAT (enkel in geheugen, tab sluiten = weg)        ║
+║  Aanmaken: GitHub → Settings → Developer settings →             ║
+║            Personal access tokens → Generate (scope: repo)       ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Companion — Beheerscentrum</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap');
+
+    :root {
+      --bg:#f4f2ee; --surface:#fff; --border:#d9d5cc;
+      --primair:#1a5c3a; --accent:#e67e22;
+      --text:#1a1a18; --muted:#6b6b64;
+      --ok:#1a5c3a; --warn:#d4820a; --err:#c0392b;
+      --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+      --r:8px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    /* ══ TOPBAR ══ */
+    .topbar{
+      background:var(--surface);border-bottom:1px solid var(--border);
+      padding:0 20px;height:52px;display:flex;align-items:center;
+      gap:16px;flex-shrink:0;z-index:100;
+    }
+    .topbar-logo{
+      width:32px;height:32px;background:var(--primair);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      color:white;font-weight:700;font-size:13px;flex-shrink:0;
+    }
+    .topbar-brand{font-size:14px;font-weight:600;white-space:nowrap}
+
+    /* Hoofd-tabs */
+    .main-tabs{display:flex;gap:0;height:100%;margin-left:8px}
+    .main-tab{
+      padding:0 18px;height:100%;display:flex;align-items:center;
+      font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;
+      border-bottom:2px solid transparent;transition:all .15s;
+      gap:6px;white-space:nowrap;
+    }
+    .main-tab:hover{color:var(--text)}
+    .main-tab.active{color:var(--primair);border-bottom-color:var(--primair);font-weight:600}
+    .main-tab .ico{font-size:14px}
+
+    /* Token balk rechts */
+    .topbar-rechts{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .token-dot{width:7px;height:7px;border-radius:50%;background:var(--err);flex-shrink:0}
+    .token-dot.ok{background:var(--ok)}
+    .token-status{font-size:11px;color:var(--muted);white-space:nowrap}
+    .token-input{
+      padding:5px 9px;font-size:11px;font-family:var(--mono);
+      border:1px solid var(--border);border-radius:5px;width:200px;
+    }
+    .token-input:focus{outline:none;border-color:var(--primair)}
+
+    /* ══ PAGINA CONTAINER ══ */
+    .paginas{flex:1;overflow:hidden;display:flex;flex-direction:column}
+    .pagina{display:none;flex:1;overflow:hidden;flex-direction:column}
+    .pagina.active{display:flex}
+
+    /* ══ OVERZICHT PAGINA ══ */
+    .ov-layout{display:flex;flex:1;overflow:hidden}
+    .ov-sidebar{
+      width:220px;background:var(--surface);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;
+    }
+    .ov-main{flex:1;overflow-y:auto;padding:24px}
+
+    .nav-sectie{padding:6px 16px;font-size:10px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:10px}
+    .nav-item{
+      display:flex;align-items:center;gap:9px;padding:8px 16px;
+      font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s;
+      border:none;background:none;width:100%;text-align:left;
+    }
+    .nav-item:hover{background:var(--bg);color:var(--text)}
+    .nav-item.active{background:rgba(26,92,58,.08);color:var(--primair);font-weight:500}
+    .nav-item .ico{font-size:14px;flex-shrink:0}
+
+    /* ══ SUB-PAGINA'S IN OVERZICHT ══ */
+    .sub-pagina{display:none}
+    .sub-pagina.active{display:block}
+
+    /* ══ PAGE HEADER ══ */
+    .page-hdr{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:22px;
+    }
+    .page-titel{font-size:20px;font-weight:600}
+    .page-sub{font-size:13px;color:var(--muted);margin-top:3px}
+
+    /* ══ STATS ══ */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    .stat{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r);padding:14px 18px;
+    }
+    .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.06em;margin-bottom:6px}
+    .stat-val{font-size:26px;font-weight:700;color:var(--primair)}
+    .stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+    /* ══ KLANTEN GRID ══ */
+    .klanten-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .klant-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r);padding:16px;cursor:pointer;transition:all .15s;
+    }
+    .klant-card:hover{border-color:var(--primair);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .klant-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .klant-logo{
+      width:36px;height:36px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      color:white;font-weight:700;font-size:13px;flex-shrink:0;
+    }
+    .klant-naam{font-size:13px;font-weight:600}
+    .klant-nis{font-size:10px;color:var(--muted)}
+    .loket-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+    .loket-tag{
+      background:var(--bg);border:1px solid var(--border);
+      border-radius:12px;padding:2px 8px;font-size:10px;color:var(--muted);
+    }
+    .loket-tag.ok{background:rgba(26,92,58,.08);border-color:rgba(26,92,58,.2);color:var(--primair)}
+    .klant-acties{display:flex;gap:6px}
+
+    /* ══ TABEL ══ */
+    .tbl{width:100%;border-collapse:collapse;font-size:13px;
+      background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+    .tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+      border-bottom:1px solid var(--border)}
+    .tbl td{padding:11px 12px;border-bottom:1px solid var(--border)}
+    .tbl tr:last-child td{border-bottom:none}
+    .tbl tr:hover td{background:var(--bg)}
+
+    /* ══ BUILDER PAGINA ══ */
+    .bld-layout{display:grid;grid-template-columns:260px 1fr 300px;flex:1;overflow:hidden}
+    .bld-col{overflow:hidden;display:flex;flex-direction:column}
+    .bld-col-bronnen{background:var(--surface);border-right:1px solid var(--border)}
+    .bld-col-canvas{background:var(--bg)}
+    .bld-col-props{background:var(--surface);border-left:1px solid var(--border)}
+
+    .bld-col-hdr{
+      padding:13px 16px;border-bottom:1px solid var(--border);
+      font-size:12px;font-weight:600;flex-shrink:0;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .bld-col-hdr-sub{font-size:10px;color:var(--muted);font-weight:400}
+    .bld-scroll{flex:1;overflow-y:auto;padding:12px}
+
+    /* Canvas header */
+    .canvas-hdr{
+      background:var(--surface);border-bottom:1px solid var(--border);
+      padding:12px 18px;display:flex;align-items:center;
+      justify-content:space-between;flex-shrink:0;
+    }
+    .canvas-titel{font-size:16px;font-weight:600}
+    .canvas-sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .canvas-body{padding:18px;overflow-y:auto;flex:1}
+
+    /* Componenten in bron-kolom */
+    .comp-sectie{margin-bottom:18px}
+    .comp-sectie-titel{
+      font-size:10px;font-weight:600;text-transform:uppercase;
+      letter-spacing:.07em;color:var(--muted);margin-bottom:6px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .comp-badge{
+      background:var(--bg);border:1px solid var(--border);
+      padding:1px 5px;border-radius:6px;font-size:9px;color:var(--muted);
+    }
+    .comp-item{
+      display:flex;align-items:center;gap:8px;padding:8px 9px;
+      border-radius:6px;cursor:pointer;border:1px solid transparent;
+      margin-bottom:3px;transition:all .15s;font-size:12px;
+    }
+    .comp-item:hover{background:var(--bg);border-color:var(--border)}
+    .comp-item.klikbaar:hover{border-color:var(--primair);background:rgba(26,92,58,.04)}
+    .comp-ico{font-size:14px;flex-shrink:0}
+    .comp-naam{font-weight:500;font-size:12px}
+    .comp-sub{font-size:10px;color:var(--muted)}
+    .comp-type{
+      margin-left:auto;font-size:9px;font-weight:600;text-transform:uppercase;
+      background:var(--bg);border:1px solid var(--border);
+      padding:1px 5px;border-radius:3px;color:var(--muted);flex-shrink:0;
+    }
+
+    /* Loket blokken in canvas */
+    .gem-banner{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r);padding:14px 16px;margin-bottom:16px;
+      display:flex;align-items:center;gap:14px;
+    }
+    .gem-logo{
+      width:40px;height:40px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      color:white;font-weight:700;font-size:15px;flex-shrink:0;
+    }
+    .gem-naam{font-size:16px;font-weight:700}
+    .gem-meta{font-size:11px;color:var(--muted);margin-top:2px}
+
+    .loket-blok{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r);margin-bottom:12px;transition:border-color .15s;
+    }
+    .loket-blok:hover{border-color:rgba(26,92,58,.3)}
+    .loket-blok-hdr{
+      padding:12px 14px;display:flex;align-items:center;
+      gap:8px;cursor:pointer;
+    }
+    .loket-blok-hdr:hover{background:var(--bg);border-radius:var(--r) var(--r) 0 0}
+    .loket-blok-ico{font-size:18px}
+    .loket-blok-naam{font-size:13px;font-weight:600;flex:1}
+    .loket-blok-badge{
+      font-size:9px;font-weight:600;text-transform:uppercase;
+      background:var(--bg);border:1px solid var(--border);
+      padding:2px 6px;border-radius:6px;color:var(--muted);
+    }
+    .loket-blok-body{border-top:1px solid var(--border);padding:12px 14px}
+
+    .laag-item{
+      display:flex;align-items:center;gap:8px;padding:7px 9px;
+      background:var(--bg);border-radius:5px;margin-bottom:5px;
+      font-size:12px;cursor:pointer;border:1px solid transparent;transition:all .15s;
+    }
+    .laag-item:hover{border-color:var(--primair)}
+    .laag-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .laag-naam{flex:1;font-weight:500}
+    .laag-type{font-size:9px;color:var(--muted);text-transform:uppercase}
+    .laag-del{
+      opacity:0;width:16px;height:16px;border-radius:50%;
+      background:var(--err);color:white;border:none;cursor:pointer;
+      font-size:9px;display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;transition:opacity .15s;
+    }
+    .laag-item:hover .laag-del{opacity:1}
+
+    .drop-zone{
+      border:2px dashed var(--border);border-radius:5px;
+      padding:10px;text-align:center;color:var(--muted);
+      font-size:11px;cursor:pointer;transition:all .15s;margin-top:6px;
+    }
+    .drop-zone:hover{border-color:var(--primair);color:var(--primair);background:rgba(26,92,58,.04)}
+
+    .loket-add{
+      border:2px dashed var(--border);border-radius:var(--r);
+      padding:16px;text-align:center;color:var(--muted);
+      font-size:12px;cursor:pointer;transition:all .15s;
+    }
+    .loket-add:hover{border-color:var(--primair);color:var(--primair);background:rgba(26,92,58,.04)}
+
+    /* Eigenschappen panel */
+    .props-hdr{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .props-titel{font-size:13px;font-weight:600}
+    .props-sub{font-size:10px;color:var(--muted);margin-top:2px}
+    .props-body{padding:14px 16px;overflow-y:auto;flex:1}
+
+    /* ══ FORMULIER ══ */
+    .fg{margin-bottom:14px}
+    .fl{display:block;font-size:10px;font-weight:600;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+    .fi,.fs{
+      width:100%;padding:7px 10px;font-size:12px;
+      border:1px solid var(--border);border-radius:5px;
+      background:white;font-family:var(--font);transition:border-color .15s;
+    }
+    .fi:focus,.fs:focus{outline:none;border-color:var(--primair)}
+    .fh{font-size:10px;color:var(--muted);margin-top:3px}
+    .f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+    /* Renderer grid */
+    .rend-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .rend-opt{
+      border:2px solid var(--border);border-radius:5px;
+      padding:8px 6px;text-align:center;cursor:pointer;transition:all .15s;font-size:10px;
+    }
+    .rend-opt:hover{border-color:var(--primair)}
+    .rend-opt.active{border-color:var(--primair);background:rgba(26,92,58,.08)}
+    .rend-ico{font-size:16px;margin-bottom:3px}
+    .rend-naam{font-weight:500}
+    .rend-status{color:var(--muted);font-size:9px}
+
+    /* Sjabloon grid in modal */
+    .sj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+    .sj-opt{
+      border:2px solid var(--border);border-radius:var(--r);
+      padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center;
+    }
+    .sj-opt:hover{border-color:var(--primair)}
+    .sj-opt.active{border-color:var(--primair);background:rgba(26,92,58,.08)}
+    .sj-ico{font-size:22px;margin-bottom:5px}
+    .sj-naam{font-size:12px;font-weight:600}
+    .sj-status{font-size:10px;color:var(--muted)}
+
+    /* ══ KNOPPEN ══ */
+    .btn{
+      padding:7px 13px;border-radius:5px;font-size:12px;font-weight:500;
+      cursor:pointer;border:none;font-family:var(--font);
+      transition:all .15s;display:inline-flex;align-items:center;gap:5px;
+    }
+    .btn-p{background:var(--primair);color:white}
+    .btn-p:hover{background:#154d30}
+    .btn-s{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+    .btn-s:hover{background:var(--surface)}
+    .btn-d{background:rgba(192,57,43,.1);color:var(--err);border:1px solid rgba(192,57,43,.2)}
+    .btn-xs{padding:3px 8px;font-size:10px}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    /* Badge */
+    .badge{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
+    .badge-ok{background:rgba(26,92,58,.1);color:var(--ok)}
+    .badge-warn{background:rgba(212,130,10,.1);color:var(--warn)}
+
+    /* ══ MODALS ══ */
+    .modal-ov{
+      position:fixed;inset:0;background:rgba(0,0,0,.45);
+      z-index:500;display:flex;align-items:center;justify-content:center;
+    }
+    .modal-ov.hidden{display:none}
+    .modal{
+      background:var(--surface);border-radius:var(--r);
+      padding:24px;width:460px;max-width:90vw;max-height:80vh;
+      overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);
+    }
+    .modal-titel{font-size:16px;font-weight:600;margin-bottom:18px}
+
+    /* Gemeente keuze */
+    .gem-keuze{
+      display:flex;align-items:center;gap:10px;padding:11px 12px;
+      border:1px solid var(--border);border-radius:5px;margin-bottom:7px;
+      cursor:pointer;transition:all .15s;
+    }
+    .gem-keuze:hover{border-color:var(--primair);background:rgba(26,92,58,.04)}
+    .gem-keuze-logo{
+      width:34px;height:34px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      color:white;font-weight:700;font-size:12px;flex-shrink:0;
+    }
+
+    /* ══ TOAST ══ */
+    .toast{
+      position:fixed;bottom:18px;right:18px;z-index:9999;
+      background:var(--text);color:white;padding:10px 16px;
+      border-radius:var(--r);font-size:12px;max-width:320px;
+      transform:translateY(80px);opacity:0;transition:all .3s;
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.ok{background:var(--ok)}
+    .toast.err{background:var(--err)}
+
+    /* ══ MISC ══ */
+    .loader-i{
+      display:inline-block;width:11px;height:11px;
+      border:2px solid rgba(255,255,255,.3);border-top-color:white;
+      border-radius:50%;animation:spin 1s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:40px 20px;color:var(--muted)}
+    .empty .ico{font-size:30px;margin-bottom:8px;opacity:.4}
+    .sectie-hdr{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .sectie-titel{font-size:15px;font-weight:600}
+  </style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<div class="topbar">
+  <div class="topbar-logo">DC</div>
+  <div class="topbar-brand">Data Companion</div>
+
+  <div class="main-tabs">
+    <div class="main-tab active" onclick="toonTab('overzicht')">
+      <span class="ico">🏠</span> Overzicht
+    </div>
+    <div class="main-tab" onclick="toonTab('builder')">
+      <span class="ico">🏗️</span> Dashboard Builder
+    </div>
+  </div>
+
+  <div class="topbar-rechts">
+    <div class="token-dot" id="token-dot"></div>
+    <span class="token-status" id="token-status">Geen token</span>
+    <input type="password" class="token-input" id="token-input"
+      placeholder="ghp_... (voor opslaan)" oninput="slaTokenOp(this.value)"/>
+  </div>
+</div>
+
+<!-- ══ PAGINA'S ══ -->
+<div class="paginas">
+
+  <!-- ════ TAB 1: OVERZICHT ════ -->
+  <div class="pagina active" id="tab-overzicht">
+    <div class="ov-layout">
+
+      <!-- Sidebar -->
+      <aside class="ov-sidebar">
+        <div style="padding:8px 0">
+          <div class="nav-sectie">Overzicht</div>
+          <button class="nav-item active" onclick="toonSub('dashboard')">
+            <span class="ico">🏠</span> Dashboard
+          </button>
+          <button class="nav-item" onclick="toonSub('klanten')">
+            <span class="ico">🏛️</span> Gemeenten
+          </button>
+          <div class="nav-sectie">Data</div>
+          <button class="nav-item" onclick="toonSub('bronnen')">
+            <span class="ico">🗄️</span> Broncatalogus
+          </button>
+          <button class="nav-item" onclick="toonSub('pipelines')">
+            <span class="ico">⚙️</span> Data & Pipelines
+          </button>
+          <div class="nav-sectie">Acties</div>
+          <button class="nav-item" onclick="toonTab('builder')">
+            <span class="ico">🏗️</span> Naar Builder →
+          </button>
+          <button class="nav-item" onclick="window.open(REPO_URL,'_blank')">
+            <span class="ico">📁</span> GitHub repo
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="ov-main">
+
+        <!-- Sub-pagina: Dashboard -->
+        <div class="sub-pagina active" id="sub-dashboard">
+          <div class="page-hdr">
+            <div>
+              <div class="page-titel">Dashboard</div>
+              <div class="page-sub">Overzicht van alle klanten en dashboards</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-s" onclick="laadAlles()">↻ Vernieuwen</button>
+              <button class="btn btn-p" onclick="toonTab('builder');setTimeout(()=>toonNieuwDashboard(),100)">+ Nieuw dashboard</button>
+            </div>
+          </div>
+          <div class="stats" id="stats">
+            <div class="stat"><div class="stat-lbl">Gemeenten</div><div class="stat-val" id="s-gem">—</div></div>
+            <div class="stat"><div class="stat-lbl">Loketten</div><div class="stat-val" id="s-lok">—</div></div>
+            <div class="stat"><div class="stat-lbl">Databronnen</div><div class="stat-val" id="s-bron">—</div></div>
+            <div class="stat"><div class="stat-lbl">Data-bestanden</div><div class="stat-val" id="s-data">—</div></div>
+          </div>
+          <div class="sectie-hdr">
+            <div class="sectie-titel">Gemeenten</div>
+          </div>
+          <div class="klanten-grid" id="klanten-grid">
+            <div class="empty"><div class="ico">🔄</div><p style="font-size:12px">Laden...</p></div>
+          </div>
+        </div>
+
+        <!-- Sub-pagina: Gemeenten tabel -->
+        <div class="sub-pagina" id="sub-klanten">
+          <div class="page-hdr">
+            <div><div class="page-titel">Gemeenten</div></div>
+            <button class="btn btn-p" onclick="toonTab('builder');setTimeout(()=>toonNieuwDashboard(),100)">+ Nieuw</button>
+          </div>
+          <div id="klanten-tabel"><div class="empty"><div class="ico">🔄</div></div></div>
+        </div>
+
+        <!-- Sub-pagina: Broncatalogus -->
+        <div class="sub-pagina" id="sub-bronnen">
+          <div class="page-hdr">
+            <div><div class="page-titel">Broncatalogus</div>
+            <div class="page-sub">Beschikbare Vlaamse databronnen in sources.json</div></div>
+          </div>
+          <div id="bronnen-inhoud"><div class="empty"><div class="ico">🔄</div></div></div>
+        </div>
+
+        <!-- Sub-pagina: Pipelines -->
+        <div class="sub-pagina" id="sub-pipelines">
+          <div class="page-hdr">
+            <div><div class="page-titel">Data & Pipelines</div>
+            <div class="page-sub">Gegenereerde GeoJSON-bestanden en pipeline-beheer</div></div>
+          </div>
+          <div id="pipelines-inhoud"><div class="empty"><div class="ico">🔄</div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TAB 2: BUILDER ════ -->
+  <div class="pagina" id="tab-builder">
+    <div class="bld-layout" style="flex:1">
+
+      <!-- Kolom 1: Componenten -->
+      <aside class="bld-col bld-col-bronnen">
+        <div class="bld-col-hdr">
+          <div>Componenten <div class="bld-col-hdr-sub">Klik om toe te voegen</div></div>
+          <button class="btn btn-s btn-xs" onclick="verversComp()">↻</button>
+        </div>
+        <div class="bld-scroll" id="comp-panel">
+          <div class="empty"><div class="ico">🔄</div><p style="font-size:11px">Laden...</p></div>
+        </div>
+      </aside>
+
+      <!-- Kolom 2: Canvas -->
+      <main class="bld-col bld-col-canvas">
+        <div class="canvas-hdr">
+          <div>
+            <div class="canvas-titel" id="canvas-titel">Selecteer een dashboard</div>
+            <div class="canvas-sub" id="canvas-sub">Laad bestaand of maak nieuw aan</div>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button class="btn btn-s btn-xs" onclick="toonGemKeuze()">📂 Laden</button>
+            <button class="btn btn-s btn-xs" onclick="toonNieuwDashboard()">+ Nieuw</button>
+            <button class="btn btn-s btn-xs" onclick="toonPreview()" id="btn-prev" disabled>👁 Preview</button>
+            <button class="btn btn-p btn-xs" onclick="opslaanDashboard()" id="btn-save" disabled>💾 Opslaan</button>
+          </div>
+        </div>
+        <div class="canvas-body" id="canvas-body">
+          <div class="empty" style="margin-top:60px">
+            <div class="ico">🏗️</div>
+            <p style="font-size:12px">Laad een dashboard of maak een nieuw aan</p>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+              <button class="btn btn-p" onclick="toonGemKeuze()">📂 Bestaand laden</button>
+              <button class="btn btn-s" onclick="toonNieuwDashboard()">+ Nieuw aanmaken</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Kolom 3: Eigenschappen -->
+      <aside class="bld-col bld-col-props">
+        <div class="props-hdr">
+          <div class="props-titel" id="props-titel">Eigenschappen</div>
+          <div class="props-sub" id="props-sub">Selecteer een element</div>
+        </div>
+        <div class="props-body" id="props-body">
+          <div class="empty" style="margin-top:30px">
+            <div class="ico">👆</div>
+            <p style="font-size:11px">Klik op een loket of laag</p>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Gemeente kiezen -->
+<div class="modal-ov hidden" id="m-gem" onclick="if(event.target===this)sluitModal('m-gem')">
+  <div class="modal">
+    <div class="modal-titel">Dashboard laden</div>
+    <div id="gem-lijst"><div class="empty"><div class="ico">🔄</div></div></div>
+    <div style="margin-top:14px"><button class="btn btn-s" onclick="sluitModal('m-gem')">Annuleren</button></div>
+  </div>
+</div>
+
+<!-- Nieuw loket -->
+<div class="modal-ov hidden" id="m-loket" onclick="if(event.target===this)sluitModal('m-loket')">
+  <div class="modal">
+    <div class="modal-titel">Loket toevoegen</div>
+    <div class="fg">
+      <label class="fl">Label</label>
+      <input type="text" class="fi" id="nl-label" placeholder="bv. Klimaatdashboard"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Icoon</label>
+      <input type="text" class="fi" id="nl-ico" placeholder="🗺️" maxlength="2"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Sjabloon</label>
+      <div class="sj-grid" id="sj-grid"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p" onclick="bevestigLoket()">Toevoegen</button>
+      <button class="btn btn-s" onclick="sluitModal('m-loket')">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nieuw dashboard -->
+<div class="modal-ov hidden" id="m-nieuw" onclick="if(event.target===this)sluitModal('m-nieuw')">
+  <div class="modal">
+    <div class="modal-titel">Nieuw dashboard</div>
+    <div class="fg">
+      <label class="fl">Gemeentenaam</label>
+      <input type="text" class="fi" id="ng-naam" placeholder="bv. Anzegem"/>
+    </div>
+    <div class="f2" style="margin-bottom:12px">
+      <div class="fg" style="margin:0">
+        <label class="fl">NIS-code</label>
+        <input type="text" class="fi" id="ng-nis" placeholder="34002"/>
+      </div>
+      <div class="fg" style="margin:0">
+        <label class="fl">Primaire kleur</label>
+        <input type="color" id="ng-kleur" value="#1a5c3a" style="width:100%;height:36px;border-radius:5px;border:1px solid var(--border);cursor:pointer"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Centrum (lat, lon)</label>
+      <input type="text" class="fi" id="ng-centrum" placeholder="50.83, 3.49"/>
+      <div class="fh"><a href="https://maps.google.com" target="_blank" style="color:var(--primair)">Opzoeken via Google Maps</a></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p" onclick="maakNieuwDashboard()">Aanmaken</button>
+      <button class="btn btn-s" onclick="sluitModal('m-nieuw')">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  CONFIGURATIE
+// ════════════════════════════════════════════════════════
+const REPO_OWNER = 'Kevinhuysentruyt';
+const REPO_NAME  = 'datacompanion';
+const REPO_URL   = `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
+const DASH_URL   = `https://${REPO_OWNER.toLowerCase()}.github.io/${REPO_NAME}`;
+const API        = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+
+// ── STATE ────────────────────────────────────────────────
+let token = null;
+let alleConfigs = {};
+let alleSources = {};
+let beschikbareSjablonen = [];
+let beschikbareRenderers = [];
+let huidigConfig = null;
+let huidigNaam = null;
+let huidigSha = null;
+let gekozenSjabloon = 'geodata';
+
+// ── TOKEN ────────────────────────────────────────────────
+function slaTokenOp(w) {
+  token = w.trim() || null;
+  const dot = document.getElementById('token-dot');
+  const st  = document.getElementById('token-status');
+  if (token) {
+    dot.className = 'token-dot ok';
+    st.textContent = 'Token actief ✓';
+    st.style.color = 'var(--ok)';
+  } else {
+    dot.className = 'token-dot';
+    st.textContent = 'Geen token';
+    st.style.color = 'var(--muted)';
+  }
+}
+
+// ── NAVIGATIE ────────────────────────────────────────────
+function toonTab(naam) {
+  document.querySelectorAll('.pagina').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${naam}`).classList.add('active');
+  document.querySelectorAll('.main-tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(naam === 'overzicht' ? 'overzicht' : 'builder'))
+      t.classList.add('active');
+  });
+}
+
+function toonSub(naam) {
+  document.querySelectorAll('.sub-pagina').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`sub-${naam}`)?.classList.add('active');
+  event.currentTarget?.classList.add('active');
+  // Laad sub-pagina inhoud indien nodig
+  if (naam === 'bronnen') renderBronnen();
+  if (naam === 'pipelines') renderPipelines();
+  if (naam === 'klanten') renderKlantenTabel();
+}
+
+// ── GITHUB API ───────────────────────────────────────────
+async function apiFetch(pad, opts = {}) {
+  const h = { 'Accept': 'application/vnd.github.v3+json' };
+  if (token) h['Authorization'] = `token ${token}`;
+  const r = await fetch(`${API}/${pad}`, { headers: h, ...opts });
+  if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.message || `HTTP ${r.status}`); }
+  return r.json();
+}
+
+async function leesBestand(pad) {
+  const d = await apiFetch(`contents/${pad}`);
+  return { inhoud: JSON.parse(atob(d.content.replace(/\n/g,''))), sha: d.sha };
+}
+
+async function leesMap(pad) { return apiFetch(`contents/${pad}`); }
+
+async function schrijfBestand(pad, inhoud, bericht, sha = null) {
+  if (!token) throw new Error('Geen token — kan niet schrijven');
+  const body = { message: bericht, content: btoa(unescape(encodeURIComponent(JSON.stringify(inhoud,null,2)))) };
+  if (sha) body.sha = sha;
+  return apiFetch(`contents/${pad}`, { method:'PUT', body:JSON.stringify(body), headers:{'Content-Type':'application/json'} });
+}
+
+// ── INITIALISATIE ────────────────────────────────────────
+async function laadAlles() {
+  await Promise.all([laadSjablonen(), laadRenderers(), laadSources(), laadConfigs()]);
+  renderStats();
+  renderKlantenGrid();
+  renderCompPanel();
+}
+
+async function laadSjablonen() {
+  try {
+    const b = await leesMap('js/sjablonen');
+    const meta = {
+      geodata:  { label:'Geodata-loket', ico:'🗺️', beschrijving:'Kaart + lagen', status:'actief' },
+      evolutie: { label:'Cijfers-loket', ico:'📊', beschrijving:'Grafieken', status:'gepland' },
+      hybride:  { label:'Hybride loket', ico:'🌡️', beschrijving:'Kaart + cijfers', status:'gepland' }
+    };
+    beschikbareSjablonen = b.filter(f=>f.name.endsWith('.js')).map(f=>{
+      const n = f.name.replace('.js','');
+      return { naam:n, ...(meta[n] || { label:n, ico:'📋', beschrijving:'', status:'nieuw' }) };
+    });
+  } catch {
+    beschikbareSjablonen = [
+      { naam:'geodata', label:'Geodata-loket', ico:'🗺️', beschrijving:'Kaart + lagen', status:'actief' },
+      { naam:'evolutie', label:'Cijfers-loket', ico:'📊', beschrijving:'Grafieken', status:'gepland' },
+      { naam:'hybride', label:'Hybride loket', ico:'🌡️', beschrijving:'Kaart + cijfers', status:'gepland' }
+    ];
+  }
+}
+
+async function laadRenderers() {
+  try {
+    const b = await leesMap('js/renderers');
+    const meta = {
+      toggle:      { label:'Kaartlaag toggle', ico:'🔘', status:'actief' },
+      lijngrafiek: { label:'Lijngrafiek', ico:'📈', status:'gepland' },
+      choropleth:  { label:'Choropleth', ico:'🗺️', status:'gepland' },
+      indicator:   { label:'Kerncijfer', ico:'🔢', status:'gepland' },
+      tabel:       { label:'Tabel', ico:'📋', status:'gepland' }
+    };
+    beschikbareRenderers = b.filter(f=>f.name.endsWith('.js')).map(f=>{
+      const n = f.name.replace('.js','');
+      return { naam:n, ...(meta[n] || { label:n, ico:'✨', status:'nieuw' }) };
+    });
+  } catch {
+    beschikbareRenderers = [{ naam:'toggle', label:'Kaartlaag toggle', ico:'🔘', status:'actief' }];
+  }
+}
+
+async function laadSources() {
+  try { const { inhoud } = await leesBestand('sources.json'); alleSources = inhoud; }
+  catch { alleSources = {}; }
+}
+
+async function laadConfigs() {
+  try {
+    const b = await leesMap('configs');
+    const jsons = b.filter(f=>f.name.endsWith('.json'));
+    const results = await Promise.all(jsons.map(async f => {
+      try { const { inhoud } = await leesBestand(`configs/${f.name}`); return { naam:f.name.replace('.json',''), config:inhoud, sha:f.sha }; }
+      catch { return null; }
+    }));
+    alleConfigs = {};
+    results.filter(Boolean).forEach(r => { alleConfigs[r.naam] = r; });
+  } catch (e) { console.warn('Configs:', e.message); }
+}
+
+async function verversComp() {
+  await Promise.all([laadSjablonen(), laadRenderers(), laadSources()]);
+  renderCompPanel();
+  toonToast('Componenten ververst', 'ok');
+}
+
+// ── OVERZICHT RENDERS ────────────────────────────────────
+function renderStats() {
+  const gems = Object.keys(alleConfigs).length;
+  let loks = 0;
+  Object.values(alleConfigs).forEach(c => { loks += (c.config.loketten||[]).length; });
+  const brons = Object.keys(alleSources).filter(k=>!k.startsWith('_')&&!k.startsWith('$')).length;
+  document.getElementById('s-gem').textContent = gems || '—';
+  document.getElementById('s-lok').textContent = loks || '—';
+  document.getElementById('s-bron').textContent = brons || '—';
+  // Data bestanden
+  leesMap('data').then(d => {
+    document.getElementById('s-data').textContent = d.filter(f=>f.name.endsWith('.geojson')).length;
+  }).catch(()=>{});
+}
+
+function renderKlantenGrid() {
+  const grid = document.getElementById('klanten-grid');
+  const items = Object.entries(alleConfigs);
+  if (!items.length) { grid.innerHTML = '<div class="empty"><div class="ico">🏛️</div><p>Nog geen gemeenten</p></div>'; return; }
+  grid.innerHTML = items.map(([naam, { config }]) => {
+    const g = config.gemeente||{}, d = config.dashboard||{};
+    const kleur = d.kleuren?.primair || '#1a5c3a';
+    const init = (g.naam||naam).substring(0,2).toUpperCase();
+    const loks = config.loketten||[];
+    return `
+      <div class="klant-card" onclick="laadVanuitOverzicht('${naam}')">
+        <div class="klant-hdr">
+          <div class="klant-logo" style="background:${kleur}">${init}</div>
+          <div><div class="klant-naam">${g.naam||naam}</div><div class="klant-nis">NIS: ${g.niscode||'—'}</div></div>
+        </div>
+        <div class="loket-tags">
+          ${loks.map(l=>`<span class="loket-tag ${l.sjabloon==='geodata'?'ok':''}">${l.icoon||''} ${l.label}</span>`).join('')}
+        </div>
+        <div class="klant-acties">
+          <a href="${DASH_URL}/?gemeente=${naam}" target="_blank" class="btn btn-s btn-xs" onclick="event.stopPropagation()">🔗 Dashboard</a>
+          <button class="btn btn-s btn-xs" onclick="event.stopPropagation();laadVanuitOverzicht('${naam}')">🏗️ Bewerken</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderKlantenTabel() {
+  const c = document.getElementById('klanten-tabel');
+  const items = Object.entries(alleConfigs);
+  if (!items.length) { c.innerHTML = '<div class="empty"><div class="ico">🏛️</div><p>Geen gemeenten</p></div>'; return; }
+  c.innerHTML = `<table class="tbl"><thead><tr><th>Gemeente</th><th>NIS</th><th>Loketten</th><th>Acties</th></tr></thead><tbody>
+    ${items.map(([naam,{config}])=>{
+      const g=config.gemeente||{}, d=config.dashboard||{};
+      const kleur=d.kleuren?.primair||'#1a5c3a';
+      const init=(g.naam||naam).substring(0,2).toUpperCase();
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div style="width:26px;height:26px;border-radius:50%;background:${kleur};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:10px">${init}</div>
+          <strong>${g.naam||naam}</strong></div></td>
+        <td style="font-family:var(--mono);font-size:11px">${g.niscode||'—'}</td>
+        <td>${(config.loketten||[]).length}</td>
+        <td><div style="display:flex;gap:5px">
+          <a href="${DASH_URL}/?gemeente=${naam}" target="_blank" class="btn btn-s btn-xs">🔗</a>
+          <button class="btn btn-s btn-xs" onclick="laadVanuitOverzicht('${naam}')">🏗️</button>
+        </div></td>
+      </tr>`;
+    }).join('')}
+  </tbody></table>`;
+}
+
+function renderBronnen() {
+  const c = document.getElementById('bronnen-inhoud');
+  const items = Object.entries(alleSources).filter(([k])=>!k.startsWith('$')&&!k.startsWith('_'));
+  if (!items.length) { c.innerHTML = '<div class="empty"><div class="ico">🗄️</div><p>Geen bronnen gevonden</p></div>'; return; }
+  const groepen = {};
+  items.forEach(([k,v])=>{
+    const p = k.includes(':') ? k.split(':')[0] : 'overig';
+    if (!groepen[p]) groepen[p]=[];
+    groepen[p].push([k,v]);
+  });
+  c.innerHTML = Object.entries(groepen).map(([prefix,bronnen])=>`
+    <div style="margin-bottom:20px">
+      <div class="sectie-hdr"><div class="sectie-titel" style="text-transform:capitalize">${prefix}</div></div>
+      <table class="tbl"><thead><tr><th>Sleutel</th><th>Label</th><th>Type</th><th>Update</th></tr></thead>
+      <tbody>${bronnen.map(([k,v])=>`<tr>
+        <td style="font-family:var(--mono);font-size:11px">${k}</td>
+        <td>${v.label||'—'}</td>
+        <td><span class="badge badge-ok">${v.type||'—'}</span></td>
+        <td style="font-size:11px;color:var(--muted)">${v.update_frequentie||'—'}</td>
+      </tr>`).join('')}</tbody></table>
+    </div>
+  `).join('');
+}
+
+async function renderPipelines() {
+  const c = document.getElementById('pipelines-inhoud');
+  try {
+    const d = await leesMap('data');
+    const geojson = d.filter(f=>f.name.endsWith('.geojson'));
+    c.innerHTML = `
+      ${geojson.length ? `
+        <table class="tbl" style="margin-bottom:20px">
+          <thead><tr><th>Bestand</th><th>Grootte</th><th>Actie</th></tr></thead>
+          <tbody>${geojson.map(f=>`<tr>
+            <td style="font-family:var(--mono);font-size:11px">${f.name}</td>
+            <td style="font-size:11px">${(f.size/1024).toFixed(1)} KB</td>
+            <td><button class="btn btn-s btn-xs" onclick="triggerPipeline()">↻ Vernieuwen</button></td>
+          </tr>`).join('')}</tbody>
+        </table>` : '<div class="empty" style="margin-bottom:20px"><div class="ico">📂</div><p>Nog geen data-bestanden</p></div>'}
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+        <div style="font-weight:600;margin-bottom:6px;font-size:14px">Pipeline handmatig starten</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Draait de GitHub Actions workflow om data te verversen</p>
+        <button class="btn btn-p" onclick="triggerPipeline()">▶ Zorgvoorzieningen pipeline</button>
+      </div>
+    `;
+  } catch { c.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Kon data-map niet laden</p></div>'; }
+}
+
+async function triggerPipeline() {
+  if (!token) { toonToast('Token vereist', 'err'); return; }
+  try {
+    await fetch(`${API}/actions/workflows/zorg_pipeline.yml/dispatches`, {
+      method:'POST', headers:{ 'Authorization':`token ${token}`, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+      body: JSON.stringify({ ref:'main' })
+    });
+    toonToast('✓ Pipeline gestart — bekijk voortgang in GitHub Actions', 'ok');
+  } catch(e) { toonToast(`Fout: ${e.message}`, 'err'); }
+}
+
+// ── BUILDER: COMPONENTEN PANEL ───────────────────────────
+function renderCompPanel() {
+  const panel = document.getElementById('comp-panel');
+  const wms = Object.entries(alleSources).filter(([,v])=>v.type==='wms');
+  const poi = Object.entries(alleSources).filter(([,v])=>v.type==='poi');
+  const geo = Object.entries(alleSources).filter(([,v])=>v.type==='geojson_url');
+
+  panel.innerHTML = `
+    <div class="comp-sectie">
+      <div class="comp-sectie-titel">Sjablonen <span class="comp-badge">${beschikbareSjablonen.length}</span></div>
+      ${beschikbareSjablonen.map(s=>`
+        <div class="comp-item klikbaar" onclick="voegLoketToe('${s.naam}')">
+          <div class="comp-ico">${s.ico}</div>
+          <div><div class="comp-naam">${s.label}</div><div class="comp-sub">${s.beschrijving}</div></div>
+          <span class="comp-type">${s.status}</span>
+        </div>`).join('')}
+    </div>
+    ${wms.length ? `<div class="comp-sectie">
+      <div class="comp-sectie-titel">Kaartlagen (WMS) <span class="comp-badge">${wms.length}</span></div>
+      ${wms.map(([k,v])=>`<div class="comp-item klikbaar" onclick="voegLaagToe('${k}')">
+        <div class="comp-ico">🗺️</div>
+        <div><div class="comp-naam">${v.label||k}</div><div class="comp-sub">${k}</div></div>
+        <span class="comp-type">wms</span>
+      </div>`).join('')}
+    </div>` : ''}
+    ${poi.length ? `<div class="comp-sectie">
+      <div class="comp-sectie-titel">Punten (POI) <span class="comp-badge">${poi.length}</span></div>
+      ${poi.map(([k,v])=>`<div class="comp-item klikbaar" onclick="voegLaagToe('${k}')">
+        <div class="comp-ico">📍</div>
+        <div><div class="comp-naam">${v.label||k}</div><div class="comp-sub">${k}</div></div>
+        <span class="comp-type">poi</span>
+      </div>`).join('')}
+    </div>` : ''}
+    ${geo.length ? `<div class="comp-sectie">
+      <div class="comp-sectie-titel">Statische data <span class="comp-badge">${geo.length}</span></div>
+      ${geo.map(([k,v])=>`<div class="comp-item klikbaar" onclick="voegLaagToe('${k}')">
+        <div class="comp-ico">📂</div>
+        <div><div class="comp-naam">${v.label||k}</div><div class="comp-sub">${k}</div></div>
+        <span class="comp-type">geojson</span>
+      </div>`).join('')}
+    </div>` : ''}
+    <div class="comp-sectie">
+      <div class="comp-sectie-titel">Visualisaties <span class="comp-badge">${beschikbareRenderers.length}</span></div>
+      ${beschikbareRenderers.map(r=>`<div class="comp-item">
+        <div class="comp-ico">${r.ico}</div>
+        <div><div class="comp-naam">${r.label}</div><div class="comp-sub">renderer</div></div>
+        <span class="comp-type">${r.status}</span>
+      </div>`).join('')}
+    </div>
+  `;
+}
+
+// ── BUILDER: DASHBOARD LADEN ─────────────────────────────
+async function toonGemKeuze() {
+  document.getElementById('m-gem').classList.remove('hidden');
+  const lijst = document.getElementById('gem-lijst');
+  lijst.innerHTML = '<div class="empty"><div class="ico">🔄</div></div>';
+  try {
+    await laadConfigs();
+    const items = Object.entries(alleConfigs);
+    if (!items.length) { lijst.innerHTML = '<div class="empty"><div class="ico">🏛️</div><p>Geen gemeenten</p></div>'; return; }
+    lijst.innerHTML = items.map(([naam, {config}]) => {
+      const g=config.gemeente||{}, d=config.dashboard||{};
+      const kleur=d.kleuren?.primair||'#1a5c3a';
+      const init=(g.naam||naam).substring(0,2).toUpperCase();
+      return `<div class="gem-keuze" onclick="laadDashboard('${naam}')">
+        <div class="gem-keuze-logo" style="background:${kleur}">${init}</div>
+        <div>
+          <div style="font-weight:600;font-size:13px">${g.naam||naam}</div>
+          <div style="font-size:10px;color:var(--muted)">NIS ${g.niscode||'—'} · ${(config.loketten||[]).length} loket(ten)</div>
+        </div>
+        <span style="font-size:11px;color:var(--muted);margin-left:auto">→</span>
+      </div>`;
+    }).join('');
+  } catch(e) { lijst.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>${e.message}</p></div>`; }
+}
+
+async function laadDashboard(naam) {
+  sluitModal('m-gem');
+  try {
+    const { inhoud, sha } = await leesBestand(`configs/${naam}.json`);
+    huidigConfig = inhoud; huidigNaam = naam; huidigSha = sha;
+    renderCanvas();
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('btn-prev').disabled = false;
+    toonToast(`'${naam}' geladen`, 'ok');
+  } catch(e) { toonToast(`Fout: ${e.message}`, 'err'); }
+}
+
+async function laadVanuitOverzicht(naam) {
+  toonTab('builder');
+  await laadDashboard(naam);
+}
+
+// ── BUILDER: NIEUW DASHBOARD ─────────────────────────────
+function toonNieuwDashboard() {
+  document.getElementById('m-nieuw').classList.remove('hidden');
+}
+
+function maakNieuwDashboard() {
+  const naam = document.getElementById('ng-naam').value.trim();
+  const nis  = document.getElementById('ng-nis').value.trim();
+  const kleur = document.getElementById('ng-kleur').value;
+  const cTxt = document.getElementById('ng-centrum').value.trim();
+  if (!naam || !nis) { toonToast('Vul naam en NIS-code in', 'err'); return; }
+  const centrum = cTxt ? cTxt.split(',').map(s=>parseFloat(s.trim())) : [50.9,4.0];
+  huidigNaam = naam.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  huidigSha = null;
+  huidigConfig = {
+    '$schema':'Data Companion v3',
+    gemeente:{ naam, niscode:nis, fallback_centrum:centrum },
+    dashboard:{ titel:`${naam} in cijfers`, subtitel:`${naam} · Beleidsdashboard`, kleuren:{ primair:kleur, accent:'#e67e22' } },
+    bronvermelding:[{ naam:'Geopunt / Digitaal Vlaanderen', url:'https://www.geopunt.be' }],
+    loketten:[]
+  };
+  sluitModal('m-nieuw');
+  renderCanvas();
+  document.getElementById('btn-save').disabled = false;
+  document.getElementById('btn-prev').disabled = false;
+}
+
+// ── BUILDER: CANVAS RENDEREN ─────────────────────────────
+function renderCanvas() {
+  if (!huidigConfig) return;
+  const g = huidigConfig.gemeente||{}, d = huidigConfig.dashboard||{};
+  const kleur = d.kleuren?.primair||'#1a5c3a';
+  const init = (g.naam||huidigNaam).substring(0,2).toUpperCase();
+  document.getElementById('canvas-titel').textContent = d.titel||g.naam;
+  document.getElementById('canvas-sub').textContent = d.subtitel||'';
+  const loks = huidigConfig.loketten||[];
+
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="gem-banner">
+      <div class="gem-logo" style="background:${kleur}">${init}</div>
+      <div class="gemeente-info">
+        <div class="gem-naam">${g.naam||huidigNaam}</div>
+        <div class="gem-meta">NIS: ${g.niscode||'—'} · ${g.fallback_centrum?g.fallback_centrum.join(', '):'—'} · ${loks.length} loket(ten)</div>
+      </div>
+      <button class="btn btn-s btn-xs" onclick="selecteerGem()">⚙️ Instellingen</button>
+    </div>
+    ${loks.map((l,i)=>renderLoketBlok(l,i)).join('')}
+    <div class="loket-add" onclick="openLoketModal()">+ Loket toevoegen</div>
+  `;
+}
+
+function renderLoketBlok(loket, idx) {
+  const sj = beschikbareSjablonen.find(s=>s.naam===loket.sjabloon);
+  const lagen = loket.groepen?.flatMap(g=>g.lagen||[])||[];
+  return `
+    <div class="loket-blok">
+      <div class="loket-blok-hdr" onclick="selecteerLoket(${idx})">
+        <span class="loket-blok-ico">${loket.icoon||'📊'}</span>
+        <span class="loket-blok-naam">${loket.label}</span>
+        <span class="loket-blok-badge">${sj?.label||loket.sjabloon}</span>
+        <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+          ${idx>0?`<button class="btn btn-s btn-xs" onclick="verplaatsLoket(${idx},-1)">↑</button>`:''}
+          ${idx<(huidigConfig.loketten?.length-1)?`<button class="btn btn-s btn-xs" onclick="verplaatsLoket(${idx},1)">↓</button>`:''}
+          <button class="btn btn-d btn-xs" onclick="verwijderLoket(${idx})">✕</button>
+        </div>
+      </div>
+      <div class="loket-blok-body">
+        ${lagen.map((l,li)=>renderLaagItem(l,idx,li)).join('')}
+        ${loket.sjabloon==='geodata'?`<div class="drop-zone" onclick="voegLaagToeAanLoket(${idx})">+ Laag toevoegen</div>`:''}
+        ${loket.sjabloon!=='geodata'?`<div style="font-size:11px;color:var(--muted);text-align:center;padding:8px">
+          ${sj?.status==='gepland'?'🚧 In ontwikkeling — configureer parameters via eigenschappen →':''}</div>`:''}
+      </div>
+    </div>
+  `;
+}
+
+function renderLaagItem(laag, lIdx, laNr) {
+  const bron = alleSources[laag.bron]||{};
+  const kleur = bron.type==='poi'?'#e74c3c':'#2980b9';
+  const label = bron.label||laag.bron||laag.label||'Naamloze laag';
+  return `<div class="laag-item" onclick="selecteerLaag(${lIdx},${laNr})">
+    <div class="laag-dot" style="background:${kleur}"></div>
+    <div class="laag-naam">${label}</div>
+    <div class="laag-type">${bron.type||laag.bron||'—'}</div>
+    <button class="laag-del" onclick="event.stopPropagation();verwijderLaag(${lIdx},${laNr})">✕</button>
+  </div>`;
+}
+
+// ── BUILDER: LOKET ACTIES ────────────────────────────────
+function openLoketModal() {
+  if (!huidigConfig) return;
+  const grid = document.getElementById('sj-grid');
+  grid.innerHTML = beschikbareSjablonen.map(s=>`
+    <div class="sj-opt ${gekozenSjabloon===s.naam?'active':''}" onclick="kiesSjabloon('${s.naam}',this)">
+      <div class="sj-ico">${s.ico}</div>
+      <div class="sj-naam">${s.label}</div>
+      <div class="sj-status">${s.status}</div>
+    </div>`).join('');
+  document.getElementById('m-loket').classList.remove('hidden');
+}
+
+function kiesSjabloon(naam, el) {
+  gekozenSjabloon = naam;
+  document.querySelectorAll('.sj-opt').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function bevestigLoket() {
+  const label = document.getElementById('nl-label').value.trim()||gekozenSjabloon;
+  const ico   = document.getElementById('nl-ico').value.trim()||'📊';
+  const id    = label.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')+'-'+Date.now();
+  const nieuw = { id, label, icoon:ico, sjabloon:gekozenSjabloon, beschrijving:'' };
+  if (gekozenSjabloon==='geodata') nieuw.groepen=[{ label:'Lagen', lagen:[] }];
+  if (!huidigConfig.loketten) huidigConfig.loketten=[];
+  huidigConfig.loketten.push(nieuw);
+  sluitModal('m-loket');
+  document.getElementById('nl-label').value='';
+  document.getElementById('nl-ico').value='';
+  renderCanvas();
+}
+
+function verwijderLoket(idx) {
+  if (!confirm(`Loket '${huidigConfig.loketten[idx].label}' verwijderen?`)) return;
+  huidigConfig.loketten.splice(idx,1);
+  renderCanvas();
+}
+
+function verplaatsLoket(idx, r) {
+  const loks = huidigConfig.loketten;
+  const ni = idx+r;
+  if (ni<0||ni>=loks.length) return;
+  [loks[idx],loks[ni]]=[loks[ni],loks[idx]];
+  renderCanvas();
+}
+
+function voegLoketToe(sjabloon) {
+  if (!huidigConfig) { toonToast('Laad eerst een dashboard', 'err'); return; }
+  gekozenSjabloon = sjabloon;
+  openLoketModal();
+}
+
+// ── BUILDER: LAAG ACTIES ─────────────────────────────────
+function voegLaagToe(bronSleutel) {
+  if (!huidigConfig) { toonToast('Laad eerst een dashboard', 'err'); return; }
+  const geoLok = huidigConfig.loketten?.find(l=>l.sjabloon==='geodata');
+  if (!geoLok) { toonToast('Voeg eerst een Geodata-loket toe', 'err'); return; }
+  if (!geoLok.groepen) geoLok.groepen=[{ label:'Lagen', lagen:[] }];
+  geoLok.groepen[0].lagen.push({ bron:bronSleutel, default_aan:false });
+  renderCanvas();
+  toonToast(`${alleSources[bronSleutel]?.label||bronSleutel} toegevoegd`, 'ok');
+}
+
+function voegLaagToeAanLoket(lIdx) {
+  const bronnen = Object.keys(alleSources).filter(k=>!k.startsWith('$')&&!k.startsWith('_'));
+  const keuze = prompt('Beschikbare bronnen:\n'+bronnen.map((k,i)=>`${i+1}. ${k} (${alleSources[k].label||''})`).join('\n')+'\n\nTyp het nummer:');
+  if (!keuze) return;
+  const idx = parseInt(keuze)-1;
+  if (idx>=0&&idx<bronnen.length) {
+    const lok = huidigConfig.loketten[lIdx];
+    if (!lok.groepen) lok.groepen=[{ label:'Lagen', lagen:[] }];
+    lok.groepen[0].lagen.push({ bron:bronnen[idx], default_aan:false });
+    renderCanvas();
+    toonToast(`${bronnen[idx]} toegevoegd`, 'ok');
+  }
+}
+
+function verwijderLaag(lIdx, laNr) {
+  const lok = huidigConfig.loketten[lIdx];
+  const flat = lok.groepen?.flatMap((g,gi)=>(g.lagen||[]).map((_,li)=>({gi,li})))||[];
+  const t = flat[laNr];
+  if (t) { lok.groepen[t.gi].lagen.splice(t.li,1); renderCanvas(); }
+}
+
+// ── BUILDER: EIGENSCHAPPEN ───────────────────────────────
+function selecteerGem() {
+  if (!huidigConfig) return;
+  const g=huidigConfig.gemeente||{}, d=huidigConfig.dashboard||{};
+  document.getElementById('props-titel').textContent='Gemeente-instellingen';
+  document.getElementById('props-sub').textContent=g.naam||huidigNaam;
+  document.getElementById('props-body').innerHTML=`
+    <div class="fg"><label class="fl">Naam</label>
+      <input type="text" class="fi" value="${g.naam||''}" oninput="updConf('gemeente.naam',this.value)"/></div>
+    <div class="fg"><label class="fl">NIS-code</label>
+      <input type="text" class="fi" value="${g.niscode||''}" oninput="updConf('gemeente.niscode',this.value)"/></div>
+    <div class="fg"><label class="fl">Titel</label>
+      <input type="text" class="fi" value="${d.titel||''}" oninput="updConf('dashboard.titel',this.value)"/></div>
+    <div class="fg"><label class="fl">Subtitel</label>
+      <input type="text" class="fi" value="${d.subtitel||''}" oninput="updConf('dashboard.subtitel',this.value)"/></div>
+    <div class="fg"><label class="fl">Primaire kleur</label>
+      <input type="color" value="${d.kleuren?.primair||'#1a5c3a'}" style="width:100%;height:34px;border-radius:5px;border:1px solid var(--border);cursor:pointer"
+        oninput="updConf('dashboard.kleuren.primair',this.value)"/></div>
+    <div class="fg"><label class="fl">Centrum (lat, lon)</label>
+      <input type="text" class="fi" value="${g.fallback_centrum?g.fallback_centrum.join(', '):''}" oninput="setCentrum(this.value)"/>
+      <div class="fh">bv. 50.81, 3.34</div></div>
+  `;
+}
+
+function selecteerLoket(idx) {
+  const lok = huidigConfig.loketten[idx];
+  document.getElementById('props-titel').textContent=lok.label;
+  document.getElementById('props-sub').textContent=`${lok.sjabloon} sjabloon`;
+  document.getElementById('props-body').innerHTML=`
+    <div class="fg"><label class="fl">Label</label>
+      <input type="text" class="fi" value="${lok.label}" oninput="updLok(${idx},'label',this.value)"/></div>
+    <div class="fg"><label class="fl">Icoon</label>
+      <input type="text" class="fi" value="${lok.icoon||''}" oninput="updLok(${idx},'icoon',this.value)" maxlength="2"/></div>
+    <div class="fg"><label class="fl">Beschrijving</label>
+      <input type="text" class="fi" value="${lok.beschrijving||''}" oninput="updLok(${idx},'beschrijving',this.value)"/></div>
+    <div class="fg"><label class="fl">Badge</label>
+      <input type="text" class="fi" value="${lok.badge||''}" oninput="updLok(${idx},'badge',this.value)" placeholder="bv. soon of nieuw"/></div>
+    ${lok.sjabloon==='evolutie'?`
+    <div class="fg"><label class="fl">Indicatoren (komma-gescheiden)</label>
+      <input type="text" class="fi" value="${(lok.indicatoren||[]).join(', ')}" oninput="updLokArr(${idx},'indicatoren',this.value)"/>
+      <div class="fh">bv. inwoners, vergrijzing</div></div>
+    <div class="fg"><label class="fl">Periode</label>
+      <div class="f2">
+        <div><label class="fl" style="margin-top:3px">Van</label>
+          <input type="number" class="fi" value="${lok.periode?.van||2014}" oninput="updPeriode(${idx},'van',this.value)"/></div>
+        <div><label class="fl" style="margin-top:3px">Tot</label>
+          <input type="number" class="fi" value="${lok.periode?.tot||2023}" oninput="updPeriode(${idx},'tot',this.value)"/></div>
+      </div></div>
+    <div class="fg"><label class="fl">Vergelijkingsgebieden (NIS-codes)</label>
+      <input type="text" class="fi" value="${(lok.vergelijking||[]).join(', ')}" oninput="updLokArr(${idx},'vergelijking',this.value)"/>
+      <div class="fh">bv. 34003, 34002</div></div>
+    `:''}
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+      <div class="fl" style="margin-bottom:6px">Sjabloon wisselen</div>
+      <div class="rend-grid">
+        ${beschikbareSjablonen.map(s=>`
+          <div class="rend-opt ${lok.sjabloon===s.naam?'active':''}" onclick="updLok(${idx},'sjabloon','${s.naam}')">
+            <div class="rend-ico">${s.ico}</div><div class="rend-naam">${s.label}</div>
+            <div class="rend-status">${s.status}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function selecteerLaag(lIdx, laNr) {
+  const lok = huidigConfig.loketten[lIdx];
+  const flat = lok.groepen?.flatMap(g=>g.lagen||[])||[];
+  const laag = flat[laNr];
+  if (!laag) return;
+  const bron = alleSources[laag.bron]||{};
+  document.getElementById('props-titel').textContent=bron.label||laag.bron||'Laag';
+  document.getElementById('props-sub').textContent=laag.bron;
+  document.getElementById('props-body').innerHTML=`
+    <div class="fg"><label class="fl">Databron</label>
+      <select class="fs" onchange="updLaagBron(${lIdx},${laNr},this.value)">
+        ${Object.entries(alleSources).filter(([k])=>!k.startsWith('$')&&!k.startsWith('_')).map(([k,v])=>
+          `<option value="${k}" ${laag.bron===k?'selected':''}>${v.label||k}</option>`).join('')}
+      </select></div>
+    <div class="fg"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px">
+      <input type="checkbox" ${laag.default_aan?'checked':''} style="accent-color:var(--primair)"
+        onchange="updLaagP(${lIdx},${laNr},'default_aan',this.checked)"/>
+      Standaard ingeschakeld</label></div>
+    <div class="fg"><label class="fl">Transparantie (${laag.transparantie||0.8})</label>
+      <input type="range" min="0" max="1" step="0.1" value="${laag.transparantie||0.8}" style="width:100%"
+        oninput="updLaagP(${lIdx},${laNr},'transparantie',parseFloat(this.value));this.previousElementSibling.textContent='Transparantie ('+this.value+')'"/></div>
+    <div class="fg"><label class="fl">Visualisatie</label>
+      <div class="rend-grid">
+        ${beschikbareRenderers.map(r=>`
+          <div class="rend-opt ${(laag.renderer||'toggle')===r.naam?'active':''}"
+               onclick="updLaagP(${lIdx},${laNr},'renderer','${r.naam}')">
+            <div class="rend-ico">${r.ico}</div><div class="rend-naam">${r.label}</div>
+            <div class="rend-status">${r.status}</div>
+          </div>`).join('')}
+      </div></div>
+    ${bron.type==='poi'||bron.type==='geojson_url'?`
+    <div class="fg"><label class="fl">Marker kleur</label>
+      <input type="color" value="${laag.kleur_marker||'#e74c3c'}"
+        style="width:100%;height:34px;border-radius:5px;border:1px solid var(--border);cursor:pointer"
+        oninput="updLaagP(${lIdx},${laNr},'kleur_marker',this.value)"/></div>
+    `:''}
+  `;
+}
+
+// ── UPDATE HELPERS ───────────────────────────────────────
+function updConf(pad, val) {
+  const k=pad.split('.');let o=huidigConfig;
+  for(let i=0;i<k.length-1;i++){if(!o[k[i]])o[k[i]]={};o=o[k[i]];}
+  o[k[k.length-1]]=val;
+}
+function setCentrum(t) {
+  const p=t.split(',').map(s=>parseFloat(s.trim()));
+  if(p.length===2&&!isNaN(p[0]))huidigConfig.gemeente.fallback_centrum=p;
+}
+function updLok(i,k,v){huidigConfig.loketten[i][k]=v;if(k==='label'||k==='icoon')renderCanvas();}
+function updLokArr(i,k,v){huidigConfig.loketten[i][k]=v.split(',').map(s=>s.trim()).filter(Boolean);}
+function updPeriode(i,k,v){if(!huidigConfig.loketten[i].periode)huidigConfig.loketten[i].periode={};huidigConfig.loketten[i].periode[k]=parseInt(v);}
+function updLaagBron(lI,lN,b){const f=huidigConfig.loketten[lI].groepen?.flatMap(g=>g.lagen||[])||[];if(f[lN])f[lN].bron=b;renderCanvas();}
+function updLaagP(lI,lN,k,v){const f=huidigConfig.loketten[lI].groepen?.flatMap(g=>g.lagen||[])||[];if(f[lN])f[lN][k]=v;}
+
+// ── OPSLAAN ──────────────────────────────────────────────
+async function opslaanDashboard() {
+  if (!token) { toonToast('Token vereist voor opslaan', 'err'); return; }
+  if (!huidigConfig||!huidigNaam) return;
+  const btn = document.getElementById('btn-save');
+  btn.innerHTML='<div class="loader-i"></div> Opslaan...';
+  btn.disabled=true;
+  try {
+    const bericht = huidigSha ? `Builder: ${huidigNaam} bijgewerkt` : `Builder: nieuw dashboard ${huidigNaam}`;
+    await schrijfBestand(`configs/${huidigNaam}.json`, huidigConfig, bericht, huidigSha);
+    toonToast(`✓ ${huidigNaam}.json opgeslagen`, 'ok');
+    const { sha } = await leesBestand(`configs/${huidigNaam}.json`);
+    huidigSha = sha;
+    // Update in lokaal geheugen
+    alleConfigs[huidigNaam] = { naam:huidigNaam, config:huidigConfig, sha };
+  } catch(e) { toonToast(`Fout: ${e.message}`, 'err'); }
+  finally { btn.innerHTML='💾 Opslaan'; btn.disabled=false; }
+}
+
+function toonPreview() {
+  if (huidigNaam) window.open(`${DASH_URL}/?gemeente=${huidigNaam}`, '_blank');
+}
+
+// ── MODAL & UI HELPERS ───────────────────────────────────
+function sluitModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+let toastTimer;
+function toonToast(txt, type='') {
+  const t=document.getElementById('toast');
+  t.textContent=txt;
+  t.className=`toast show${type?' '+type:''}`;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ── START ────────────────────────────────────────────────
+laadAlles();
+</script>
+</body>
+</html>
