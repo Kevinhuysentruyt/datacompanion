@@ -1,0 +1,65 @@
+{
+  "$schema": "Data Companion v3 — Gemeente Config",
+  "gemeente": {
+    "naam": "Test",
+    "niscode": "100000",
+    "fallback_centrum": [
+      50.9,
+      4
+    ]
+  },
+  "dashboard": {
+    "titel": "Test in cijfers",
+    "subtitel": "Test · Beleidsdashboard",
+    "kleuren": {
+      "primair": "#1a5c3a",
+      "accent": "#e67e22"
+    }
+  },
+  "bronvermelding": [
+    {
+      "naam": "Geopunt / Digitaal Vlaanderen",
+      "url": "https://www.geopunt.be"
+    },
+    {
+      "naam": "Basisregisters Vlaanderen",
+      "url": "https://basisregisters.vlaanderen.be"
+    }
+  ],
+  "loketten": [
+    {
+      "id": "kaart",
+      "label": "Geodata",
+      "icoon": "🗺️",
+      "sjabloon": "geodata",
+      "beschrijving": "Interactieve kaart met Vlaamse open databronnen",
+      "groepen": [
+        {
+          "label": "Basiskaarten",
+          "lagen": [
+            {
+              "bron": "geopunt:grb",
+              "default_aan": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cijfers",
+      "label": "Cijfers & Evoluties",
+      "icoon": "📊",
+      "badge": "soon",
+      "sjabloon": "evolutie",
+      "beschrijving": "Bevolkingsmonitor en sociale indicatoren",
+      "indicatoren": [
+        "inwoners",
+        "vergrijzing"
+      ],
+      "periode": {
+        "van": 2014,
+        "tot": 2023
+      }
+    }
+  ]
+}
