@@ -1,6 +1,5 @@
 {
   "$schema": "Data Companion v2 — Gemeente Config",
-  "_comment": "Bronverwijzingen (bv. 'geopunt:grb') worden opgelost via sources.json. Nooit rechtstreekse URL's hier invullen.",
 
   "gemeente": {
     "naam": "Zwevegem",
@@ -30,13 +29,31 @@
         {
           "label": "Basiskaarten",
           "lagen": [
-            { "bron": "geopunt:grb", "default_aan": true }
+            {
+              "bron": "geopunt:grb",
+              "type": "wms",
+              "label": "GRB basiskaart",
+              "url": "https://geo.api.vlaanderen.be/GRB/wms",
+              "layer": "GRB_BSK",
+              "default_aan": true,
+              "transparantie": 0.9,
+              "attribution": "GRB © Digitaal Vlaanderen"
+            }
           ]
         },
         {
           "label": "Administratief",
           "lagen": [
-            { "bron": "geopunt:gemeentegrenzen", "default_aan": false }
+            {
+              "bron": "geopunt:gemeentegrenzen",
+              "type": "wms",
+              "label": "Gemeentegrenzen",
+              "url": "https://geo.api.vlaanderen.be/VRBG/wms",
+              "layer": "Refgem",
+              "default_aan": false,
+              "transparantie": 0.5,
+              "attribution": "VRBG © Digitaal Vlaanderen"
+            }
           ]
         }
       ]
