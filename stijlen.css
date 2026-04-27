@@ -1,0 +1,294 @@
+/* ═══════════════════════════════════════════════════════════
+   Data Companion — Visuele opmaak
+   Alle CSS-regels staan hier. Geen styling in JS-bestanden.
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/* ── CSS-variabelen — overschrijfbaar per gemeente via config ── */
+:root {
+  --bg:#f4f2ee;
+  --surface:#fff;
+  --border:#d9d5cc;
+  --primair:#1a5c3a;
+  --accent:#e67e22;
+  --text:#1a1a18;
+  --muted:#6b6b64;
+  --ok:#1a5c3a;
+  --warn:#d4820a;
+  --err:#c0392b;
+  --font:'DM Sans',sans-serif;
+  --r:8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Header met branding ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 1000;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primair);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 14px;
+}
+.brand h1 { font-size: 15px; font-weight: 600; line-height: 1.1; }
+.brand .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.credits { font-size: 11px; color: var(--muted); }
+.credits a { color: var(--primair); text-decoration: none; font-weight: 500; }
+
+/* ── Loketten navigatiebalk ── */
+.nav-loketten {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.nav-loket {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-loket:hover { color: var(--text); background: var(--bg); }
+.nav-loket.active {
+  color: var(--primair);
+  border-bottom-color: var(--primair);
+  font-weight: 600;
+}
+.nav-loket .ico { font-size: 15px; }
+.nav-loket .badge {
+  background: var(--accent);
+  color: white;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ── Content area ── */
+.content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  background: var(--bg);
+}
+.content-inner { max-width: 1400px; margin: 0 auto; }
+
+/* ── Loket header ── */
+.loket-header { margin-bottom: 20px; }
+.loket-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.loket-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+/* ── Sjabloon-placeholders (voor evolutie en hybride in ontwikkeling) ── */
+.sjabloon-placeholder {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 48px;
+  text-align: center;
+  min-height: 400px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px;
+}
+.sjabloon-placeholder .ico { font-size: 48px; opacity: 0.3; }
+.sjabloon-placeholder h3 { font-size: 16px; color: var(--text); font-weight: 600; }
+.sjabloon-placeholder p { color: var(--muted); font-size: 13px; max-width: 400px; line-height: 1.6; }
+.badge-status {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+}
+
+/* ── Geodata sjabloon (kaart + zijpaneel) ── */
+.geodata-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  height: calc(100vh - 200px);
+  min-height: 500px;
+}
+.geodata-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  overflow-y: auto;
+}
+.geodata-map {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  position: relative;
+}
+#map { width: 100%; height: 100%; min-height: 400px; }
+
+/* ── Laag-groepen en toggles ── */
+.layer-group { margin-bottom: 16px; }
+.layer-group-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.tgl { position: relative; width: 34px; height: 18px; }
+.tgl input { opacity: 0; width: 0; height: 0; }
+.tt {
+  position: absolute; inset: 0;
+  background: var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.tgl input:checked + .tt { background: var(--primair); }
+.th2 {
+  position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  transition: transform .2s;
+  pointer-events: none;
+}
+.tgl input:checked ~ .th2 { transform: translateX(16px); }
+
+/* ── Status-tekst bij laag (bv. "laden...") ── */
+.layer-status {
+  font-size: 10px;
+  color: var(--muted);
+  padding: 4px 0;
+  font-style: italic;
+}
+
+/* ── Footer ── */
+.footer-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 24px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Loader ── */
+.loader {
+  position: fixed; inset: 0;
+  background: rgba(244,242,238,.95);
+  z-index: 5000;
+  display: flex;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+}
+.loader.hidden { display: none; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primair);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Error ── */
+.error-box {
+  padding: 30px;
+  max-width: 500px;
+  margin: 50px auto;
+  background: white;
+  border: 1px solid var(--err);
+  border-radius: var(--r);
+}
+.error-box h2 {
+  color: var(--err);
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+.error-box code {
+  font-family: monospace;
+  font-size: 11px;
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ── Popups (kaart) ── */
+.leaflet-popup-content-wrapper {
+  border-radius: var(--r) !important;
+  font-family: var(--font) !important;
+}
+.ptag {
+  display: inline-block;
+  background: rgba(26,92,58,.1);
+  color: var(--primair);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 5px;
+}
+.ptit { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+.pbod { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ── Mobiele weergave ── */
+@media (max-width: 768px) {
+  .geodata-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .geodata-panel { max-height: 300px; }
+  .geodata-map { min-height: 400px; }
+}
