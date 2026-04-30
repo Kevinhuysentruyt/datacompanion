@@ -33,16 +33,16 @@
     "_toelichting": "Neutrale grijze achtergrond — ideaal onder thematische lagen"
   },
 
-  "geopunt:orthofoto_2021_zomer": {
-    "type": "wms",
-    "label": "Orthofoto zomer 2021 (40cm)",
-    "url": "https://geo.api.vlaanderen.be/OMZ/wms",
-    "layer": "OI.OrthoimageCoverage.OMZ.RGB",
-    "transparantie": 1.0,
-    "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
-  },
+"geopunt:orthofoto_2021_zomer": {
+  "type": "wms",
+  "label": "Orthofoto zomer 2021 (40cm)",
+  "url": "https://geo.api.vlaanderen.be/OMZ/wms",
+  "layer": "OMZRGB21VL",
+  "transparantie": 1.0,
+  "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen",
+  "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen",
+  "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+},
 
   "geopunt:orthofoto_2025_winter": {
     "type": "wms",
