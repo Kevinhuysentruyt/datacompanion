@@ -1,7 +1,8 @@
 {
-  "$schema": "Data Companion — Broncatalogus v2.0",
-  "_doel": "Catalogus van LIVE Vlaamse open data APIs. De browser haalt deze rechtstreeks op bij elk dashboardbezoek.",
-  "_uitsluitingen": "Pipeline-bronnen (data/ map) staan NIET in dit bestand — die verwijs je rechtstreeks via 'url': 'data/...' in de gemeente-config.",
+  "$schema": "Data Companion — Broncatalogus v2.2",
+  "_doel": "Catalogus van LIVE Vlaamse open data APIs.",
+  "_licentie": "Alle bronnen vallen onder Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan mits bronvermelding",
+  "_uitsluitingen": "OSM en CartoDB tile-servers verwijderd om commerciële licentieproblemen te vermijden",
   "_update": "april 2026",
 
   "_": "═══════════════════════════════════════════════════════════",
@@ -15,8 +16,9 @@
     "url": "https://geo.api.vlaanderen.be/GRB/wms",
     "layer": "GRB_BSK",
     "transparantie": 0.9,
-    "attribution": "Grootschalig Referentiebestand © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+    "attribution": "GRB © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "geopunt:grb_grijs": {
@@ -27,6 +29,7 @@
     "transparantie": 0.9,
     "attribution": "GRB Grijs © Digitaal Vlaanderen",
     "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)",
     "_toelichting": "Neutrale grijze achtergrond — ideaal onder thematische lagen"
   },
 
@@ -37,7 +40,8 @@
     "layer": "OI.OrthoimageCoverage.OMZ.RGB",
     "transparantie": 1.0,
     "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen"
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "geopunt:orthofoto_2025_winter": {
@@ -48,6 +52,7 @@
     "transparantie": 1.0,
     "attribution": "Orthofotomozaïek winter 2025 © Digitaal Vlaanderen",
     "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-winteropnamen-kleur-meest-recent-vlaanderen-202504",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)",
     "_toelichting": "Hogere resolutie dan zomeropnamen — wordt jaarlijks bijgewerkt"
   },
 
@@ -63,7 +68,7 @@
     "layer": "GRB_ADP",
     "transparantie": 0.7,
     "attribution": "GRB Administratief Perceel © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "geopunt:percelen_grens": {
@@ -73,7 +78,7 @@
     "layer": "GRB_ADP_GRENS",
     "transparantie": 0.8,
     "attribution": "GRB Perceelsgrenzen © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "geopunt:gebouwen": {
@@ -83,7 +88,7 @@
     "layer": "GRB_GBG",
     "transparantie": 0.8,
     "attribution": "GRB Gebouwen © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "geopunt:wegen": {
@@ -93,7 +98,7 @@
     "layer": "GRB_WBN",
     "transparantie": 0.8,
     "attribution": "GRB Wegbanen © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "geopunt:waterlopen": {
@@ -103,7 +108,7 @@
     "layer": "GRB_WTZ",
     "transparantie": 0.8,
     "attribution": "GRB Waterlopen © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   },
 
   "_____": "═══════════════════════════════════════════════════════════",
@@ -128,6 +133,6 @@
     "popup_titel": "{NAAM}",
     "popup_body": "NIS-code: {NISCODE}",
     "attribution": "VRBG Gemeentegrenzen © Digitaal Vlaanderen",
-    "attribution_url": "https://www.geopunt.be"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
   }
 }
