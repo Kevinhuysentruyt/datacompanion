@@ -1,5 +1,5 @@
 {
-  "$schema": "Data Companion v2 — Gemeente Config",
+  "$schema": "Data Companion v3 — Gemeente Config",
 
   "gemeente": {
     "naam": "Zwevegem",
@@ -27,32 +27,42 @@
       "beschrijving": "Interactieve kaart met Vlaamse open databronnen",
       "groepen": [
         {
-          "label": "Basiskaarten",
+          "label": "Kaartlagen",
           "lagen": [
             {
-              "bron": "geopunt:grb",
-              "type": "wms",
-              "label": "GRB basiskaart",
-              "url": "https://geo.api.vlaanderen.be/GRB/wms",
-              "layer": "GRB_BSK",
-              "default_aan": true,
-              "transparantie": 0.9,
-              "attribution": "GRB © Digitaal Vlaanderen"
+              "bron": "geopunt:gemeentegrenzen",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "geopunt:percelen_grens",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "geopunt:gebouwen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
             }
           ]
         },
         {
-          "label": "Administratief",
+          "label": "Achtergrond",
           "lagen": [
             {
-              "bron": "geopunt:gemeentegrenzen",
-              "type": "wms",
-              "label": "Gemeentegrenzen",
-              "url": "https://geo.api.vlaanderen.be/VRBG/wms",
-              "layer": "Refgem",
-              "default_aan": false,
-              "transparantie": 0.5,
-              "attribution": "VRBG © Digitaal Vlaanderen"
+              "bron": "geopunt:grb",
+              "rol": "achtergrond",
+              "transparantie": 0.9
+            },
+            {
+              "bron": "geopunt:grb_grijs",
+              "rol": "achtergrond",
+              "transparantie": 0.9
+            },
+            {
+              "bron": "geopunt:orthofoto_2025_winter",
+              "rol": "achtergrond",
+              "transparantie": 1.0
             }
           ]
         }
@@ -66,16 +76,7 @@
       "sjabloon": "evolutie",
       "beschrijving": "Bevolkingsmonitor en sociale indicatoren",
       "indicatoren": ["inwoners", "vergrijzing", "kansarmoede"],
-      "periode": { "van": 2014, "tot": 2023 },
-      "vergelijking": ["avelgem", "anzegem", "harelbeke"]
-    },
-    {
-      "id": "klimaat",
-      "label": "Klimaatdashboard",
-      "icoon": "🌡️",
-      "badge": "soon",
-      "sjabloon": "hybride",
-      "beschrijving": "Kaart en cijfers gecombineerd voor klimaatadaptatie"
+      "periode": { "van": 2014, "tot": 2023 }
     }
   ]
 }
