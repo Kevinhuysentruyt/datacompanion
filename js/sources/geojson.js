@@ -1,22 +1,20 @@
 // ════════════════════════════════════════════════════════
 //  SOURCE: GeoJSON URL
-//  Laadt een statisch GeoJSON-bestand uit data/ map
-//  bv. zorgvoorzieningen.geojson (gegenereerd door pipeline)
-//
-//  Voordeel: snel, geen API-limieten, jaarlijks/maandelijks
-//  versgehouden via Python pipeline
+//  Statisch GeoJSON-bestand uit data/ map
 // ════════════════════════════════════════════════════════
 
 export function laadLaag(laag, kaart) {
-  const geojsonLaag = L.geoJSON(null, {
+  const opties = {
     pointToLayer(f, latlng) {
-      return L.circleMarker(latlng, {
+      const markerOpties = {
         radius: 6,
         fillColor: laag.kleur_marker || '#e74c3c',
         color: '#fff',
         weight: 1.5,
         fillOpacity: 0.9
-      });
+      };
+      if (laag._pane) markerOpties.pane = laag._pane;
+      return L.circleMarker(latlng, markerOpties);
     },
     onEachFeature(f, l) {
       const props = f.properties || {};
@@ -31,7 +29,11 @@ export function laadLaag(laag, kaart) {
         <div class="pbod">${velden || 'Geen info'}</div>
       `);
     }
-  });
+  };
+  if (laag._pane) opties.pane = laag._pane;
+  if (laag.attribution) opties.attribution = laag.attribution;
+
+  const geojsonLaag = L.geoJSON(null, opties);
 
   geojsonLaag._geladen = false;
   geojsonLaag._laadFn = async function() {
@@ -42,16 +44,12 @@ export function laadLaag(laag, kaart) {
       if (!r.ok) throw new Error(`GeoJSON niet gevonden: ${laag.url}`);
       const data = await r.json();
       geojsonLaag.addData(data);
-      console.log(`GeoJSON: ${data.features?.length || 0} features geladen`);
-    } catch (e) {
-      console.error('GeoJSON fout:', e.message);
-    }
+    } catch (e) { console.error('GeoJSON fout:', e.message); }
   };
 
   if (laag.default_aan) {
     geojsonLaag.addTo(kaart);
     geojsonLaag._laadFn();
   }
-
   return geojsonLaag;
 }
