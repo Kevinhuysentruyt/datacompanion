@@ -24,7 +24,7 @@
       "label": "Geodata",
       "icoon": "🗺️",
       "sjabloon": "geodata",
-      "beschrijving": "Interactieve kaart met Vlaamse open databronnen",
+      "beschrijving": "Klik op de percelen-laag voor kadastrale info",
       "groepen": [
         {
           "label": "Kaartlagen",
@@ -35,9 +35,11 @@
               "transparantie": 0.6
             },
             {
-              "bron": "geopunt:percelen_grens",
+              "bron": "geopunt:percelen",
               "rol": "kaartlaag",
-              "transparantie": 0.7
+              "transparantie": 0.5,
+              "klikbaar": true,
+              "label": "Kadastrale percelen (klikbaar)"
             },
             {
               "bron": "geopunt:gebouwen",
