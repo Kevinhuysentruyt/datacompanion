@@ -409,3 +409,53 @@ header {
   flex: 1;
   font-weight: 500;
 }
+/* ═══════════════════════════════════════════════════════════
+   AANVULLING op css/stijlen.css — voeg deze regels TOE
+   onderaan het bestaande stijlen.css (na de slider/radio CSS)
+   Voor: kadastrale perceel-popups
+   ═══════════════════════════════════════════════════════════ */
+
+/* Mini-loader in popup tijdens API-call */
+.loader-mini {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primair);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 8px auto;
+}
+
+/* Perceel-info grid */
+.perceel-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 11px;
+  margin-top: 6px;
+}
+.perceel-grid .lbl {
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.perceel-grid > div:not(.lbl) {
+  font-family: var(--mono, monospace);
+}
+
+/* Acties onderaan popup */
+.perceel-acties {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.perceel-link {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--primair);
+  text-decoration: none;
+  font-weight: 500;
+}
+.perceel-link:hover {
+  text-decoration: underline;
+}
