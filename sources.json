@@ -1,151 +1,133 @@
-// ════════════════════════════════════════════════════════
-//  SOURCE: WMS (Web Map Service)
-//
-//  Wijzigingen v4:
-//  - Klikbare lagen via GetFeatureInfo
-//  - Voor GRB-lagen: parcel info opvragen bij klik
-//  - "klikbaar: true" in config activeert dit
-// ════════════════════════════════════════════════════════
+{
+  "$schema": "Data Companion — Broncatalogus v2.0",
+  "_doel": "Catalogus van LIVE Vlaamse open data APIs. De browser haalt deze rechtstreeks op bij elk dashboardbezoek.",
+  "_uitsluitingen": "Pipeline-bronnen (data/ map) staan NIET in dit bestand — die verwijs je rechtstreeks via 'url': 'data/...' in de gemeente-config.",
+  "_update": "april 2026",
 
-export function laadLaag(laag, kaart) {
-  const opties = {
-    layers: laag.layer,
-    format: 'image/png',
-    transparent: true,
-    version: '1.3.0',
-    opacity: laag.transparantie || 0.8,
-    attribution: laag.attribution || ''
-  };
+  "_": "═══════════════════════════════════════════════════════════",
+  "_sectie_1": "1. ACHTERGRONDKAARTEN",
+  "_sectie_1_uitleg": "Topografische basislagen — voor altijd zichtbare context onder andere lagen",
+  "__": "═══════════════════════════════════════════════════════════",
 
-  if (laag._pane) opties.pane = laag._pane;
+  "geopunt:grb": {
+    "type": "wms",
+    "label": "GRB basiskaart",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_BSK",
+    "transparantie": 0.9,
+    "attribution": "Grootschalig Referentiebestand © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+  },
 
-  const wmsLayer = L.tileLayer.wms(laag.url, opties);
+  "geopunt:grb_grijs": {
+    "type": "wms",
+    "label": "GRB basiskaart (grijswaarden)",
+    "url": "https://geo.api.vlaanderen.be/GRB-basiskaart-grijs/wms",
+    "layer": "GRB_BSK_GRIJS",
+    "transparantie": 0.9,
+    "attribution": "GRB Grijs © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis",
+    "_toelichting": "Neutrale grijze achtergrond — ideaal onder thematische lagen"
+  },
 
-  // Klikbaar maken als config dat aangeeft
-  if (laag.klikbaar) {
-    activeerKlikInfo(wmsLayer, laag, kaart);
+  "geopunt:orthofoto_2021_zomer": {
+    "type": "wms",
+    "label": "Orthofoto zomer 2021 (40cm)",
+    "url": "https://geo.api.vlaanderen.be/OMZ/wms",
+    "layer": "OI.OrthoimageCoverage.OMZ.RGB",
+    "transparantie": 1.0,
+    "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen"
+  },
+
+  "geopunt:orthofoto_2025_winter": {
+    "type": "wms",
+    "label": "Orthofoto winter 2025 (15cm) — meest recent",
+    "url": "https://geo.api.vlaanderen.be/OMWRGBMRVL/wms",
+    "layer": "Ortho",
+    "transparantie": 1.0,
+    "attribution": "Orthofotomozaïek winter 2025 © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-winteropnamen-kleur-meest-recent-vlaanderen-202504",
+    "_toelichting": "Hogere resolutie dan zomeropnamen — wordt jaarlijks bijgewerkt"
+  },
+
+  "___": "═══════════════════════════════════════════════════════════",
+  "_sectie_2": "2. KADASTRALE EN STEDENBOUWKUNDIGE DETAIL-LAGEN",
+  "_sectie_2_uitleg": "Detail-informatie — werken vanaf zoom 14, voor specifieke analyses",
+  "____": "═══════════════════════════════════════════════════════════",
+
+  "geopunt:percelen": {
+    "type": "wms",
+    "label": "Kadastrale percelen (ADP)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_ADP",
+    "transparantie": 0.7,
+    "attribution": "GRB Administratief Perceel © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+  },
+
+  "geopunt:percelen_grens": {
+    "type": "wms",
+    "label": "Perceelsgrenzen",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_ADP_GRENS",
+    "transparantie": 0.8,
+    "attribution": "GRB Perceelsgrenzen © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+  },
+
+  "geopunt:gebouwen": {
+    "type": "wms",
+    "label": "Gebouwen aan de grond (GBG)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_GBG",
+    "transparantie": 0.8,
+    "attribution": "GRB Gebouwen © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+  },
+
+  "geopunt:wegen": {
+    "type": "wms",
+    "label": "Wegbanen (WBN)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_WBN",
+    "transparantie": 0.8,
+    "attribution": "GRB Wegbanen © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+  },
+
+  "geopunt:waterlopen": {
+    "type": "wms",
+    "label": "Waterlopen (WTZ)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_WTZ",
+    "transparantie": 0.8,
+    "attribution": "GRB Waterlopen © Digitaal Vlaanderen",
+    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis"
+  },
+
+  "_____": "═══════════════════════════════════════════════════════════",
+  "_sectie_3": "3. ADMINISTRATIEVE GRENZEN",
+  "_sectie_3_uitleg": "Vector-data voor referentiegebieden, met gemeente-info per polygon",
+  "______": "═══════════════════════════════════════════════════════════",
+
+  "geopunt:gemeentegrenzen": {
+    "type": "wfs",
+    "label": "Gemeentegrenzen Vlaanderen",
+    "url": "https://geo.api.vlaanderen.be/VRBG/wfs",
+    "typename": "VRBG:Refgem",
+    "count": 400,
+    "stijl": {
+      "color": "#2980b9",
+      "weight": 1.5,
+      "fillColor": "#2980b9",
+      "fillOpacity": 0.04,
+      "dashArray": "5 4"
+    },
+    "popup_label": "Gemeente",
+    "popup_titel": "{NAAM}",
+    "popup_body": "NIS-code: {NISCODE}",
+    "attribution": "VRBG Gemeentegrenzen © Digitaal Vlaanderen",
+    "attribution_url": "https://www.geopunt.be"
   }
-
-  if (laag.default_aan) wmsLayer.addTo(kaart);
-  return wmsLayer;
-}
-
-// ════════════════════════════════════════════════════════
-//  GetFeatureInfo / Capakey lookup
-//  Bij klik op de kaart: vraag perceelinfo op via Capakey API
-// ════════════════════════════════════════════════════════
-function activeerKlikInfo(wmsLayer, laag, kaart) {
-  let isActief = false;
-  wmsLayer.on('add', () => { isActief = true; });
-  wmsLayer.on('remove', () => { isActief = false; });
-
-  kaart.on('click', async (e) => {
-    if (!isActief) return;
-
-    // Toon laad-popup
-    const popup = L.popup({ maxWidth: 360 })
-      .setLatLng(e.latlng)
-      .setContent(`<div class="ptag">Perceel zoeken...</div>
-                   <div class="pbod">
-                     <div class="loader-mini"></div>
-                   </div>`)
-      .openOn(kaart);
-
-    try {
-      // Converteer WGS-84 naar Lambert-72 via Geopunt's geolocation API
-      // (eenvoudiger dan proj4js — gebruikt zelf al de juiste transformatie)
-      const lat = e.latlng.lat;
-      const lon = e.latlng.lng;
-
-      // Optie 1: Capakey via Geolocation API (werkt op lat/lon direct)
-      const url = `https://geo.api.vlaanderen.be/geolocation/v4/Location?latlon=${lat},${lon}&c=1`;
-
-      const r = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!r.ok) throw new Error('Capakey API niet bereikbaar');
-      const data = await r.json();
-
-      if (!data.LocationResult || !data.LocationResult.length) {
-        popup.setContent(`
-          <div class="ptag">Geen perceel gevonden</div>
-          <div class="pbod">Op deze coördinaten is geen perceel gekend.</div>
-        `);
-        return;
-      }
-
-      const loc = data.LocationResult[0];
-
-      // Haal nu de detail-info op voor het perceel via Lambert-72 X/Y
-      const x = loc.Location.X_Lambert72;
-      const y = loc.Location.Y_Lambert72;
-
-      const perceelUrl = `https://geo.api.vlaanderen.be/capakey/v2/parcel?x=${x}&y=${y}`;
-      const r2 = await fetch(perceelUrl, { headers: { Accept: 'application/json' } });
-
-      if (!r2.ok) {
-        // Fallback: toon alleen wat we hebben uit Geolocation
-        popup.setContent(formatBasisInfo(loc));
-        return;
-      }
-
-      const perceel = await r2.json();
-      popup.setContent(formatPerceelInfo(perceel, loc));
-
-    } catch (err) {
-      console.error('Capakey fout:', err);
-      popup.setContent(`
-        <div class="ptag">Fout bij ophalen</div>
-        <div class="pbod">${err.message}</div>
-      `);
-    }
-  });
-}
-
-// Format perceel-info tot een leesbare popup
-function formatPerceelInfo(perceel, loc) {
-  const adres = (perceel.adres || []).join('<br>') || 'Geen adres beschikbaar';
-
-  return `
-    <div class="ptag">Kadastraal perceel</div>
-    <div class="ptit">${perceel.capakey || '—'}</div>
-    <div class="pbod">
-      <div class="perceel-grid">
-        <div class="lbl">Gemeente:</div>
-        <div>${perceel.municipalityName || '—'} (${perceel.municipalityCode || '—'})</div>
-
-        <div class="lbl">Afdeling:</div>
-        <div>${perceel.departmentName || '—'}</div>
-
-        <div class="lbl">Sectie:</div>
-        <div>${perceel.sectionCode || '—'}</div>
-
-        <div class="lbl">Perceelnummer:</div>
-        <div>${perceel.perceelnummer || '—'}</div>
-
-        ${perceel.grondnummer ? `<div class="lbl">Grondnummer:</div><div>${perceel.grondnummer}</div>` : ''}
-        ${perceel.bisnummer ? `<div class="lbl">Bisnummer:</div><div>${perceel.bisnummer}</div>` : ''}
-        ${perceel.exponent ? `<div class="lbl">Exponent:</div><div>${perceel.exponent}</div>` : ''}
-        ${perceel.macht ? `<div class="lbl">Macht:</div><div>${perceel.macht}</div>` : ''}
-
-        <div class="lbl">Adres:</div>
-        <div>${adres}</div>
-      </div>
-      <div class="perceel-acties">
-        <a href="https://eservices.minfin.fgov.be/ecad-web/?capakey=${perceel.capakey}"
-           target="_blank" class="perceel-link">
-          📋 Open in CadGIS
-        </a>
-      </div>
-    </div>
-  `;
-}
-
-function formatBasisInfo(loc) {
-  return `
-    <div class="ptag">Locatie</div>
-    <div class="ptit">${loc.FormattedAddress || 'Onbekend adres'}</div>
-    <div class="pbod">
-      Lambert: ${loc.Location.X_Lambert72?.toFixed(0)}, ${loc.Location.Y_Lambert72?.toFixed(0)}<br>
-      WGS84: ${loc.Location.Lat_WGS84?.toFixed(5)}, ${loc.Location.Lon_WGS84?.toFixed(5)}
-    </div>
-  `;
 }
