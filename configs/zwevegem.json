@@ -29,11 +29,7 @@
         {
           "label": "Kaartlagen",
           "lagen": [
-            {
-              "bron": "geopunt:gemeentegrenzen",
-              "rol": "kaartlaag",
-              "transparantie": 0.6
-            },
+            { "bron": "geopunt:gemeentegrenzen", "rol": "kaartlaag", "transparantie": 0.6 },
             {
               "bron": "geopunt:percelen",
               "rol": "kaartlaag",
@@ -41,31 +37,16 @@
               "klikbaar": true,
               "label": "Kadastrale percelen (klikbaar)"
             },
-            {
-              "bron": "geopunt:gebouwen",
-              "rol": "kaartlaag",
-              "transparantie": 0.7
-            }
+            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 }
           ]
         },
         {
           "label": "Achtergrond",
           "lagen": [
-            {
-              "bron": "geopunt:grb",
-              "rol": "achtergrond",
-              "transparantie": 0.9
-            },
-            {
-              "bron": "geopunt:grb_grijs",
-              "rol": "achtergrond",
-              "transparantie": 0.9
-            },
-            {
-              "bron": "geopunt:orthofoto_2025_winter",
-              "rol": "achtergrond",
-              "transparantie": 1.0
-            }
+            { "bron": "geopunt:grb", "rol": "achtergrond", "transparantie": 0.9 },
+            { "bron": "geopunt:grb_grijs", "rol": "achtergrond", "transparantie": 0.9 },
+            { "bron": "geopunt:orthofoto_2025_winter", "rol": "achtergrond", "transparantie": 1.0 },
+            { "bron": "geopunt:orthofoto_2021_zomer", "rol": "achtergrond", "transparantie": 1.0 }
           ]
         }
       ]
