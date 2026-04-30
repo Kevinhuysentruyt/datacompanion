@@ -1,8 +1,11 @@
 // ════════════════════════════════════════════════════════
-//  SJABLOON: Geodata (v2)
-//  Twee secties in zijpaneel:
-//  1. KAARTLAGEN — checkbox toggle + transparantie-schuiver
-//  2. ACHTERGROND — radio button + transparantie-schuiver
+//  SJABLOON: Geodata (v3)
+//
+//  Wijzigingen v3:
+//  - Achtergrondlagen krijgen eigen pane "achtergrond" (zIndex 200)
+//  - Kaartlagen krijgen pane "kaartlagen" (zIndex 400)
+//  - Achtergrond staat dus ALTIJD onder kaartlagen
+//  - Attribution per laag wordt correct doorgegeven aan Leaflet
 // ════════════════════════════════════════════════════════
 
 import { resolveSource } from '../core.js';
@@ -41,13 +44,22 @@ export function renderSjabloonGeodata(container, loket, state) {
     </div>
   `;
 
-  // Kaart initialiseren
+  // ── KAART INITIALISEREN ────────────────────────────────
   const cfg = state.config;
   const centrum = cfg.gemeente.fallback_centrum || [50.9, 4.0];
-  const map = L.map('map').setView(centrum, 12);
+  const map = L.map('map', { attributionControl: true }).setView(centrum, 12);
   state.mapInstance = map;
 
-  // Lagen verzamelen en opdelen
+  // ── PANES VOOR LAAG-VOLGORDE ───────────────────────────
+  // Achtergrond ALTIJD onder kaartlagen via z-index
+  // Leaflet standaard: tilePane = 200, overlayPane = 400, markerPane = 600
+  map.createPane('achtergrond');
+  map.getPane('achtergrond').style.zIndex = 200;
+
+  map.createPane('kaartlagen');
+  map.getPane('kaartlagen').style.zIndex = 400;
+
+  // ── LAGEN OPDELEN ──────────────────────────────────────
   const alleLagen = (loket.groepen || []).flatMap(g =>
     (g.lagen || []).map(l => ({ ...l, _groep_label: g.label }))
   );
@@ -62,23 +74,25 @@ export function renderSjabloonGeodata(container, loket, state) {
   const kaartlagen = alleLagen.filter(l => !isAchtergrond(l));
   const achtergrondlagen = alleLagen.filter(isAchtergrond);
 
-  // Kaartlagen renderen
+  // ── KAARTLAGEN RENDEREN ────────────────────────────────
   const kaartContainer = document.getElementById('kaartlagen-container');
   if (kaartlagen.length === 0) {
     kaartContainer.innerHTML = '<div class="layer-empty">Geen kaartlagen geconfigureerd</div>';
   } else {
     kaartlagen.forEach(laag => {
-      const el = bouwLaagControl(laag, map, 'toggle');
+      const el = bouwLaagControl(laag, map, 'toggle', null, null, null, 'kaartlagen');
       if (el) kaartContainer.appendChild(el);
     });
   }
 
-  // Achtergrond renderen
+  // ── ACHTERGROND RENDEREN ───────────────────────────────
   const achterContainer = document.getElementById('achtergrond-container');
   if (achtergrondlagen.length === 0) {
     const fallback = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '© OpenStreetMap © CARTO',
-      subdomains: 'abcd', opacity: 0.6
+      subdomains: 'abcd',
+      opacity: 0.6,
+      pane: 'achtergrond'
     });
     fallback.addTo(map);
     achterContainer.innerHTML = '<div class="layer-empty">Standaard achtergrond actief</div>';
@@ -86,12 +100,12 @@ export function renderSjabloonGeodata(container, loket, state) {
     const radioNaam = `achtergrond-${Date.now()}`;
     const groep = [];
     achtergrondlagen.forEach((laag, idx) => {
-      const el = bouwLaagControl(laag, map, 'radio', radioNaam, idx, groep);
+      const el = bouwLaagControl(laag, map, 'radio', radioNaam, idx, groep, 'achtergrond');
       if (el) achterContainer.appendChild(el);
     });
   }
 
-  // Auto-zoom via Basisregisters
+  // ── AUTO-ZOOM VIA BASISREGISTERS ───────────────────────
   if (cfg.gemeente.niscode) {
     fetch(`https://api.basisregisters.vlaanderen.be/v2/gemeenten/${cfg.gemeente.niscode}`,
       { headers: { Accept: 'application/json' } })
@@ -106,8 +120,11 @@ export function renderSjabloonGeodata(container, loket, state) {
   }
 }
 
-// Bouwt een laag-control: toggle/radio + transparantie-schuiver
-function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep) {
+// ════════════════════════════════════════════════════════
+//  HULPFUNCTIE — bouwt een laag-control
+//  Geeft pane mee zodat de laag in de juiste z-index zit
+// ════════════════════════════════════════════════════════
+function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam) {
   const laag = resolveSource(laagConfig);
   const bronType = laag.type || laag.bron;
   const sourceFn = SOURCES[bronType];
@@ -116,10 +133,14 @@ function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep) {
     return null;
   }
 
+  // Geef pane mee aan source-module via uitgebreide laag-config
+  const laagMetPane = { ...laag, _pane: paneNaam };
+
   const statusEl = document.createElement('div');
   statusEl.className = 'layer-status';
 
-  const kaartlaag = sourceFn(laag, map, statusEl);
+  const kaartlaag = sourceFn(laagMetPane, map, statusEl);
+
   const item = document.createElement('div');
   item.className = 'layer-control';
 
