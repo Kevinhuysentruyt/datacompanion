@@ -16,8 +16,8 @@
   "bronvermelding": [
     { "naam": "Geopunt / Digitaal Vlaanderen", "url": "https://www.geopunt.be" },
     { "naam": "Vlaamse Milieumaatschappij", "url": "https://klimaat.vmm.be" },
-    { "naam": "Beleidsdomein Omgeving", "url": "https://www.omgeving.vlaanderen.be" },
     { "naam": "Onroerend Erfgoed", "url": "https://www.onroerenderfgoed.be" },
+    { "naam": "Beleidsdomein Omgeving", "url": "https://www.omgeving.vlaanderen.be" },
     { "naam": "DOV - Databank Ondergrond Vlaanderen", "url": "https://www.dov.vlaanderen.be" }
   ],
 
@@ -44,32 +44,52 @@
           ]
         },
         {
-          "label": "Klimaat & water",
+          "label": "Water & overstroming",
           "lagen": [
-            { "bron": "vmm:overstromingsgebied", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "vmm:waterloop_categorie", "rol": "kaartlaag", "transparantie": 0.8 }
+            { "bron": "vmm:waterlopen_vha", "rol": "kaartlaag", "transparantie": 0.9 },
+            { "bron": "vmm:overstromingsgebied_recent", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "vmm:overstromingsgebied_natuurlijk", "rol": "kaartlaag", "transparantie": 0.5 },
+            { "bron": "vmm:overstromingsgebied_voorkoop", "rol": "kaartlaag", "transparantie": 0.6 }
           ]
         },
         {
-          "label": "Ruimtelijke ordening",
+          "label": "Riolering & zuivering",
+          "lagen": [
+            { "bron": "vmm:rioolinventaris_strengen", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "vmm:rioolinventaris_punten", "rol": "kaartlaag", "transparantie": 0.9 },
+            { "bron": "vmm:zuiveringsgebieden", "rol": "kaartlaag", "transparantie": 0.4 }
+          ]
+        },
+        {
+          "label": "Drinkwater & milieu",
+          "lagen": [
+            { "bron": "vmm:drinkwaterzones", "rol": "kaartlaag", "transparantie": 0.5 },
+            { "bron": "vmm:nitraatkwetsbaarheid", "rol": "kaartlaag", "transparantie": 0.5 }
+          ]
+        },
+        {
+          "label": "Beschermd erfgoed",
+          "lagen": [
+            { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "erfgoed:beschermd_landschap", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "erfgoed:stads_dorpsgezicht", "rol": "kaartlaag", "transparantie": 0.5 },
+            { "bron": "erfgoed:beschermd_archeologisch", "rol": "kaartlaag", "transparantie": 0.6 }
+          ]
+        },
+        {
+          "label": "Inventaris erfgoed",
+          "lagen": [
+            { "bron": "erfgoed:bouwkundig_inventaris", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "erfgoed:landschappelijk_inventaris", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "erfgoed:archeologisch_inventaris", "rol": "kaartlaag", "transparantie": 0.7 }
+          ]
+        },
+        {
+          "label": "Ruimtelijke ordening & bodem",
           "lagen": [
             { "bron": "mercator:gewestplan", "rol": "kaartlaag", "transparantie": 0.5 },
             { "bron": "mercator:rups", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "mercator:omgevingsvergunningen", "rol": "kaartlaag", "transparantie": 0.6 }
-          ]
-        },
-        {
-          "label": "Erfgoed",
-          "lagen": [
-            { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "erfgoed:landschapsatlas", "rol": "kaartlaag", "transparantie": 0.6 }
-          ]
-        },
-        {
-          "label": "Bodem & ondergrond",
-          "lagen": [
-            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "dov:grondwaterkwetsbaarheid", "rol": "kaartlaag", "transparantie": 0.5 }
+            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 }
           ]
         },
         {
@@ -77,7 +97,8 @@
           "lagen": [
             { "bron": "geopunt:grb", "rol": "achtergrond", "transparantie": 0.9 },
             { "bron": "geopunt:grb_grijs", "rol": "achtergrond", "transparantie": 0.9 },
-            { "bron": "geopunt:orthofoto_2025_winter", "rol": "achtergrond", "transparantie": 1.0 }
+            { "bron": "geopunt:orthofoto_2025_winter", "rol": "achtergrond", "transparantie": 1.0 },
+            { "bron": "geopunt:orthofoto_2021_zomer", "rol": "achtergrond", "transparantie": 1.0 }
           ]
         }
       ]
