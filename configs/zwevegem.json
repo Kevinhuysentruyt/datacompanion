@@ -27,12 +27,11 @@
       "label": "Geodata",
       "icoon": "🗺️",
       "sjabloon": "geodata",
-      "beschrijving": "Klik op de percelen-laag voor kadastrale info",
+      "beschrijving": "Klik op percelen of erfgoedlagen voor info",
       "groepen": [
         {
-          "label": "Basis",
+          "label": "Ruimtelijke planning",
           "lagen": [
-            { "bron": "geopunt:gemeentegrenzen", "rol": "kaartlaag", "transparantie": 0.6 },
             {
               "bron": "geopunt:percelen",
               "rol": "kaartlaag",
@@ -40,7 +39,8 @@
               "klikbaar": true,
               "label": "Kadastrale percelen (klikbaar)"
             },
-            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 }
+            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "geopunt:gemeentegrenzen", "rol": "kaartlaag", "transparantie": 0.6 }
           ]
         },
         {
@@ -49,7 +49,7 @@
             { "bron": "vmm:waterlopen_vha", "rol": "kaartlaag", "transparantie": 0.9 },
             { "bron": "vmm:overstromingsgebied_recent", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "vmm:overstromingsgebied_natuurlijk", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "vmm:overstromingsgebied_voorkoop", "rol": "kaartlaag", "transparantie": 0.6 }
+            { "bron": "vmm:bekkens", "rol": "kaartlaag", "transparantie": 0.4 }
           ]
         },
         {
@@ -61,31 +61,20 @@
           ]
         },
         {
-          "label": "Drinkwater & milieu",
-          "lagen": [
-            { "bron": "vmm:drinkwaterzones", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "vmm:nitraatkwetsbaarheid", "rol": "kaartlaag", "transparantie": 0.5 }
-          ]
-        },
-        {
-          "label": "Beschermd erfgoed",
+          "label": "Erfgoed (klik voor details)",
           "lagen": [
             { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
             { "bron": "erfgoed:beschermd_landschap", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "erfgoed:stads_dorpsgezicht", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "erfgoed:beschermd_archeologisch", "rol": "kaartlaag", "transparantie": 0.6 }
-          ]
-        },
-        {
-          "label": "Inventaris erfgoed",
-          "lagen": [
+            { "bron": "erfgoed:beschermd_archeologisch", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "erfgoed:bouwkundig_inventaris", "rol": "kaartlaag", "transparantie": 0.7 },
             { "bron": "erfgoed:landschappelijk_inventaris", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "erfgoed:archeologisch_inventaris", "rol": "kaartlaag", "transparantie": 0.7 }
+            { "bron": "erfgoed:archeologisch_inventaris", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "erfgoed:erfgoedlandschappen", "rol": "kaartlaag", "transparantie": 0.5 }
           ]
         },
         {
-          "label": "Ruimtelijke ordening & bodem",
+          "label": "RO & bodem",
           "lagen": [
             { "bron": "mercator:gewestplan", "rol": "kaartlaag", "transparantie": 0.5 },
             { "bron": "mercator:rups", "rol": "kaartlaag", "transparantie": 0.6 },
