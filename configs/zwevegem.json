@@ -15,7 +15,10 @@
 
   "bronvermelding": [
     { "naam": "Geopunt / Digitaal Vlaanderen", "url": "https://www.geopunt.be" },
-    { "naam": "Basisregisters Vlaanderen", "url": "https://basisregisters.vlaanderen.be" }
+    { "naam": "Vlaamse Milieumaatschappij", "url": "https://klimaat.vmm.be" },
+    { "naam": "Beleidsdomein Omgeving", "url": "https://www.omgeving.vlaanderen.be" },
+    { "naam": "Onroerend Erfgoed", "url": "https://www.onroerenderfgoed.be" },
+    { "naam": "DOV - Databank Ondergrond Vlaanderen", "url": "https://www.dov.vlaanderen.be" }
   ],
 
   "loketten": [
@@ -27,7 +30,7 @@
       "beschrijving": "Klik op de percelen-laag voor kadastrale info",
       "groepen": [
         {
-          "label": "Kaartlagen",
+          "label": "Basis",
           "lagen": [
             { "bron": "geopunt:gemeentegrenzen", "rol": "kaartlaag", "transparantie": 0.6 },
             {
@@ -38,6 +41,36 @@
               "label": "Kadastrale percelen (klikbaar)"
             },
             { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 }
+          ]
+        },
+        {
+          "label": "Klimaat & water",
+          "lagen": [
+            { "bron": "vmm:overstromingsgebied", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "vmm:oeverzones", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "vmm:waterloop_categorie", "rol": "kaartlaag", "transparantie": 0.8 }
+          ]
+        },
+        {
+          "label": "Ruimtelijke ordening",
+          "lagen": [
+            { "bron": "mercator:gewestplan", "rol": "kaartlaag", "transparantie": 0.5 },
+            { "bron": "mercator:rups", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "mercator:omgevingsvergunningen", "rol": "kaartlaag", "transparantie": 0.6 }
+          ]
+        },
+        {
+          "label": "Erfgoed",
+          "lagen": [
+            { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "erfgoed:landschapsatlas", "rol": "kaartlaag", "transparantie": 0.6 }
+          ]
+        },
+        {
+          "label": "Bodem & ondergrond",
+          "lagen": [
+            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "dov:grondwaterkwetsbaarheid", "rol": "kaartlaag", "transparantie": 0.5 }
           ]
         },
         {
