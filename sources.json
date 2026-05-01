@@ -1,13 +1,11 @@
 {
-  "$schema": "Data Companion — Broncatalogus v2.2",
-  "_doel": "Catalogus van LIVE Vlaamse open data APIs.",
+  "$schema": "Data Companion — Broncatalogus v2.3",
+  "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Alle bronnen vallen onder Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan mits bronvermelding",
-  "_uitsluitingen": "OSM en CartoDB tile-servers verwijderd om commerciële licentieproblemen te vermijden",
-  "_update": "april 2026",
+  "_update": "april 2026 — uitgebreid met VMM, MercatorNet, Onroerend Erfgoed, DOV",
 
   "_": "═══════════════════════════════════════════════════════════",
-  "_sectie_1": "1. ACHTERGRONDKAARTEN",
-  "_sectie_1_uitleg": "Topografische basislagen — voor altijd zichtbare context onder andere lagen",
+  "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
   "__": "═══════════════════════════════════════════════════════════",
 
   "geopunt:grb": {
@@ -17,8 +15,7 @@
     "layer": "GRB_BSK",
     "transparantie": 0.9,
     "attribution": "GRB © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "geopunt:grb_grijs": {
@@ -28,21 +25,18 @@
     "layer": "GRB_BSK_GRIJS",
     "transparantie": 0.9,
     "attribution": "GRB Grijs © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/grbgis",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)",
-    "_toelichting": "Neutrale grijze achtergrond — ideaal onder thematische lagen"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
-"geopunt:orthofoto_2021_zomer": {
-  "type": "wms",
-  "label": "Orthofoto zomer 2021 (40cm)",
-  "url": "https://geo.api.vlaanderen.be/OMZ/wms",
-  "layer": "OMZRGB21VL",
-  "transparantie": 1.0,
-  "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen",
-  "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-zomeropnamen-2021-vlaanderen",
-  "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
-},
+  "geopunt:orthofoto_2021_zomer": {
+    "type": "wms",
+    "label": "Orthofoto zomer 2021 (40cm)",
+    "url": "https://geo.api.vlaanderen.be/OMZ/wms",
+    "layer": "OMZRGB21VL",
+    "transparantie": 1.0,
+    "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
 
   "geopunt:orthofoto_2025_winter": {
     "type": "wms",
@@ -51,14 +45,11 @@
     "layer": "Ortho",
     "transparantie": 1.0,
     "attribution": "Orthofotomozaïek winter 2025 © Digitaal Vlaanderen",
-    "attribution_url": "https://www.vlaanderen.be/datavindplaats/catalogus/orthofotomozaiek-middenschalig-winteropnamen-kleur-meest-recent-vlaanderen-202504",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)",
-    "_toelichting": "Hogere resolutie dan zomeropnamen — wordt jaarlijks bijgewerkt"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "___": "═══════════════════════════════════════════════════════════",
-  "_sectie_2": "2. KADASTRALE EN STEDENBOUWKUNDIGE DETAIL-LAGEN",
-  "_sectie_2_uitleg": "Detail-informatie — werken vanaf zoom 14, voor specifieke analyses",
+  "_sectie_2": "2. KADASTRALE EN STEDENBOUWKUNDIGE LAGEN (Geopunt GRB)",
   "____": "═══════════════════════════════════════════════════════════",
 
   "geopunt:percelen": {
@@ -68,7 +59,7 @@
     "layer": "GRB_ADP",
     "transparantie": 0.7,
     "attribution": "GRB Administratief Perceel © Digitaal Vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "geopunt:percelen_grens": {
@@ -78,7 +69,7 @@
     "layer": "GRB_ADP_GRENS",
     "transparantie": 0.8,
     "attribution": "GRB Perceelsgrenzen © Digitaal Vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "geopunt:gebouwen": {
@@ -88,7 +79,7 @@
     "layer": "GRB_GBG",
     "transparantie": 0.8,
     "attribution": "GRB Gebouwen © Digitaal Vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "geopunt:wegen": {
@@ -98,7 +89,7 @@
     "layer": "GRB_WBN",
     "transparantie": 0.8,
     "attribution": "GRB Wegbanen © Digitaal Vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "geopunt:waterlopen": {
@@ -108,12 +99,11 @@
     "layer": "GRB_WTZ",
     "transparantie": 0.8,
     "attribution": "GRB Waterlopen © Digitaal Vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   },
 
   "_____": "═══════════════════════════════════════════════════════════",
-  "_sectie_3": "3. ADMINISTRATIEVE GRENZEN",
-  "_sectie_3_uitleg": "Vector-data voor referentiegebieden, met gemeente-info per polygon",
+  "_sectie_3": "3. ADMINISTRATIEVE GRENZEN (Geopunt)",
   "______": "═══════════════════════════════════════════════════════════",
 
   "geopunt:gemeentegrenzen": {
@@ -133,6 +123,140 @@
     "popup_titel": "{NAAM}",
     "popup_body": "NIS-code: {NISCODE}",
     "attribution": "VRBG Gemeentegrenzen © Digitaal Vlaanderen",
-    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 (commercieel toegestaan)"
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "_______": "═══════════════════════════════════════════════════════════",
+  "_sectie_4": "4. KLIMAATPORTAAL VLAANDEREN (VMM)",
+  "_sectie_4_uitleg": "Klimaatadaptatiekaarten van de Vlaamse Milieumaatschappij",
+  "________": "═══════════════════════════════════════════════════════════",
+
+  "vmm:overstromingsgebied": {
+    "type": "wms",
+    "label": "Actueel overstromingsgebied",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Actueel_overstromingsgebied",
+    "transparantie": 0.7,
+    "attribution": "Overstromingsgebied © Vlaamse Milieumaatschappij",
+    "attribution_url": "https://klimaat.vmm.be",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "vmm:oeverzones": {
+    "type": "wms",
+    "label": "Oeverzones (recht van voorkoop)",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Oeverzone",
+    "transparantie": 0.6,
+    "attribution": "Oeverzones © VMM",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "vmm:waterloop_categorie": {
+    "type": "wms",
+    "label": "Waterlopen per categorie (VHA)",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Wlas",
+    "transparantie": 0.8,
+    "attribution": "Vlaamse Hydrografische Atlas © VMM",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "_________": "═══════════════════════════════════════════════════════════",
+  "_sectie_5": "5. MERCATORNET (Beleidsdomein Omgeving)",
+  "_sectie_5_uitleg": "Omgevingsvergunningen, RUP's, gewestplan",
+  "__________": "═══════════════════════════════════════════════════════════",
+
+  "mercator:gewestplan": {
+    "type": "wms",
+    "label": "Gewestplan",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "ruimtelijke_ordening:Gwp_Bestemming_2002",
+    "transparantie": 0.6,
+    "attribution": "Gewestplan © Beleidsdomein Omgeving",
+    "attribution_url": "https://www.omgeving.vlaanderen.be",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "mercator:rups": {
+    "type": "wms",
+    "label": "Ruimtelijke Uitvoeringsplannen (RUP's)",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "ruimtelijke_ordening:RupGrens",
+    "transparantie": 0.7,
+    "attribution": "RUP's © Beleidsdomein Omgeving",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "mercator:omgevingsvergunningen": {
+    "type": "wms",
+    "label": "Omgevingsvergunningen (contouren)",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "omgevingsloket:OmvProject",
+    "transparantie": 0.6,
+    "attribution": "Omgevingsvergunningen © Beleidsdomein Omgeving",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "___________": "═══════════════════════════════════════════════════════════",
+  "_sectie_6": "6. ONROEREND ERFGOED VLAANDEREN",
+  "_sectie_6_uitleg": "Beschermd erfgoed, monumenten, landschappen",
+  "____________": "═══════════════════════════════════════════════════════════",
+
+  "erfgoed:beschermd_monument": {
+    "type": "wms",
+    "label": "Beschermde monumenten",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:beschermd_onroerend_erfgoed",
+    "transparantie": 0.7,
+    "attribution": "Onroerend Erfgoed © Agentschap Onroerend Erfgoed",
+    "attribution_url": "https://www.onroerenderfgoed.be",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "erfgoed:landschapsatlas": {
+    "type": "wms",
+    "label": "Landschapsatlas (relicten)",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:lerelict",
+    "transparantie": 0.6,
+    "attribution": "Landschapsatlas © Onroerend Erfgoed",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "_____________": "═══════════════════════════════════════════════════════════",
+  "_sectie_7": "7. DATABANK ONDERGROND VLAANDEREN (DOV)",
+  "_sectie_7_uitleg": "Bodemkaart, grondwater, geologie",
+  "______________": "═══════════════════════════════════════════════════════════",
+
+  "dov:bodemkaart": {
+    "type": "wms",
+    "label": "Bodemkaart Vlaanderen",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "bodemkaart:bodemkaart",
+    "transparantie": 0.7,
+    "attribution": "Bodemkaart © DOV",
+    "attribution_url": "https://www.dov.vlaanderen.be",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "dov:bodemtypes": {
+    "type": "wms",
+    "label": "Bodemtypes (textuur)",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "bodemkaart:bodemkaart_bodemtypes",
+    "transparantie": 0.7,
+    "attribution": "Bodemtypes © DOV",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
+  },
+
+  "dov:grondwaterkwetsbaarheid": {
+    "type": "wms",
+    "label": "Grondwaterkwetsbaarheid",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "kwetsbaarheid:kwetsbaarheidskaart",
+    "transparantie": 0.6,
+    "attribution": "Kwetsbaarheidskaart grondwater © DOV",
+    "licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0"
   }
 }
