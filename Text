@@ -3,18 +3,17 @@ Beheer:     https://kevinhuysentruyt.github.io/datacompanion/beheer.html
 https://kevinhuysentruyt.github.io/datacompanion/wms-test.html
 
 GEMEENTEPLAN
-Bebouwing
+Bebouwing                  ROOD
   Kadaster (+ mastrdata)
   Gebouwen
-Erfgoed
+Erfgoed                    GRIJS
   Diverse  (+ mastrdata)
-Water
-Bodem en natuur
+Water                      BLAUW
+Bodem en natuur            GROEN
   Bodemkaart
   Natuur ?  (+ mastrdata)
-Ondergrond
-  Riolering
-  DOV
+Ondergrond                  BRUIN
+  DOV       (+ masterdata)
 
 RUIMTELIJKE PLANNING
   Bebouwing + riolering + BPA/RUP/etc.
