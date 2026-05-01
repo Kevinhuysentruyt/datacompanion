@@ -1,11 +1,10 @@
 // ════════════════════════════════════════════════════════
-//  SJABLOON: Geodata (v3)
+//  SJABLOON: Geodata (v5)
 //
-//  Wijzigingen v3:
-//  - Achtergrondlagen krijgen eigen pane "achtergrond" (zIndex 200)
-//  - Kaartlagen krijgen pane "kaartlagen" (zIndex 400)
-//  - Achtergrond staat dus ALTIJD onder kaartlagen
-//  - Attribution per laag wordt correct doorgegeven aan Leaflet
+//  Wijzigingen v5:
+//  - Inklapbare rubrieken per groep
+//  - Vaste hoogte voor kaartcontainer (geen herschikking)
+//  - Foutafhandeling per laag (1 fout = niet alles down)
 // ════════════════════════════════════════════════════════
 
 import { resolveSource } from '../core.js';
@@ -29,11 +28,8 @@ export function renderSjabloonGeodata(container, loket, state) {
     </div>
     <div class="geodata-layout">
       <aside class="geodata-panel">
-        <div class="layer-group">
-          <div class="layer-group-title">Kaartlagen</div>
-          <div id="kaartlagen-container"></div>
-        </div>
-        <div class="layer-group">
+        <div id="kaartlagen-rubrieken"></div>
+        <div class="layer-group layer-group-bottom">
           <div class="layer-group-title">Achtergrond</div>
           <div id="achtergrond-container"></div>
         </div>
@@ -44,62 +40,77 @@ export function renderSjabloonGeodata(container, loket, state) {
     </div>
   `;
 
-  // ── KAART INITIALISEREN ────────────────────────────────
+  // Kaart initialiseren
   const cfg = state.config;
   const centrum = cfg.gemeente.fallback_centrum || [50.9, 4.0];
   const map = L.map('map', { attributionControl: true }).setView(centrum, 12);
   state.mapInstance = map;
 
-  // ── PANES VOOR LAAG-VOLGORDE ───────────────────────────
-  // Achtergrond ALTIJD onder kaartlagen via z-index
-  // Leaflet standaard: tilePane = 200, overlayPane = 400, markerPane = 600
+  // Panes voor z-index
   map.createPane('achtergrond');
   map.getPane('achtergrond').style.zIndex = 200;
-
   map.createPane('kaartlagen');
   map.getPane('kaartlagen').style.zIndex = 400;
 
-  // ── LAGEN OPDELEN ──────────────────────────────────────
-  const alleLagen = (loket.groepen || []).flatMap(g =>
-    (g.lagen || []).map(l => ({ ...l, _groep_label: g.label }))
-  );
-
-  const isAchtergrond = (l) => {
-    if (l.rol === 'achtergrond') return true;
-    if (l.rol === 'kaartlaag') return false;
-    const grp = (l._groep_label || '').toLowerCase();
-    return grp.includes('achtergrond') || grp.includes('basiskaart');
+  // Lagen organiseren per groep
+  const groepen = loket.groepen || [];
+  const isAchtergrondGroep = (g) => {
+    const lbl = (g.label || '').toLowerCase();
+    return lbl.includes('achtergrond') || lbl.includes('basiskaart');
   };
 
-  const kaartlagen = alleLagen.filter(l => !isAchtergrond(l));
-  const achtergrondlagen = alleLagen.filter(isAchtergrond);
+  const kaartGroepen = groepen.filter(g => !isAchtergrondGroep(g));
+  const achtergrondGroep = groepen.find(isAchtergrondGroep);
 
-  // ── KAARTLAGEN RENDEREN ────────────────────────────────
-  const kaartContainer = document.getElementById('kaartlagen-container');
-  if (kaartlagen.length === 0) {
-    kaartContainer.innerHTML = '<div class="layer-empty">Geen kaartlagen geconfigureerd</div>';
+  // ── KAARTLAGEN PER RUBRIEK RENDEREN ────────────────────
+  const rubriekContainer = document.getElementById('kaartlagen-rubrieken');
+
+  if (kaartGroepen.length === 0) {
+    rubriekContainer.innerHTML = '<div class="layer-empty">Geen kaartlagen</div>';
   } else {
-    kaartlagen.forEach(laag => {
-      const el = bouwLaagControl(laag, map, 'toggle', null, null, null, 'kaartlagen');
-      if (el) kaartContainer.appendChild(el);
+    kaartGroepen.forEach((groep, idx) => {
+      const groepEl = document.createElement('div');
+      groepEl.className = 'layer-group layer-group-rubriek';
+
+      // Eerste rubriek standaard open, rest gesloten
+      const startOpen = idx === 0;
+      groepEl.innerHTML = `
+        <button class="rubriek-header${startOpen ? ' rubriek-open' : ''}" type="button">
+          <span class="rubriek-arrow">▶</span>
+          <span class="rubriek-titel">${groep.label || 'Rubriek'}</span>
+          <span class="rubriek-aantal">${(groep.lagen || []).length}</span>
+        </button>
+        <div class="rubriek-content${startOpen ? '' : ' rubriek-gesloten'}"></div>
+      `;
+
+      // Klik-handler voor inklappen
+      const headerBtn = groepEl.querySelector('.rubriek-header');
+      const contentEl = groepEl.querySelector('.rubriek-content');
+      headerBtn.addEventListener('click', () => {
+        headerBtn.classList.toggle('rubriek-open');
+        contentEl.classList.toggle('rubriek-gesloten');
+      });
+
+      // Lagen in deze rubriek
+      (groep.lagen || []).forEach(laag => {
+        const el = bouwLaagControl(laag, map, 'toggle', null, null, null, 'kaartlagen');
+        if (el) contentEl.appendChild(el);
+      });
+
+      rubriekContainer.appendChild(groepEl);
     });
   }
 
   // ── ACHTERGROND RENDEREN ───────────────────────────────
   const achterContainer = document.getElementById('achtergrond-container');
-  if (achtergrondlagen.length === 0) {
-    const fallback = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
-      subdomains: 'abcd',
-      opacity: 0.6,
-      pane: 'achtergrond'
-    });
-    fallback.addTo(map);
-    achterContainer.innerHTML = '<div class="layer-empty">Standaard achtergrond actief</div>';
+  const achtergrondLagen = achtergrondGroep ? (achtergrondGroep.lagen || []) : [];
+
+  if (achtergrondLagen.length === 0) {
+    achterContainer.innerHTML = '<div class="layer-empty">Geen achtergrond geconfigureerd</div>';
   } else {
     const radioNaam = `achtergrond-${Date.now()}`;
     const groep = [];
-    achtergrondlagen.forEach((laag, idx) => {
+    achtergrondLagen.forEach((laag, idx) => {
       const el = bouwLaagControl(laag, map, 'radio', radioNaam, idx, groep, 'achtergrond');
       if (el) achterContainer.appendChild(el);
     });
@@ -118,28 +129,46 @@ export function renderSjabloonGeodata(container, loket, state) {
       })
       .catch(() => {});
   }
+
+  // Kaart hergrootte forceren na render
+  setTimeout(() => map.invalidateSize(), 100);
 }
 
-// ════════════════════════════════════════════════════════
-//  HULPFUNCTIE — bouwt een laag-control
-//  Geeft pane mee zodat de laag in de juiste z-index zit
-// ════════════════════════════════════════════════════════
+// Bouwt een laag-control
 function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam) {
-  const laag = resolveSource(laagConfig);
-  const bronType = laag.type || laag.bron;
-  const sourceFn = SOURCES[bronType];
-  if (!sourceFn) {
-    console.warn(`Onbekende source: ${bronType}`);
+  let laag;
+  try {
+    laag = resolveSource(laagConfig);
+  } catch (e) {
+    console.warn(`Bron niet gevonden: ${laagConfig.bron}`, e);
     return null;
   }
 
-  // Geef pane mee aan source-module via uitgebreide laag-config
-  const laagMetPane = { ...laag, _pane: paneNaam };
+  const bronType = laag.type || laag.bron;
+  const sourceFn = SOURCES[bronType];
+  if (!sourceFn) {
+    console.warn(`Onbekende source type: ${bronType} voor ${laag.label || laagConfig.bron}`);
+    return null;
+  }
 
+  const laagMetPane = { ...laag, _pane: paneNaam };
   const statusEl = document.createElement('div');
   statusEl.className = 'layer-status';
 
-  const kaartlaag = sourceFn(laagMetPane, map, statusEl);
+  let kaartlaag;
+  try {
+    kaartlaag = sourceFn(laagMetPane, map, statusEl);
+  } catch (e) {
+    console.error(`Fout bij laden van ${laag.label}:`, e);
+    return null;
+  }
+
+  // Foutafhandeling op tile-niveau
+  if (kaartlaag && typeof kaartlaag.on === 'function') {
+    kaartlaag.on('tileerror', (err) => {
+      console.warn(`Tile-fout voor ${laag.label}:`, err.tile?.src);
+    });
+  }
 
   const item = document.createElement('div');
   item.className = 'layer-control';
@@ -159,7 +188,6 @@ function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam
   return item;
 }
 
-// Transparantie-schuiver
 function bouwSlider(kaartlaag, startOpacity) {
   const wrapper = document.createElement('div');
   wrapper.className = 'layer-slider';
@@ -181,14 +209,11 @@ function bouwSlider(kaartlaag, startOpacity) {
 
 function pasOpacityToe(laag, opacity) {
   if (!laag) return;
-  if (typeof laag.setOpacity === 'function') {
-    laag.setOpacity(opacity);
-    return;
-  }
+  if (typeof laag.setOpacity === 'function') { laag.setOpacity(opacity); return; }
   if (typeof laag.eachLayer === 'function') {
     laag.eachLayer(sub => {
       if (typeof sub.setOpacity === 'function') sub.setOpacity(opacity);
-      else if (typeof sub.setStyle === 'function') sub.setStyle({ opacity: opacity, fillOpacity: opacity * 0.7 });
+      else if (typeof sub.setStyle === 'function') sub.setStyle({ opacity, fillOpacity: opacity * 0.7 });
     });
   }
 }
