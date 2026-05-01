@@ -1,9 +1,10 @@
 // ════════════════════════════════════════════════════════
-//  SOURCE: WMS (v5)
+//  SOURCE: WMS (v6)
 //
-//  v5 wijzigingen:
-//  - GetFeatureInfo support voor erfgoed-lagen (klikbaar_info)
-//  - Capakey klikbaar voor percelen
+//  v6 wijzigingen:
+//  - klikbaar_inventaris: opent inventaris.onroerenderfgoed.be
+//    rechtstreeks (omzeilt CORS-probleem van GetFeatureInfo)
+//  - klikbaar (capakey) blijft werken voor percelen
 // ════════════════════════════════════════════════════════
 
 export function laadLaag(laagConfig, map, statusEl) {
@@ -19,14 +20,14 @@ export function laadLaag(laagConfig, map, statusEl) {
 
   const wmsLaag = L.tileLayer.wms(laagConfig.url, opties);
 
-  // Capakey klikbaar (bestaande functionaliteit)
+  // Capakey klikbaar (kadastrale percelen)
   if (laagConfig.klikbaar) {
     activeerCapakeyKlik(wmsLaag, map);
   }
 
-  // Erfgoed/algemene WMS info via GetFeatureInfo
-  if (laagConfig.klikbaar_info) {
-    activeerGetFeatureInfo(wmsLaag, map, laagConfig);
+  // Erfgoed: klik opent inventaris-pagina met locatie
+  if (laagConfig.klikbaar_inventaris) {
+    activeerErfgoedKlik(wmsLaag, map, laagConfig);
   }
 
   return wmsLaag;
@@ -87,111 +88,49 @@ function activeerCapakeyKlik(laag, map) {
 }
 
 // ──────────────────────────────────────────────────────
-// GetFeatureInfo — voor Onroerend Erfgoed lagen
+// ERFGOED — opent inventaris.onroerenderfgoed.be
 // ──────────────────────────────────────────────────────
-function activeerGetFeatureInfo(laag, map, laagConfig) {
+// Geen GetFeatureInfo (CORS-problemen). In plaats daarvan:
+// directe link naar het officiële zoekportaal met de
+// klikcoördinaten als locatie-zoekparameter.
+function activeerErfgoedKlik(laag, map, laagConfig) {
   let actief = false;
 
   laag.on('add', () => { actief = true; });
   laag.on('remove', () => { actief = false; });
 
-  map.on('click', async (e) => {
+  map.on('click', (e) => {
     if (!actief || !map.hasLayer(laag)) return;
 
-    const popup = L.popup({ maxWidth: 360 })
+    const { lat, lng } = e.latlng;
+
+    // Bouw URL naar de inventaris met de klikpositie als locatie
+    // De inventaris ondersteunt ?lat=&lng=&zoom= als directe link
+    const inventarisUrl = `https://inventaris.onroerenderfgoed.be/?lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}&zoom=17`;
+
+    L.popup({ maxWidth: 320 })
       .setLatLng(e.latlng)
-      .setContent('<div class="erfgoed-popup-loading">Laden erfgoedinfo...</div>')
+      .setContent(`
+        <div class="erfgoed-popup">
+          <div class="erfgoed-titel">${escapeHtml(laagConfig.label)}</div>
+          <div class="erfgoed-uitleg">
+            Klik op onderstaande link om alle <strong>${escapeHtml(laagConfig.label.toLowerCase())}</strong>
+            op deze locatie te bekijken in de officiële inventaris van Onroerend Erfgoed.
+          </div>
+          <div class="erfgoed-link">
+            <a href="${inventarisUrl}" target="_blank" rel="noopener">
+              Open in inventaris.onroerenderfgoed.be →
+            </a>
+          </div>
+          <div class="erfgoed-coords">
+            <small>Locatie: ${lat.toFixed(5)}°, ${lng.toFixed(5)}°</small>
+          </div>
+        </div>
+      `)
       .openOn(map);
-
-    try {
-      const url = bouwGetFeatureInfoUrl(map, laagConfig, e.latlng);
-      const res = await fetch(url);
-      if (!res.ok) {
-        popup.setContent('<div class="erfgoed-popup-fout">Geen info beschikbaar</div>');
-        return;
-      }
-
-      const data = await res.json();
-      const features = data.features || [];
-
-      if (features.length === 0) {
-        popup.setContent(`<div class="erfgoed-popup-leeg">Geen ${laagConfig.label.toLowerCase()} op deze locatie</div>`);
-        return;
-      }
-
-      // Bouw popup uit alle features
-      const html = features.map(f => formatErfgoedFeature(f, laagConfig.label)).join('<hr style="margin: 8px 0; border: 0; border-top: 1px solid #ddd;"/>');
-      popup.setContent(`<div class="erfgoed-popup">${html}</div>`);
-
-    } catch (err) {
-      console.error('GetFeatureInfo fout:', err);
-      popup.setContent('<div class="erfgoed-popup-fout">Fout bij ophalen info</div>');
-    }
   });
-}
-
-function bouwGetFeatureInfoUrl(map, laagConfig, latlng) {
-  const point = map.latLngToContainerPoint(latlng);
-  const size = map.getSize();
-  const bounds = map.getBounds();
-  const sw = bounds.getSouthWest();
-  const ne = bounds.getNorthEast();
-
-  // WMS 1.3.0 gebruikt CRS=EPSG:4326 met BBOX als lat,lon order
-  const params = new URLSearchParams({
-    service: 'WMS',
-    version: '1.3.0',
-    request: 'GetFeatureInfo',
-    layers: laagConfig.layer,
-    query_layers: laagConfig.layer,
-    crs: 'EPSG:4326',
-    bbox: `${sw.lat},${sw.lng},${ne.lat},${ne.lng}`,
-    width: size.x,
-    height: size.y,
-    i: Math.round(point.x),
-    j: Math.round(point.y),
-    info_format: 'application/json',
-    feature_count: 5
-  });
-
-  return `${laagConfig.url}?${params.toString()}`;
-}
-
-function formatErfgoedFeature(feature, laagLabel) {
-  const props = feature.properties || {};
-  const naam = props.naam || props.NAAM || props.benaming || props.Benaming || props.objectnaam || 'Erfgoeditem';
-  const id = props.id || props.objectid || props.aanduid_id || '';
-
-  // Verzamel alle relevante eigenschappen, filter null/leeg
-  const rijen = Object.entries(props)
-    .filter(([k, v]) => v !== null && v !== '' && v !== 'null' && !k.startsWith('the_geom'))
-    .filter(([k]) => !['id', 'objectid', 'naam', 'NAAM'].includes(k))
-    .slice(0, 8)
-    .map(([k, v]) => `<div class="erfgoed-rij"><span class="erfgoed-key">${formatKey(k)}:</span> ${escapeHtml(String(v))}</div>`)
-    .join('');
-
-  // Link naar inventaris.onroerenderfgoed.be als id beschikbaar
-  let link = '';
-  if (id && /^\d+$/.test(String(id))) {
-    link = `<div class="erfgoed-link"><a href="https://id.erfgoed.net/erfgoedobjecten/${id}" target="_blank" rel="noopener">Bekijk in Inventaris →</a></div>`;
-  } else if (props.aanduid_id) {
-    link = `<div class="erfgoed-link"><a href="https://id.erfgoed.net/aanduidingsobjecten/${props.aanduid_id}" target="_blank" rel="noopener">Bekijk in Inventaris →</a></div>`;
-  }
-
-  return `
-    <div class="erfgoed-feature">
-      <div class="erfgoed-titel">${escapeHtml(naam)}</div>
-      <div class="erfgoed-type">${laagLabel}</div>
-      ${rijen}
-      ${link}
-    </div>
-  `;
-}
-
-function formatKey(k) {
-  return k.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
 }
 
 function escapeHtml(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
