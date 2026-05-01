@@ -1,8 +1,8 @@
 {
-  "$schema": "Data Companion — Broncatalogus v2.5",
+  "$schema": "Data Companion — Broncatalogus v2.6",
   "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
-  "_update": "april 2026 — VMM en Erfgoed laagnamen geverifieerd via GetCapabilities",
+  "_update": "april 2026 — drinkwater verwijderd, erfgoed met getfeatureinfo",
 
   "_": "═══════════════════════════════════════════════════════════",
   "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
@@ -57,15 +57,6 @@
     "attribution": "GRB Administratief Perceel © Digitaal Vlaanderen"
   },
 
-  "geopunt:percelen_grens": {
-    "type": "wms",
-    "label": "Perceelsgrenzen",
-    "url": "https://geo.api.vlaanderen.be/GRB/wms",
-    "layer": "GRB_ADP_GRENS",
-    "transparantie": 0.8,
-    "attribution": "GRB Perceelsgrenzen © Digitaal Vlaanderen"
-  },
-
   "geopunt:gebouwen": {
     "type": "wms",
     "label": "Gebouwen aan de grond (GBG)",
@@ -82,15 +73,6 @@
     "layer": "GRB_WBN",
     "transparantie": 0.8,
     "attribution": "GRB Wegbanen © Digitaal Vlaanderen"
-  },
-
-  "geopunt:waterlopen": {
-    "type": "wms",
-    "label": "Waterlopen (WTZ)",
-    "url": "https://geo.api.vlaanderen.be/GRB/wms",
-    "layer": "GRB_WTZ",
-    "transparantie": 0.8,
-    "attribution": "GRB Waterlopen © Digitaal Vlaanderen"
   },
 
   "_____": "═══════════════════════════════════════════════════════════",
@@ -117,7 +99,7 @@
   },
 
   "_______": "═══════════════════════════════════════════════════════════",
-  "_sectie_4": "4. WATER & KLIMAAT (VMM) — geverifieerd",
+  "_sectie_4": "4. WATER & KLIMAAT (VMM)",
   "________": "═══════════════════════════════════════════════════════════",
 
   "vmm:overstromingsgebied_recent": {
@@ -136,15 +118,6 @@
     "layer": "NatOverstrGeb",
     "transparantie": 0.6,
     "attribution": "Natuurlijk overstroombaar © VMM"
-  },
-
-  "vmm:overstromingsgebied_voorkoop": {
-    "type": "wms",
-    "label": "Overstromingsgebieden + oeverzones (recht van voorkoop)",
-    "url": "https://geo.api.vlaanderen.be/VMM/wms",
-    "layer": "OvstrGebOeverZ",
-    "transparantie": 0.7,
-    "attribution": "Overstromingsgebieden integraal waterbeleid © VMM"
   },
 
   "vmm:waterlopen_vha": {
@@ -183,15 +156,6 @@
     "attribution": "Zwemwater © VMM"
   },
 
-  "vmm:drinkwaterzones": {
-    "type": "wms",
-    "label": "Drinkwater leveringsgebieden",
-    "url": "https://geo.api.vlaanderen.be/VMM/wms",
-    "layer": "DwdWsz",
-    "transparantie": 0.5,
-    "attribution": "Drinkwaterzones © VMM"
-  },
-
   "vmm:rioolinventaris_punten": {
     "type": "wms",
     "label": "Rioolinventaris — punten (overstort, gemaal, ...)",
@@ -219,15 +183,6 @@
     "attribution": "Zuiveringsgebieden © VMM"
   },
 
-  "vmm:nitraatkwetsbaarheid": {
-    "type": "wms",
-    "label": "Nitraatkwetsbare gebieden",
-    "url": "https://geo.api.vlaanderen.be/VMM/wms",
-    "layer": "NiDNVZ",
-    "transparantie": 0.5,
-    "attribution": "Nitraatkwetsbare gebieden © VMM"
-  },
-
   "vmm:hillshade": {
     "type": "wms",
     "label": "Hoogtemodel — Hillshade (5m)",
@@ -238,7 +193,7 @@
   },
 
   "_________": "═══════════════════════════════════════════════════════════",
-  "_sectie_5": "5. ONROEREND ERFGOED — laagnamen geverifieerd via GetCapabilities",
+  "_sectie_5": "5. ONROEREND ERFGOED — alle lagen klikbaar via GetFeatureInfo",
   "__________": "═══════════════════════════════════════════════════════════",
 
   "erfgoed:beschermd_monument": {
@@ -247,6 +202,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_monument",
     "transparantie": 0.7,
+    "klikbaar_info": true,
     "attribution": "Beschermde monumenten © Onroerend Erfgoed"
   },
 
@@ -256,6 +212,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_landschap",
     "transparantie": 0.6,
+    "klikbaar_info": true,
     "attribution": "Beschermde landschappen © Onroerend Erfgoed"
   },
 
@@ -265,6 +222,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_arch_site",
     "transparantie": 0.6,
+    "klikbaar_info": true,
     "attribution": "Beschermde archeologische sites © Onroerend Erfgoed"
   },
 
@@ -274,7 +232,8 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_sd_gezicht",
     "transparantie": 0.5,
-    "attribution": "Beschermde stads- en dorpsgezichten © Onroerend Erfgoed"
+    "klikbaar_info": true,
+    "attribution": "Stads- en dorpsgezichten © Onroerend Erfgoed"
   },
 
   "erfgoed:bouwkundig_inventaris": {
@@ -283,6 +242,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bouwkundig_element",
     "transparantie": 0.7,
+    "klikbaar_info": true,
     "attribution": "Bouwkundig erfgoed © Onroerend Erfgoed"
   },
 
@@ -292,6 +252,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:landschappelijk_element",
     "transparantie": 0.7,
+    "klikbaar_info": true,
     "attribution": "Landschappelijk erfgoed © Onroerend Erfgoed"
   },
 
@@ -301,6 +262,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:archeologisch_element",
     "transparantie": 0.7,
+    "klikbaar_info": true,
     "attribution": "Archeologisch erfgoed © Onroerend Erfgoed"
   },
 
@@ -310,6 +272,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:erfgoedls",
     "transparantie": 0.5,
+    "klikbaar_info": true,
     "attribution": "Erfgoedlandschappen © Onroerend Erfgoed"
   },
 
@@ -319,16 +282,8 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:unesco_kern",
     "transparantie": 0.6,
+    "klikbaar_info": true,
     "attribution": "UNESCO kernzones © Onroerend Erfgoed"
-  },
-
-  "erfgoed:unesco_buffer": {
-    "type": "wms",
-    "label": "UNESCO Werelderfgoed — bufferzones",
-    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
-    "layer": "vioe_geoportaal:unesco_buffer",
-    "transparantie": 0.5,
-    "attribution": "UNESCO bufferzones © Onroerend Erfgoed"
   },
 
   "___________": "═══════════════════════════════════════════════════════════",
