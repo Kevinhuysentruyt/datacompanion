@@ -1,8 +1,8 @@
 {
-  "$schema": "Data Companion — Broncatalogus v2.6",
+  "$schema": "Data Companion — Broncatalogus v2.7",
   "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
-  "_update": "april 2026 — drinkwater verwijderd, erfgoed met getfeatureinfo",
+  "_update": "april 2026 — zuiveringsgebieden verwijderd",
 
   "_": "═══════════════════════════════════════════════════════════",
   "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
@@ -147,15 +147,6 @@
     "attribution": "Bekkens © VMM"
   },
 
-  "vmm:zwemwater": {
-    "type": "wms",
-    "label": "Zwemwaterlocaties",
-    "url": "https://geo.api.vlaanderen.be/VMM/wms",
-    "layer": "Vlzwl",
-    "transparantie": 0.9,
-    "attribution": "Zwemwater © VMM"
-  },
-
   "vmm:rioolinventaris_punten": {
     "type": "wms",
     "label": "Rioolinventaris — punten (overstort, gemaal, ...)",
@@ -174,15 +165,6 @@
     "attribution": "Rioolinventaris © VMM"
   },
 
-  "vmm:zuiveringsgebieden": {
-    "type": "wms",
-    "label": "Zuiveringsgebieden",
-    "url": "https://geo.api.vlaanderen.be/VMM/wms",
-    "layer": "Zuivergeb",
-    "transparantie": 0.5,
-    "attribution": "Zuiveringsgebieden © VMM"
-  },
-
   "vmm:hillshade": {
     "type": "wms",
     "label": "Hoogtemodel — Hillshade (5m)",
@@ -193,7 +175,7 @@
   },
 
   "_________": "═══════════════════════════════════════════════════════════",
-  "_sectie_5": "5. ONROEREND ERFGOED — alle lagen klikbaar via GetFeatureInfo",
+  "_sectie_5": "5. ONROEREND ERFGOED — klik opent inventaris.onroerenderfgoed.be",
   "__________": "═══════════════════════════════════════════════════════════",
 
   "erfgoed:beschermd_monument": {
@@ -202,7 +184,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_monument",
     "transparantie": 0.7,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Beschermde monumenten © Onroerend Erfgoed"
   },
 
@@ -212,7 +194,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_landschap",
     "transparantie": 0.6,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Beschermde landschappen © Onroerend Erfgoed"
   },
 
@@ -222,7 +204,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_arch_site",
     "transparantie": 0.6,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Beschermde archeologische sites © Onroerend Erfgoed"
   },
 
@@ -232,7 +214,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bes_sd_gezicht",
     "transparantie": 0.5,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Stads- en dorpsgezichten © Onroerend Erfgoed"
   },
 
@@ -242,7 +224,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:bouwkundig_element",
     "transparantie": 0.7,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Bouwkundig erfgoed © Onroerend Erfgoed"
   },
 
@@ -252,7 +234,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:landschappelijk_element",
     "transparantie": 0.7,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Landschappelijk erfgoed © Onroerend Erfgoed"
   },
 
@@ -262,7 +244,7 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:archeologisch_element",
     "transparantie": 0.7,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Archeologisch erfgoed © Onroerend Erfgoed"
   },
 
@@ -272,18 +254,8 @@
     "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
     "layer": "vioe_geoportaal:erfgoedls",
     "transparantie": 0.5,
-    "klikbaar_info": true,
+    "klikbaar_inventaris": true,
     "attribution": "Erfgoedlandschappen © Onroerend Erfgoed"
-  },
-
-  "erfgoed:unesco_kern": {
-    "type": "wms",
-    "label": "UNESCO Werelderfgoed — kernzones",
-    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
-    "layer": "vioe_geoportaal:unesco_kern",
-    "transparantie": 0.6,
-    "klikbaar_info": true,
-    "attribution": "UNESCO kernzones © Onroerend Erfgoed"
   },
 
   "___________": "═══════════════════════════════════════════════════════════",
