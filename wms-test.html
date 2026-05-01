@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>WMS Test — Data Companion</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  body { margin: 0; font-family: -apple-system, sans-serif; display: flex; height: 100vh; }
+  #panel { width: 350px; padding: 16px; background: #f5f5f5; overflow-y: auto; border-right: 1px solid #ddd; }
+  #map { flex: 1; }
+  h1 { font-size: 16px; margin: 0 0 12px; }
+  h2 { font-size: 13px; margin: 16px 0 6px; color: #555; }
+  .test-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .test-btn:hover { background: #e8f4ff; }
+  .test-btn.actief { background: #1a5c3a; color: white; border-color: #1a5c3a; }
+  #status {
+    padding: 10px;
+    margin-top: 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: monospace;
+    min-height: 80px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .ok { color: #2ecc71; font-weight: bold; }
+  .fout { color: #e74c3c; font-weight: bold; }
+  details { margin-bottom: 8px; }
+  summary { cursor: pointer; padding: 6px; background: #e8e8e8; border-radius: 4px; font-size: 12px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div id="panel">
+  <h1>🔍 WMS Layer Tester</h1>
+  <p style="font-size: 11px; color: #666;">Klik op een laag om te testen. Status verschijnt onderaan.</p>
+
+  <details open>
+    <summary>VMM Klimaatportaal</summary>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/VMM/wms" data-layer="Actueel_overstromingsgebied">overstromingsgebied (origineel)</button>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/VMM/wms" data-layer="actueel_overstromingsgebied">overstroming (lowercase)</button>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/VMM/wms" data-layer="Wlas">Waterloop (Wlas)</button>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/VMM/wms" data-layer="WLAS">WLAS uppercase</button>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/VMM/wms" data-getcap="1">▼ GetCapabilities openen</button>
+  </details>
+
+  <details>
+    <summary>MercatorNet</summary>
+    <button class="test-btn" data-url="https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows" data-layer="ruimtelijke_ordening:Gwp_Bestemming_2002">gewestplan (origineel)</button>
+    <button class="test-btn" data-url="https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows" data-layer="ruimtelijke_ordening:RupGrens">RupGrens</button>
+    <button class="test-btn" data-url="https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows" data-layer="omgevingsloket:OmvProject">OmvProject</button>
+    <button class="test-btn" data-url="https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows" data-getcap="1">▼ GetCapabilities openen</button>
+  </details>
+
+  <details>
+    <summary>Onroerend Erfgoed</summary>
+    <button class="test-btn" data-url="https://geo.onroerenderfgoed.be/geoserver/wms" data-layer="vioe_geoportaal:beschermd_onroerend_erfgoed">beschermd erfgoed (origineel)</button>
+    <button class="test-btn" data-url="https://geo.onroerenderfgoed.be/geoserver/wms" data-layer="vioe_geoportaal:lerelict">lerelict</button>
+    <button class="test-btn" data-url="https://geo.onroerenderfgoed.be/geoserver/wms" data-getcap="1">▼ GetCapabilities openen</button>
+  </details>
+
+  <details>
+    <summary>DOV Bodem</summary>
+    <button class="test-btn" data-url="https://www.dov.vlaanderen.be/geoserver/wms" data-layer="bodemkaart:bodemkaart">bodemkaart (origineel)</button>
+    <button class="test-btn" data-url="https://www.dov.vlaanderen.be/geoserver/wms" data-layer="bodemkaart:bodemkaart_bodemtypes">bodemtypes</button>
+    <button class="test-btn" data-url="https://www.dov.vlaanderen.be/geoserver/wms" data-layer="kwetsbaarheid:kwetsbaarheidskaart">grondwaterkwetsbaarheid</button>
+    <button class="test-btn" data-url="https://www.dov.vlaanderen.be/geoserver/wms" data-getcap="1">▼ GetCapabilities openen</button>
+  </details>
+
+  <details>
+    <summary>Geopunt orthofoto zomer</summary>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/OMZ/wms" data-layer="OMZRGB21VL">OMZRGB21VL (kleur 2021)</button>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/OMZ/wms" data-layer="Ortho">Ortho (single)</button>
+    <button class="test-btn" data-url="https://geo.api.vlaanderen.be/OMZ/wms" data-getcap="1">▼ GetCapabilities openen</button>
+  </details>
+
+  <h2>Status</h2>
+  <div id="status">Klik een laag om te testen...</div>
+</div>
+
+<div id="map"></div>
+
+<script>
+const map = L.map('map').setView([50.81, 3.34], 12);
+
+// Achtergrond
+L.tileLayer.wms('https://geo.api.vlaanderen.be/GRB-basiskaart-grijs/wms', {
+  layers: 'GRB_BSK_GRIJS',
+  format: 'image/png',
+  transparent: true
+}).addTo(map);
+
+let huidigeLaag = null;
+const statusEl = document.getElementById('status');
+
+document.querySelectorAll('.test-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    document.querySelectorAll('.test-btn').forEach(b => b.classList.remove('actief'));
+    btn.classList.add('actief');
+
+    const url = btn.dataset.url;
+
+    // GetCapabilities open in nieuw venster
+    if (btn.dataset.getcap) {
+      const capUrl = `${url}?service=WMS&request=GetCapabilities&version=1.3.0`;
+      window.open(capUrl, '_blank');
+      statusEl.textContent = 'GetCapabilities geopend in nieuw tabblad.\nZoek naar <Layer> tags voor de exacte laag-namen.';
+      return;
+    }
+
+    const layer = btn.dataset.layer;
+
+    // Verwijder vorige laag
+    if (huidigeLaag) map.removeLayer(huidigeLaag);
+
+    statusEl.textContent = `Laden: ${url}\nLaag: ${layer}\n\n...`;
+
+    huidigeLaag = L.tileLayer.wms(url, {
+      layers: layer,
+      format: 'image/png',
+      transparent: true,
+      version: '1.3.0'
+    });
+
+    let foutCount = 0;
+    let successCount = 0;
+
+    huidigeLaag.on('tileerror', e => {
+      foutCount++;
+      if (foutCount === 1) {
+        statusEl.innerHTML = `<span class="fout">✗ FOUT</span>\nURL: ${url}\nLayer: ${layer}\n\nTile-fout: ${e.tile?.src || 'onbekend'}\n\nProbeer GetCapabilities te openen om juiste namen te zien.`;
+      }
+    });
+
+    huidigeLaag.on('tileload', e => {
+      successCount++;
+      if (successCount === 1) {
+        statusEl.innerHTML = `<span class="ok">✓ WERKT</span>\nURL: ${url}\nLayer: ${layer}\n\nTegels worden geladen.`;
+      }
+    });
+
+    huidigeLaag.addTo(map);
+  });
+});
+</script>
+
+</body>
+</html>
