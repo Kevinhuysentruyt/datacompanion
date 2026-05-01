@@ -459,3 +459,126 @@ header {
 .perceel-link:hover {
   text-decoration: underline;
 }
+/* ═══════════════════════════════════════════════════════════
+   AANVULLING op css/stijlen.css — voeg deze regels TOE
+   onderaan het bestaande stijlen.css
+   Voor: rubrieken, layout-fix, kaart vaste hoogte
+   ═══════════════════════════════════════════════════════════ */
+
+/* LAYOUT FIX — kaart krijgt vaste hoogte, geen herschikking */
+.geodata-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  height: calc(100vh - 220px);
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.geodata-panel {
+  overflow-y: auto;
+  padding-right: 8px;
+  height: 100%;
+}
+
+.geodata-map {
+  height: 100%;
+  position: relative;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* RUBRIEK — inklapbaar groep-paneel */
+.layer-group-rubriek {
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rubriek-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tekst);
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.rubriek-header:hover {
+  background: var(--border);
+}
+
+.rubriek-arrow {
+  font-size: 9px;
+  color: var(--muted);
+  transition: transform 0.15s;
+  display: inline-block;
+  width: 10px;
+}
+
+.rubriek-header.rubriek-open .rubriek-arrow {
+  transform: rotate(90deg);
+}
+
+.rubriek-titel {
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11px;
+}
+
+.rubriek-aantal {
+  font-size: 10px;
+  background: var(--border);
+  color: var(--muted);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rubriek-content {
+  padding: 8px;
+  background: white;
+  max-height: 800px;
+  transition: max-height 0.2s ease, padding 0.2s ease;
+  overflow: hidden;
+}
+
+.rubriek-content.rubriek-gesloten {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Achtergrond-groep onderaan blijft zichtbaar */
+.layer-group-bottom {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid var(--border);
+}
+
+/* Mobile fallback */
+@media (max-width: 768px) {
+  .geodata-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .geodata-panel {
+    max-height: 300px;
+  }
+  .geodata-map {
+    height: 60vh;
+  }
+}
