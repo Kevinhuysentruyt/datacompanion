@@ -39,8 +39,7 @@
               "klikbaar": true,
               "label": "Kadastrale percelen (klikbaar)"
             },
-            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "geopunt:gemeentegrenzen", "rol": "kaartlaag", "transparantie": 0.6 }
+            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 }
           ]
         },
         {
@@ -53,15 +52,14 @@
           ]
         },
         {
-          "label": "Riolering & zuivering",
+          "label": "Riolering",
           "lagen": [
             { "bron": "vmm:rioolinventaris_strengen", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "vmm:rioolinventaris_punten", "rol": "kaartlaag", "transparantie": 0.9 },
-            { "bron": "vmm:zuiveringsgebieden", "rol": "kaartlaag", "transparantie": 0.4 }
+            { "bron": "vmm:rioolinventaris_punten", "rol": "kaartlaag", "transparantie": 0.9 }
           ]
         },
         {
-          "label": "Erfgoed (klik voor details)",
+          "label": "Erfgoed (klik voor inventaris)",
           "lagen": [
             { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
             { "bron": "erfgoed:beschermd_landschap", "rol": "kaartlaag", "transparantie": 0.6 },
