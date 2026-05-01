@@ -1,151 +1,197 @@
 // ════════════════════════════════════════════════════════
-//  SOURCE: WMS (Web Map Service)
+//  SOURCE: WMS (v5)
 //
-//  Wijzigingen v4:
-//  - Klikbare lagen via GetFeatureInfo
-//  - Voor GRB-lagen: parcel info opvragen bij klik
-//  - "klikbaar: true" in config activeert dit
+//  v5 wijzigingen:
+//  - GetFeatureInfo support voor erfgoed-lagen (klikbaar_info)
+//  - Capakey klikbaar voor percelen
 // ════════════════════════════════════════════════════════
 
-export function laadLaag(laag, kaart) {
+export function laadLaag(laagConfig, map, statusEl) {
   const opties = {
-    layers: laag.layer,
+    layers: laagConfig.layer,
     format: 'image/png',
     transparent: true,
     version: '1.3.0',
-    opacity: laag.transparantie || 0.8,
-    attribution: laag.attribution || ''
+    attribution: laagConfig.attribution || ''
   };
 
-  if (laag._pane) opties.pane = laag._pane;
+  if (laagConfig._pane) opties.pane = laagConfig._pane;
 
-  const wmsLayer = L.tileLayer.wms(laag.url, opties);
+  const wmsLaag = L.tileLayer.wms(laagConfig.url, opties);
 
-  // Klikbaar maken als config dat aangeeft
-  if (laag.klikbaar) {
-    activeerKlikInfo(wmsLayer, laag, kaart);
+  // Capakey klikbaar (bestaande functionaliteit)
+  if (laagConfig.klikbaar) {
+    activeerCapakeyKlik(wmsLaag, map);
   }
 
-  if (laag.default_aan) wmsLayer.addTo(kaart);
-  return wmsLayer;
+  // Erfgoed/algemene WMS info via GetFeatureInfo
+  if (laagConfig.klikbaar_info) {
+    activeerGetFeatureInfo(wmsLaag, map, laagConfig);
+  }
+
+  return wmsLaag;
 }
 
-// ════════════════════════════════════════════════════════
-//  GetFeatureInfo / Capakey lookup
-//  Bij klik op de kaart: vraag perceelinfo op via Capakey API
-// ════════════════════════════════════════════════════════
-function activeerKlikInfo(wmsLayer, laag, kaart) {
-  let isActief = false;
-  wmsLayer.on('add', () => { isActief = true; });
-  wmsLayer.on('remove', () => { isActief = false; });
+// ──────────────────────────────────────────────────────
+// CAPAKEY (Geopunt) — voor kadastrale percelen
+// ──────────────────────────────────────────────────────
+function activeerCapakeyKlik(laag, map) {
+  let actief = false;
 
-  kaart.on('click', async (e) => {
-    if (!isActief) return;
+  laag.on('add', () => { actief = true; });
+  laag.on('remove', () => { actief = false; });
 
-    // Toon laad-popup
-    const popup = L.popup({ maxWidth: 360 })
+  map.on('click', async (e) => {
+    if (!actief || !map.hasLayer(laag)) return;
+
+    const { lat, lng } = e.latlng;
+    const popup = L.popup()
       .setLatLng(e.latlng)
-      .setContent(`<div class="ptag">Perceel zoeken...</div>
-                   <div class="pbod">
-                     <div class="loader-mini"></div>
-                   </div>`)
-      .openOn(kaart);
+      .setContent('<div class="perceel-popup-loading">Laden perceelinfo...</div>')
+      .openOn(map);
 
     try {
-      // Converteer WGS-84 naar Lambert-72 via Geopunt's geolocation API
-      // (eenvoudiger dan proj4js — gebruikt zelf al de juiste transformatie)
-      const lat = e.latlng.lat;
-      const lon = e.latlng.lng;
-
-      // Optie 1: Capakey via Geolocation API (werkt op lat/lon direct)
-      const url = `https://geo.api.vlaanderen.be/geolocation/v4/Location?latlon=${lat},${lon}&c=1`;
-
-      const r = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!r.ok) throw new Error('Capakey API niet bereikbaar');
-      const data = await r.json();
-
-      if (!data.LocationResult || !data.LocationResult.length) {
-        popup.setContent(`
-          <div class="ptag">Geen perceel gevonden</div>
-          <div class="pbod">Op deze coördinaten is geen perceel gekend.</div>
-        `);
+      const locUrl = `https://geo.api.vlaanderen.be/geolocation/v4/Location?xy=${lng},${lat}&c=1`;
+      const locRes = await fetch(locUrl);
+      const locData = await locRes.json();
+      const lambert = locData?.LocationResult?.[0]?.Location;
+      if (!lambert) {
+        popup.setContent('<div class="perceel-popup-fout">Geen locatie gevonden</div>');
         return;
       }
 
-      const loc = data.LocationResult[0];
-
-      // Haal nu de detail-info op voor het perceel via Lambert-72 X/Y
-      const x = loc.Location.X_Lambert72;
-      const y = loc.Location.Y_Lambert72;
-
-      const perceelUrl = `https://geo.api.vlaanderen.be/capakey/v2/parcel?x=${x}&y=${y}`;
-      const r2 = await fetch(perceelUrl, { headers: { Accept: 'application/json' } });
-
-      if (!r2.ok) {
-        // Fallback: toon alleen wat we hebben uit Geolocation
-        popup.setContent(formatBasisInfo(loc));
+      const capUrl = `https://geo.api.vlaanderen.be/capakey/v2/parcel?x=${lambert.X_Lambert72}&y=${lambert.Y_Lambert72}`;
+      const capRes = await fetch(capUrl);
+      if (!capRes.ok) {
+        popup.setContent('<div class="perceel-popup-fout">Geen perceel op deze locatie</div>');
         return;
       }
+      const cap = await capRes.json();
 
-      const perceel = await r2.json();
-      popup.setContent(formatPerceelInfo(perceel, loc));
-
-    } catch (err) {
-      console.error('Capakey fout:', err);
       popup.setContent(`
-        <div class="ptag">Fout bij ophalen</div>
-        <div class="pbod">${err.message}</div>
+        <div class="perceel-popup">
+          <div class="perceel-popup-titel">${cap.capakey || '—'}</div>
+          <div class="perceel-popup-rij"><span>Gemeente:</span> ${cap.municipality?.name || '—'}</div>
+          <div class="perceel-popup-rij"><span>Sectie:</span> ${cap.section || '—'} / Perceel ${cap.perceelnummer || cap.parcelNumber || '—'}</div>
+          <div class="perceel-popup-link">
+            <a href="https://eservices.minfin.fgov.be/ecad-web/?capakey=${cap.capakey}" target="_blank" rel="noopener">
+              Open in CadGIS →
+            </a>
+          </div>
+        </div>
       `);
+    } catch (err) {
+      popup.setContent('<div class="perceel-popup-fout">Fout bij ophalen perceel</div>');
     }
   });
 }
 
-// Format perceel-info tot een leesbare popup
-function formatPerceelInfo(perceel, loc) {
-  const adres = (perceel.adres || []).join('<br>') || 'Geen adres beschikbaar';
+// ──────────────────────────────────────────────────────
+// GetFeatureInfo — voor Onroerend Erfgoed lagen
+// ──────────────────────────────────────────────────────
+function activeerGetFeatureInfo(laag, map, laagConfig) {
+  let actief = false;
+
+  laag.on('add', () => { actief = true; });
+  laag.on('remove', () => { actief = false; });
+
+  map.on('click', async (e) => {
+    if (!actief || !map.hasLayer(laag)) return;
+
+    const popup = L.popup({ maxWidth: 360 })
+      .setLatLng(e.latlng)
+      .setContent('<div class="erfgoed-popup-loading">Laden erfgoedinfo...</div>')
+      .openOn(map);
+
+    try {
+      const url = bouwGetFeatureInfoUrl(map, laagConfig, e.latlng);
+      const res = await fetch(url);
+      if (!res.ok) {
+        popup.setContent('<div class="erfgoed-popup-fout">Geen info beschikbaar</div>');
+        return;
+      }
+
+      const data = await res.json();
+      const features = data.features || [];
+
+      if (features.length === 0) {
+        popup.setContent(`<div class="erfgoed-popup-leeg">Geen ${laagConfig.label.toLowerCase()} op deze locatie</div>`);
+        return;
+      }
+
+      // Bouw popup uit alle features
+      const html = features.map(f => formatErfgoedFeature(f, laagConfig.label)).join('<hr style="margin: 8px 0; border: 0; border-top: 1px solid #ddd;"/>');
+      popup.setContent(`<div class="erfgoed-popup">${html}</div>`);
+
+    } catch (err) {
+      console.error('GetFeatureInfo fout:', err);
+      popup.setContent('<div class="erfgoed-popup-fout">Fout bij ophalen info</div>');
+    }
+  });
+}
+
+function bouwGetFeatureInfoUrl(map, laagConfig, latlng) {
+  const point = map.latLngToContainerPoint(latlng);
+  const size = map.getSize();
+  const bounds = map.getBounds();
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+
+  // WMS 1.3.0 gebruikt CRS=EPSG:4326 met BBOX als lat,lon order
+  const params = new URLSearchParams({
+    service: 'WMS',
+    version: '1.3.0',
+    request: 'GetFeatureInfo',
+    layers: laagConfig.layer,
+    query_layers: laagConfig.layer,
+    crs: 'EPSG:4326',
+    bbox: `${sw.lat},${sw.lng},${ne.lat},${ne.lng}`,
+    width: size.x,
+    height: size.y,
+    i: Math.round(point.x),
+    j: Math.round(point.y),
+    info_format: 'application/json',
+    feature_count: 5
+  });
+
+  return `${laagConfig.url}?${params.toString()}`;
+}
+
+function formatErfgoedFeature(feature, laagLabel) {
+  const props = feature.properties || {};
+  const naam = props.naam || props.NAAM || props.benaming || props.Benaming || props.objectnaam || 'Erfgoeditem';
+  const id = props.id || props.objectid || props.aanduid_id || '';
+
+  // Verzamel alle relevante eigenschappen, filter null/leeg
+  const rijen = Object.entries(props)
+    .filter(([k, v]) => v !== null && v !== '' && v !== 'null' && !k.startsWith('the_geom'))
+    .filter(([k]) => !['id', 'objectid', 'naam', 'NAAM'].includes(k))
+    .slice(0, 8)
+    .map(([k, v]) => `<div class="erfgoed-rij"><span class="erfgoed-key">${formatKey(k)}:</span> ${escapeHtml(String(v))}</div>`)
+    .join('');
+
+  // Link naar inventaris.onroerenderfgoed.be als id beschikbaar
+  let link = '';
+  if (id && /^\d+$/.test(String(id))) {
+    link = `<div class="erfgoed-link"><a href="https://id.erfgoed.net/erfgoedobjecten/${id}" target="_blank" rel="noopener">Bekijk in Inventaris →</a></div>`;
+  } else if (props.aanduid_id) {
+    link = `<div class="erfgoed-link"><a href="https://id.erfgoed.net/aanduidingsobjecten/${props.aanduid_id}" target="_blank" rel="noopener">Bekijk in Inventaris →</a></div>`;
+  }
 
   return `
-    <div class="ptag">Kadastraal perceel</div>
-    <div class="ptit">${perceel.capakey || '—'}</div>
-    <div class="pbod">
-      <div class="perceel-grid">
-        <div class="lbl">Gemeente:</div>
-        <div>${perceel.municipalityName || '—'} (${perceel.municipalityCode || '—'})</div>
-
-        <div class="lbl">Afdeling:</div>
-        <div>${perceel.departmentName || '—'}</div>
-
-        <div class="lbl">Sectie:</div>
-        <div>${perceel.sectionCode || '—'}</div>
-
-        <div class="lbl">Perceelnummer:</div>
-        <div>${perceel.perceelnummer || '—'}</div>
-
-        ${perceel.grondnummer ? `<div class="lbl">Grondnummer:</div><div>${perceel.grondnummer}</div>` : ''}
-        ${perceel.bisnummer ? `<div class="lbl">Bisnummer:</div><div>${perceel.bisnummer}</div>` : ''}
-        ${perceel.exponent ? `<div class="lbl">Exponent:</div><div>${perceel.exponent}</div>` : ''}
-        ${perceel.macht ? `<div class="lbl">Macht:</div><div>${perceel.macht}</div>` : ''}
-
-        <div class="lbl">Adres:</div>
-        <div>${adres}</div>
-      </div>
-      <div class="perceel-acties">
-        <a href="https://eservices.minfin.fgov.be/ecad-web/?capakey=${perceel.capakey}"
-           target="_blank" class="perceel-link">
-          📋 Open in CadGIS
-        </a>
-      </div>
+    <div class="erfgoed-feature">
+      <div class="erfgoed-titel">${escapeHtml(naam)}</div>
+      <div class="erfgoed-type">${laagLabel}</div>
+      ${rijen}
+      ${link}
     </div>
   `;
 }
 
-function formatBasisInfo(loc) {
-  return `
-    <div class="ptag">Locatie</div>
-    <div class="ptit">${loc.FormattedAddress || 'Onbekend adres'}</div>
-    <div class="pbod">
-      Lambert: ${loc.Location.X_Lambert72?.toFixed(0)}, ${loc.Location.Y_Lambert72?.toFixed(0)}<br>
-      WGS84: ${loc.Location.Lat_WGS84?.toFixed(5)}, ${loc.Location.Lon_WGS84?.toFixed(5)}
-    </div>
-  `;
+function formatKey(k) {
+  return k.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
