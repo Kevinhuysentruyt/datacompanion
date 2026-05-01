@@ -47,7 +47,6 @@
           "label": "Klimaat & water",
           "lagen": [
             { "bron": "vmm:overstromingsgebied", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "vmm:oeverzones", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "vmm:waterloop_categorie", "rol": "kaartlaag", "transparantie": 0.8 }
           ]
         },
@@ -78,8 +77,7 @@
           "lagen": [
             { "bron": "geopunt:grb", "rol": "achtergrond", "transparantie": 0.9 },
             { "bron": "geopunt:grb_grijs", "rol": "achtergrond", "transparantie": 0.9 },
-            { "bron": "geopunt:orthofoto_2025_winter", "rol": "achtergrond", "transparantie": 1.0 },
-            { "bron": "geopunt:orthofoto_2021_zomer", "rol": "achtergrond", "transparantie": 1.0 }
+            { "bron": "geopunt:orthofoto_2025_winter", "rol": "achtergrond", "transparantie": 1.0 }
           ]
         }
       ]
