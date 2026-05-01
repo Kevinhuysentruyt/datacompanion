@@ -43,7 +43,7 @@
           ]
         },
         {
-          "label": "Water & overstroming",
+          "label": "Water",
           "lagen": [
             { "bron": "vmm:waterlopen_vha", "rol": "kaartlaag", "transparantie": 0.9 },
             { "bron": "vmm:overstromingsgebied_recent", "rol": "kaartlaag", "transparantie": 0.6 },
