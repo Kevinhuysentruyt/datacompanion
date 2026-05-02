@@ -1,8 +1,8 @@
 {
-  "$schema": "Data Companion — Broncatalogus v2.9",
+  "$schema": "Data Companion — Broncatalogus v3.0",
   "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
-  "_update": "april 2026 — MercatorNet RO-lagen geverifieerd via GetCapabilities",
+  "_update": "april 2026 — DOV-lagen toegevoegd",
 
   "_": "═══════════════════════════════════════════════════════════",
   "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
@@ -268,10 +268,8 @@
   },
 
   "___________": "═══════════════════════════════════════════════════════════",
-  "_sectie_6": "6. RUIMTELIJKE ORDENING (MercatorNet) — geverifieerd",
+  "_sectie_6": "6. RUIMTELIJKE ORDENING (MercatorNet)",
   "____________": "═══════════════════════════════════════════════════════════",
-
-  "_sectie_6a": "── Gewestplan ──────────────────────────────",
 
   "mercator:gewestplan_grondvlakken": {
     "type": "wms",
@@ -309,8 +307,6 @@
     "attribution": "Gewestplan overdrukken © Departement Omgeving"
   },
 
-  "_sectie_6b": "── Gemeentelijke RUP's ─────────────────────",
-
   "mercator:rup_gemeentelijk_contouren": {
     "type": "wms",
     "label": "Gemeentelijk RUP — contouren",
@@ -329,8 +325,6 @@
     "attribution": "Gemeentelijke RUP deelgebieden © Departement Omgeving"
   },
 
-  "_sectie_6c": "── Provinciale RUP's ────────────────────────",
-
   "mercator:rup_provinciaal_contouren": {
     "type": "wms",
     "label": "Provinciaal RUP — contouren",
@@ -339,8 +333,6 @@
     "transparantie": 0.7,
     "attribution": "Provinciale RUP's © Departement Omgeving"
   },
-
-  "_sectie_6d": "── Gewestelijke RUP's ───────────────────────",
 
   "mercator:rup_gewestelijk_contouren": {
     "type": "wms",
@@ -361,15 +353,42 @@
   },
 
   "_____________": "═══════════════════════════════════════════════════════════",
-  "_sectie_7": "7. DOV BODEM — laagnamen NOG TE VERIFIËREN",
+  "_sectie_7": "7. BODEM & ONDERGROND (DOV)",
   "______________": "═══════════════════════════════════════════════════════════",
 
   "dov:bodemkaart": {
     "type": "wms",
-    "label": "Bodemkaart Vlaanderen",
+    "label": "Bodemkaart Vlaanderen (bodemserie)",
     "url": "https://www.dov.vlaanderen.be/geoserver/wms",
-    "layer": "bodemkaart:bodemkaart",
-    "transparantie": 0.7,
+    "layer": "bodemkaart:bodemtypes_bodemserie",
+    "transparantie": 0.6,
     "attribution": "Bodemkaart © DOV"
+  },
+
+  "dov:erosiegevoeligheid_gemeente": {
+    "type": "wms",
+    "label": "Erosiegevoeligheid per gemeente",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "erosie:erosie_gemeente",
+    "transparantie": 0.6,
+    "attribution": "Erosiegevoeligheidskaart per gemeente © DOV"
+  },
+
+  "dov:erosie_per_perceel": {
+    "type": "wms",
+    "label": "Potentiële bodemerosie per perceel (2014)",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "erosie:erosie_potentiele_bodemerosiekaart_per_perceel_2014",
+    "transparantie": 0.7,
+    "attribution": "Potentiële bodemerosie per perceel © DOV"
+  },
+
+  "dov:erosiebestrijding": {
+    "type": "wms",
+    "label": "Uitgevoerde erosiebestrijdingswerken",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "erosie:erosiebestrijding_gemeente",
+    "transparantie": 0.8,
+    "attribution": "Erosiebestrijdingswerken © DOV"
   }
 }
