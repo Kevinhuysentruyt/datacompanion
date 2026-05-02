@@ -23,15 +23,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Companion</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <!-- MapLibre GL — voor OpenFreeMap vector tiles als achtergrond -->
+  <link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet"/>
   <link rel="stylesheet" href="css/stijlen.css"/>
 </head>
 <body>
-
 <div class="loader" id="loader">
   <div class="spinner"></div>
   <div style="font-size:13px;color:var(--muted)">Dashboard aan het laden...</div>
 </div>
-
 <header>
   <div class="brand">
     <div class="brand-logo" id="brand-logo">DC</div>
@@ -44,27 +44,24 @@
     Powered by <a href="#">Data Companion</a>
   </div>
 </header>
-
 <nav class="nav-loketten" id="nav-loketten"></nav>
-
 <main class="content">
   <div class="content-inner" id="content"></div>
 </main>
-
 <div class="footer-bar">
   <div id="bronvermelding">Bron: laden...</div>
   <div>
     <a href="#" id="link-config" style="color:var(--muted);text-decoration:none">Config bekijken</a>
   </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-
+<!-- MapLibre GL + Leaflet-binding — voor OpenFreeMap vector tiles -->
+<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20/leaflet-maplibre-gl.js"></script>
 <!-- Modules laden in volgorde -->
 <script type="module">
   import { init } from './js/core.js';
   init();
 </script>
-
 </body>
 </html>
