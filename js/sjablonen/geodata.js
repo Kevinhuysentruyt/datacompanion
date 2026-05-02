@@ -1,7 +1,12 @@
 // ════════════════════════════════════════════════════════
-//  SJABLOON: Geodata (v5)
+//  SJABLOON: Geodata (v6)
 //
-//  Wijzigingen v5:
+//  Wijzigingen v6:
+//  - Kaart-afbakening per loket via "kaart_afbakening" config
+//  - maxBounds + viscosity + min/max zoom toegepast na fitBounds
+//  - Werkt met of zonder kaart-afbakening.js helper
+//
+//  Eerdere wijzigingen (v5):
 //  - Inklapbare rubrieken per groep
 //  - Vaste hoogte voor kaartcontainer (geen herschikking)
 //  - Foutafhandeling per laag (1 fout = niet alles down)
@@ -18,6 +23,18 @@ const SOURCES = {
   'wms':         laadWMS,
   'poi':         laadPOI,
   'geojson_url': laadGeoJSON
+};
+
+// ──────────────────────────────────────────────────────
+// Defaults voor kaart-afbakening (kunnen via config worden
+// overschreven per loket onder "kaart_afbakening")
+// ──────────────────────────────────────────────────────
+const AFBAKENING_DEFAULTS = {
+  modus: 'soft_lock',
+  marge_percentage: 15,
+  min_zoom: 12,
+  max_zoom: 19,
+  viscosity: 0.7
 };
 
 export function renderSjabloonGeodata(container, loket, state) {
@@ -43,7 +60,20 @@ export function renderSjabloonGeodata(container, loket, state) {
   // Kaart initialiseren
   const cfg = state.config;
   const centrum = cfg.gemeente.fallback_centrum || [50.9, 4.0];
-  const map = L.map('map', { attributionControl: true }).setView(centrum, 12);
+
+  // Bouw afbakening-config met defaults
+  const afbakening = { ...AFBAKENING_DEFAULTS, ...(loket.kaart_afbakening || {}) };
+
+  // Kaart-opties: minZoom/maxZoom worden meteen meegegeven bij init
+  const mapOpties = { attributionControl: true };
+  if (afbakening.modus !== 'geen') {
+    if (afbakening.min_zoom !== undefined) mapOpties.minZoom = afbakening.min_zoom;
+    if (afbakening.max_zoom !== undefined) mapOpties.maxZoom = afbakening.max_zoom;
+    if (afbakening.modus === 'hard_lock') mapOpties.maxBoundsViscosity = 1.0;
+    else mapOpties.maxBoundsViscosity = afbakening.viscosity ?? 0.7;
+  }
+
+  const map = L.map('map', mapOpties).setView(centrum, 13);
   state.mapInstance = map;
 
   // Panes voor z-index
@@ -116,18 +146,42 @@ export function renderSjabloonGeodata(container, loket, state) {
     });
   }
 
-  // ── AUTO-ZOOM VIA BASISREGISTERS ───────────────────────
+  // ── AUTO-ZOOM + AFBAKENING VIA BASISREGISTERS ──────────
   if (cfg.gemeente.niscode) {
     fetch(`https://api.basisregisters.vlaanderen.be/v2/gemeenten/${cfg.gemeente.niscode}`,
       { headers: { Accept: 'application/json' } })
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         const bb = d?.geometrie?.boundingBox;
-        if (bb && state.mapInstance) {
-          state.mapInstance.fitBounds([[bb.minY, bb.minX], [bb.maxY, bb.maxX]], { padding: [30, 30] });
+        if (!bb || !state.mapInstance) return;
+
+        // bb formaat: { minX, maxX, minY, maxY } waar X=lng, Y=lat
+        const bounds = L.latLngBounds(
+          [bb.minY, bb.minX],
+          [bb.maxY, bb.maxX]
+        );
+
+        // 1. Initiële view: focus op gemeente
+        state.mapInstance.fitBounds(bounds, { padding: [30, 30] });
+
+        // 2. Afbakening toepassen (tenzij modus = "geen")
+        if (afbakening.modus !== 'geen') {
+          const margeFactor = (afbakening.marge_percentage || 0) / 100;
+          const breedte = bb.maxX - bb.minX;
+          const hoogte = bb.maxY - bb.minY;
+
+          const maxBounds = L.latLngBounds(
+            [bb.minY - hoogte * margeFactor, bb.minX - breedte * margeFactor],
+            [bb.maxY + hoogte * margeFactor, bb.maxX + breedte * margeFactor]
+          );
+
+          state.mapInstance.setMaxBounds(maxBounds);
+          console.log(`Kaart-afbakening toegepast: ${afbakening.modus}, marge ${afbakening.marge_percentage}%, viscosity ${afbakening.viscosity}`);
         }
       })
-      .catch(() => {});
+      .catch(err => {
+        console.warn('Basisregisters niet bereikbaar:', err);
+      });
   }
 
   // Kaart hergrootte forceren na render
