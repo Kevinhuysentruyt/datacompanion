@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Data Companion — Visuele opmaak (v3 - aangepast aan toggle.js)
+   Data Companion — Visuele opmaak (v4 - WFS popups)
    ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
@@ -181,8 +181,6 @@ header {
 /* ════════════════════════════════════════════════════════
    LAAG-GROEPEN (rubrieken)
    ════════════════════════════════════════════════════════ */
-
-/* Eenvoudige groep (gebruikt voor o.a. achtergrond onderaan) */
 .layer-group { margin-bottom: 16px; }
 .layer-group-title {
   font-size: 10px;
@@ -193,7 +191,6 @@ header {
   margin-bottom: 8px;
 }
 
-/* Inklapbare rubriek (kaartlagen) */
 .layer-group-rubriek {
   margin-bottom: 8px;
   border: 1px solid var(--border);
@@ -251,7 +248,6 @@ header {
   padding-bottom: 0;
 }
 
-/* Achtergrond-groep onderaan */
 .layer-group-bottom {
   margin-top: 12px;
   padding-top: 12px;
@@ -259,7 +255,7 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   LAAG CONTROLS — container per laag
+   LAAG CONTROLS
    ════════════════════════════════════════════════════════ */
 .layer-control {
   background: var(--bg);
@@ -273,7 +269,6 @@ header {
   border-color: var(--border);
 }
 
-/* Empty-state */
 .layer-empty {
   font-size: 11px;
   color: var(--muted);
@@ -283,15 +278,6 @@ header {
 
 /* ════════════════════════════════════════════════════════
    LAYER ITEM — tekst links + pill rechts
-   HTML-structuur (uit toggle.js):
-     <div class="layer-item">
-       <span>Naam laag</span>
-       <label class="tgl">
-         <input type="checkbox">
-         <div class="tt"></div>
-         <div class="th2"></div>
-       </label>
-     </div>
    ════════════════════════════════════════════════════════ */
 .layer-item {
   display: flex;
@@ -311,7 +297,7 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   PILL-TOGGLE (.tgl / .tt / .th2)
+   PILL-TOGGLE
    ════════════════════════════════════════════════════════ */
 .tgl {
   position: relative;
@@ -329,7 +315,6 @@ header {
   height: 0;
   pointer-events: none;
 }
-/* Spoor (achtergrond van pill) */
 .tt {
   position: absolute;
   inset: 0;
@@ -341,7 +326,6 @@ header {
 .tgl input:checked ~ .tt {
   background: var(--primair);
 }
-/* Witte cirkel (knop) */
 .th2 {
   position: absolute;
   top: 2px;
@@ -359,7 +343,7 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   TRANSPARANTIE-SLIDER (op aparte regel onder de toggle)
+   TRANSPARANTIE-SLIDER
    ════════════════════════════════════════════════════════ */
 .layer-slider {
   display: flex;
@@ -454,7 +438,7 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   STATUS-TEKST bij laag (bv. "laden...")
+   STATUS-TEKST
    ════════════════════════════════════════════════════════ */
 .layer-status {
   font-size: 10px;
@@ -501,13 +485,15 @@ header {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .loader-mini {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border: 2px solid var(--border);
   border-top-color: var(--primair);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin: 8px auto;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -535,7 +521,7 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   POPUPS — Leaflet & custom popups
+   POPUPS — Leaflet & custom
    ════════════════════════════════════════════════════════ */
 .leaflet-popup-content-wrapper {
   border-radius: var(--r) !important;
@@ -557,7 +543,7 @@ header {
 .ptit { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
 .pbod { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
-/* ── Perceel-popup (capakey) ── */
+/* ── Perceel-popup (capakey via WFS) ── */
 .perceel-popup {
   font-size: 13px;
   line-height: 1.5;
@@ -567,11 +553,12 @@ header {
   font-weight: 600;
   font-size: 14px;
   color: var(--primair);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-family: monospace;
+  word-break: break-all;
 }
 .perceel-popup-rij {
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   font-size: 12px;
 }
 .perceel-popup-rij span {
@@ -601,43 +588,64 @@ header {
 }
 .perceel-popup-fout { color: var(--err); }
 
-/* ── Erfgoed-popup ── */
+/* ── Erfgoed-popup (via WFS) ── */
 .erfgoed-popup {
   font-size: 13px;
   line-height: 1.5;
-  max-width: 320px;
+  min-width: 240px;
+  max-width: 340px;
+}
+.erfgoed-feature {
+  margin-bottom: 4px;
 }
 .erfgoed-titel {
   font-weight: 600;
   font-size: 14px;
   color: var(--primair);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   line-height: 1.3;
 }
-.erfgoed-uitleg {
-  margin-bottom: 12px;
-  color: var(--text);
+.erfgoed-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.erfgoed-rij {
+  margin-bottom: 4px;
   font-size: 12px;
+  word-wrap: break-word;
+}
+.erfgoed-key {
+  font-weight: 600;
+  color: var(--muted);
+  margin-right: 4px;
 }
 .erfgoed-link {
-  margin: 8px 0;
-  padding: 8px 0;
+  margin-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
 }
 .erfgoed-link a {
   color: var(--primair);
   text-decoration: none;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   display: inline-block;
 }
 .erfgoed-link a:hover { text-decoration: underline; }
-.erfgoed-coords {
+.erfgoed-popup-loading,
+.erfgoed-popup-fout,
+.erfgoed-popup-leeg {
+  padding: 8px;
+  font-size: 12px;
+  text-align: center;
   color: var(--muted);
-  font-size: 11px;
-  margin-top: 4px;
+  font-style: italic;
 }
+.erfgoed-popup-fout { color: var(--err); }
 
 /* ════════════════════════════════════════════════════════
    MOBIELE WEERGAVE
