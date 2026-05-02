@@ -28,6 +28,15 @@
       "icoon": "🗺️",
       "sjabloon": "geodata",
       "beschrijving": "Klik op percelen of erfgoedlagen voor info",
+
+      "kaart_afbakening": {
+        "modus": "soft_lock",
+        "marge_percentage": 15,
+        "min_zoom": 12,
+        "max_zoom": 19,
+        "viscosity": 0.7
+      },
+
       "groepen": [
         {
           "label": "Ruimtelijke planning",
@@ -69,6 +78,15 @@
           ]
         },
         {
+          "label": "Bodem & erosie",
+          "lagen": [
+            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "dov:erosiegevoeligheid_gemeente", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "dov:erosie_per_perceel", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "dov:erosiebestrijding", "rol": "kaartlaag", "transparantie": 0.8 }
+          ]
+        },
+        {
           "label": "Erfgoed (klik voor inventaris)",
           "lagen": [
             { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
@@ -79,12 +97,6 @@
             { "bron": "erfgoed:landschappelijk_inventaris", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "erfgoed:archeologisch_inventaris", "rol": "kaartlaag", "transparantie": 0.7 },
             { "bron": "erfgoed:erfgoedlandschappen", "rol": "kaartlaag", "transparantie": 0.5 }
-          ]
-        },
-        {
-          "label": "Bodem",
-          "lagen": [
-            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 }
           ]
         },
         {
