@@ -80,7 +80,7 @@
         {
           "label": "Bodem & erosie",
           "lagen": [
-            { "bron": "dov:bodemkaart_vereenvoudigd", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "dov:basislandgebruik", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "dov:erosiegevoeligheid_gemeente", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "dov:erosie_per_perceel", "rol": "kaartlaag", "transparantie": 0.7 }
