@@ -3,11 +3,9 @@
   "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
   "_update": "april 2026 — bodemkaart bodemserie, bodembedekking 20m label",
-
   "_": "═══════════════════════════════════════════════════════════",
   "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
   "__": "═══════════════════════════════════════════════════════════",
-
   "geopunt:grb": {
     "type": "wms",
     "label": "GRB basiskaart",
@@ -16,7 +14,6 @@
     "transparantie": 0.9,
     "attribution": "GRB © Digitaal Vlaanderen"
   },
-
   "geopunt:grb_grijs": {
     "type": "wms",
     "label": "GRB basiskaart (grijswaarden)",
@@ -25,7 +22,6 @@
     "transparantie": 0.9,
     "attribution": "GRB Grijs © Digitaal Vlaanderen"
   },
-
   "geopunt:orthofoto_2021_zomer": {
     "type": "wms",
     "label": "Orthofoto zomer 2021 (40cm)",
@@ -34,7 +30,6 @@
     "transparantie": 1.0,
     "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen"
   },
-
   "geopunt:orthofoto_2025_winter": {
     "type": "wms",
     "label": "Orthofoto winter 2025 (15cm) — meest recent",
@@ -43,11 +38,9 @@
     "transparantie": 1.0,
     "attribution": "Orthofotomozaïek winter 2025 © Digitaal Vlaanderen"
   },
-
   "___": "═══════════════════════════════════════════════════════════",
   "_sectie_2": "2. KADASTRALE LAGEN (Geopunt GRB)",
   "____": "═══════════════════════════════════════════════════════════",
-
   "geopunt:percelen": {
     "type": "wms",
     "label": "Kadastrale percelen (ADP)",
@@ -56,7 +49,6 @@
     "transparantie": 0.7,
     "attribution": "GRB Administratief Perceel © Digitaal Vlaanderen"
   },
-
   "geopunt:gebouwen": {
     "type": "wms",
     "label": "Gebouwen aan de grond (GBG)",
@@ -65,7 +57,6 @@
     "transparantie": 0.8,
     "attribution": "GRB Gebouwen © Digitaal Vlaanderen"
   },
-
   "geopunt:wegen": {
     "type": "wms",
     "label": "Wegbanen (WBN)",
@@ -74,11 +65,9 @@
     "transparantie": 0.8,
     "attribution": "GRB Wegbanen © Digitaal Vlaanderen"
   },
-
   "_____": "═══════════════════════════════════════════════════════════",
   "_sectie_3": "3. ADMINISTRATIEVE GRENZEN",
   "______": "═══════════════════════════════════════════════════════════",
-
   "geopunt:gemeentegrenzen": {
     "type": "wfs",
     "label": "Gemeentegrenzen Vlaanderen",
@@ -97,11 +86,9 @@
     "popup_body": "NIS-code: {NISCODE}",
     "attribution": "VRBG Gemeentegrenzen © Digitaal Vlaanderen"
   },
-
   "_______": "═══════════════════════════════════════════════════════════",
   "_sectie_4": "4. WATER & KLIMAAT (VMM)",
   "________": "═══════════════════════════════════════════════════════════",
-
   "vmm:overstromingsgebied_recent": {
     "type": "wms",
     "label": "Recent overstroomde gebieden (sinds 1988)",
@@ -110,7 +97,6 @@
     "transparantie": 0.7,
     "attribution": "Recent overstroomde gebieden © VMM"
   },
-
   "vmm:overstromingsgebied_natuurlijk": {
     "type": "wms",
     "label": "Van nature overstroombare gebieden",
@@ -119,7 +105,6 @@
     "transparantie": 0.6,
     "attribution": "Natuurlijk overstroombaar © VMM"
   },
-
   "vmm:waterlopen_vha": {
     "type": "wms",
     "label": "VHA-waterlopen (Vlaamse Hydrografische Atlas)",
@@ -128,7 +113,6 @@
     "transparantie": 0.8,
     "attribution": "VHA Waterlopen © VMM"
   },
-
   "vmm:waterloop_categorietraject": {
     "type": "wms",
     "label": "Waterlopen per beheerder/categorie",
@@ -137,7 +121,6 @@
     "transparantie": 0.8,
     "attribution": "VHA Categorietraject © VMM"
   },
-
   "vmm:bekkens": {
     "type": "wms",
     "label": "Hydrografische bekkens",
@@ -146,7 +129,6 @@
     "transparantie": 0.4,
     "attribution": "Bekkens © VMM"
   },
-
   "vmm:zwemwater": {
     "type": "wms",
     "label": "Zwemwaterlocaties",
@@ -155,7 +137,6 @@
     "transparantie": 0.9,
     "attribution": "Zwemwater © VMM"
   },
-
   "vmm:rioolinventaris_punten": {
     "type": "wms",
     "label": "Rioolinventaris — punten (overstort, gemaal, ...)",
@@ -164,7 +145,6 @@
     "transparantie": 0.9,
     "attribution": "Rioolinventaris © VMM"
   },
-
   "vmm:rioolinventaris_strengen": {
     "type": "wms",
     "label": "Rioolinventaris — strengen",
@@ -173,7 +153,6 @@
     "transparantie": 0.7,
     "attribution": "Rioolinventaris © VMM"
   },
-
   "vmm:hillshade": {
     "type": "wms",
     "label": "Hoogtemodel — Hillshade (5m)",
@@ -182,11 +161,9 @@
     "transparantie": 0.6,
     "attribution": "Digitaal Hoogtemodel Vlaanderen © VMM"
   },
-
   "_________": "═══════════════════════════════════════════════════════════",
   "_sectie_5": "5. ONROEREND ERFGOED — klikbaar via inventaris-link",
   "__________": "═══════════════════════════════════════════════════════════",
-
   "erfgoed:beschermd_monument": {
     "type": "wms",
     "label": "Beschermde monumenten",
@@ -196,7 +173,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Beschermde monumenten © Onroerend Erfgoed"
   },
-
   "erfgoed:beschermd_landschap": {
     "type": "wms",
     "label": "Beschermde cultuurhistorische landschappen",
@@ -206,7 +182,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Beschermde landschappen © Onroerend Erfgoed"
   },
-
   "erfgoed:beschermd_archeologisch": {
     "type": "wms",
     "label": "Beschermde archeologische sites",
@@ -216,7 +191,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Beschermde archeologische sites © Onroerend Erfgoed"
   },
-
   "erfgoed:stads_dorpsgezicht": {
     "type": "wms",
     "label": "Beschermde stads- en dorpsgezichten",
@@ -226,7 +200,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Stads- en dorpsgezichten © Onroerend Erfgoed"
   },
-
   "erfgoed:bouwkundig_inventaris": {
     "type": "wms",
     "label": "Bouwkundig erfgoed (inventaris)",
@@ -236,7 +209,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Bouwkundig erfgoed © Onroerend Erfgoed"
   },
-
   "erfgoed:landschappelijk_inventaris": {
     "type": "wms",
     "label": "Landschappelijk erfgoed (inventaris)",
@@ -246,7 +218,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Landschappelijk erfgoed © Onroerend Erfgoed"
   },
-
   "erfgoed:archeologisch_inventaris": {
     "type": "wms",
     "label": "Archeologisch erfgoed (inventaris)",
@@ -256,7 +227,6 @@
     "klikbaar_inventaris": true,
     "attribution": "Archeologisch erfgoed © Onroerend Erfgoed"
   },
-
   "erfgoed:erfgoedlandschappen": {
     "type": "wms",
     "label": "Erfgoedlandschappen",
@@ -266,11 +236,9 @@
     "klikbaar_inventaris": true,
     "attribution": "Erfgoedlandschappen © Onroerend Erfgoed"
   },
-
   "___________": "═══════════════════════════════════════════════════════════",
   "_sectie_6": "6. RUIMTELIJKE ORDENING (MercatorNet)",
   "____________": "═══════════════════════════════════════════════════════════",
-
   "mercator:gewestplan_grondvlakken": {
     "type": "wms",
     "label": "Gewestplan — bestemmingen (grondvlakken)",
@@ -279,7 +247,6 @@
     "transparantie": 0.6,
     "attribution": "Gewestplan grondvlakken © Departement Omgeving"
   },
-
   "mercator:gewestplan_contouren": {
     "type": "wms",
     "label": "Gewestplan — plancontouren",
@@ -288,7 +255,6 @@
     "transparantie": 0.8,
     "attribution": "Gewestplan contouren © Departement Omgeving"
   },
-
   "mercator:gewestplan_lijnen": {
     "type": "wms",
     "label": "Gewestplan — lijnvoorschriften",
@@ -297,7 +263,6 @@
     "transparantie": 0.8,
     "attribution": "Gewestplan lijnen © Departement Omgeving"
   },
-
   "mercator:gewestplan_overdrukken": {
     "type": "wms",
     "label": "Gewestplan — overdrukvoorschriften",
@@ -306,7 +271,6 @@
     "transparantie": 0.5,
     "attribution": "Gewestplan overdrukken © Departement Omgeving"
   },
-
   "mercator:rup_gemeentelijk_contouren": {
     "type": "wms",
     "label": "Gemeentelijk RUP — contouren",
@@ -315,7 +279,6 @@
     "transparantie": 0.7,
     "attribution": "Gemeentelijke RUP's © Departement Omgeving"
   },
-
   "mercator:rup_gemeentelijk_deelgebieden": {
     "type": "wms",
     "label": "Gemeentelijk RUP — deelgebieden",
@@ -324,7 +287,6 @@
     "transparantie": 0.6,
     "attribution": "Gemeentelijke RUP deelgebieden © Departement Omgeving"
   },
-
   "mercator:rup_provinciaal_contouren": {
     "type": "wms",
     "label": "Provinciaal RUP — contouren",
@@ -333,7 +295,6 @@
     "transparantie": 0.7,
     "attribution": "Provinciale RUP's © Departement Omgeving"
   },
-
   "mercator:rup_gewestelijk_contouren": {
     "type": "wms",
     "label": "Gewestelijk RUP — contouren",
@@ -342,7 +303,6 @@
     "transparantie": 0.7,
     "attribution": "Gewestelijke RUP's © Departement Omgeving"
   },
-
   "mercator:rup_gewestelijk_grondvlakken": {
     "type": "wms",
     "label": "Gewestelijk RUP — grondvlakvoorschriften",
@@ -351,11 +311,9 @@
     "transparantie": 0.5,
     "attribution": "Gewestelijke RUP grondvlakken © Departement Omgeving"
   },
-
   "_____________": "═══════════════════════════════════════════════════════════",
   "_sectie_7": "7. BODEM & ONDERGROND (DOV)",
   "______________": "═══════════════════════════════════════════════════════════",
-
   "dov:bodemkaart": {
     "type": "wms",
     "label": "Bodemkaart Vlaanderen (bodemserie)",
@@ -364,7 +322,6 @@
     "transparantie": 0.6,
     "attribution": "Bodemkaart © DOV"
   },
-
   "dov:basislandgebruik": {
     "type": "wms",
     "label": "Bodembedekking 20m (akker/grasland/bos/infrastructuur, 2022)",
@@ -373,7 +330,6 @@
     "transparantie": 0.6,
     "attribution": "Basislandgebruik 2022 © DOV"
   },
-
   "dov:erosiegevoeligheid_gemeente": {
     "type": "wms",
     "label": "Erosiegevoeligheid per gemeente",
@@ -382,7 +338,6 @@
     "transparantie": 0.6,
     "attribution": "Erosiegevoeligheidskaart per gemeente © DOV"
   },
-
   "dov:erosie_per_perceel": {
     "type": "wms",
     "label": "Potentiële bodemerosie per perceel (2014)",
@@ -390,5 +345,35 @@
     "layer": "erosie:erosie_potentiele_bodemerosiekaart_per_perceel_2014",
     "transparantie": 0.7,
     "attribution": "Potentiële bodemerosie per perceel © DOV"
+  },
+  "_______________": "═══════════════════════════════════════════════════════════",
+  "_sectie_8": "8. ACHTERGROND XYZ TILES — OSM-gebaseerd, commercieel toegestaan",
+  "________________": "═══════════════════════════════════════════════════════════",
+  "xyz:openfreemap_positron": {
+    "type": "xyz",
+    "label": "OpenFreeMap Positron (licht)",
+    "url": "https://tiles.openfreemap.org/styles/positron/{z}/{x}/{y}.png",
+    "transparantie": 1.0,
+    "min_zoom": 0,
+    "max_zoom": 20,
+    "attribution": "© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org'>OpenMapTiles</a> Data van <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
+  },
+  "xyz:openfreemap_bright": {
+    "type": "xyz",
+    "label": "OpenFreeMap Bright (kleurrijk)",
+    "url": "https://tiles.openfreemap.org/styles/bright/{z}/{x}/{y}.png",
+    "transparantie": 1.0,
+    "min_zoom": 0,
+    "max_zoom": 20,
+    "attribution": "© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org'>OpenMapTiles</a> Data van <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
+  },
+  "xyz:openfreemap_liberty": {
+    "type": "xyz",
+    "label": "OpenFreeMap Liberty (OSM-stijl)",
+    "url": "https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png",
+    "transparantie": 1.0,
+    "min_zoom": 0,
+    "max_zoom": 20,
+    "attribution": "© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org'>OpenMapTiles</a> Data van <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
   }
 }
