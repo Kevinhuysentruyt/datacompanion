@@ -1,8 +1,8 @@
 {
-  "$schema": "Data Companion — Broncatalogus v2.7",
+  "$schema": "Data Companion — Broncatalogus v2.9",
   "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
-  "_update": "april 2026 — zuiveringsgebieden verwijderd",
+  "_update": "april 2026 — MercatorNet RO-lagen geverifieerd via GetCapabilities",
 
   "_": "═══════════════════════════════════════════════════════════",
   "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
@@ -147,6 +147,15 @@
     "attribution": "Bekkens © VMM"
   },
 
+  "vmm:zwemwater": {
+    "type": "wms",
+    "label": "Zwemwaterlocaties",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Vlzwl",
+    "transparantie": 0.9,
+    "attribution": "Zwemwater © VMM"
+  },
+
   "vmm:rioolinventaris_punten": {
     "type": "wms",
     "label": "Rioolinventaris — punten (overstort, gemaal, ...)",
@@ -175,7 +184,7 @@
   },
 
   "_________": "═══════════════════════════════════════════════════════════",
-  "_sectie_5": "5. ONROEREND ERFGOED — klik opent inventaris.onroerenderfgoed.be",
+  "_sectie_5": "5. ONROEREND ERFGOED — klikbaar via inventaris-link",
   "__________": "═══════════════════════════════════════════════════════════",
 
   "erfgoed:beschermd_monument": {
@@ -259,25 +268,96 @@
   },
 
   "___________": "═══════════════════════════════════════════════════════════",
-  "_sectie_6": "6. RUIMTELIJKE ORDENING (MercatorNet) — laagnamen NOG TE VERIFIËREN",
+  "_sectie_6": "6. RUIMTELIJKE ORDENING (MercatorNet) — geverifieerd",
   "____________": "═══════════════════════════════════════════════════════════",
 
-  "mercator:gewestplan": {
+  "_sectie_6a": "── Gewestplan ──────────────────────────────",
+
+  "mercator:gewestplan_grondvlakken": {
     "type": "wms",
-    "label": "Gewestplan",
+    "label": "Gewestplan — bestemmingen (grondvlakken)",
     "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
-    "layer": "ruimtelijke_ordening:Gwp_Bestemming_2002",
+    "layer": "lu:lu_gwp_gv",
     "transparantie": 0.6,
-    "attribution": "Gewestplan © Beleidsdomein Omgeving"
+    "attribution": "Gewestplan grondvlakken © Departement Omgeving"
   },
 
-  "mercator:rups": {
+  "mercator:gewestplan_contouren": {
     "type": "wms",
-    "label": "RUP's",
+    "label": "Gewestplan — plancontouren",
     "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
-    "layer": "ruimtelijke_ordening:RupGrens",
+    "layer": "lu:lu_gwp_ct",
+    "transparantie": 0.8,
+    "attribution": "Gewestplan contouren © Departement Omgeving"
+  },
+
+  "mercator:gewestplan_lijnen": {
+    "type": "wms",
+    "label": "Gewestplan — lijnvoorschriften",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_gwp_ln",
+    "transparantie": 0.8,
+    "attribution": "Gewestplan lijnen © Departement Omgeving"
+  },
+
+  "mercator:gewestplan_overdrukken": {
+    "type": "wms",
+    "label": "Gewestplan — overdrukvoorschriften",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_gwp_ov",
+    "transparantie": 0.5,
+    "attribution": "Gewestplan overdrukken © Departement Omgeving"
+  },
+
+  "_sectie_6b": "── Gemeentelijke RUP's ─────────────────────",
+
+  "mercator:rup_gemeentelijk_contouren": {
+    "type": "wms",
+    "label": "Gemeentelijk RUP — contouren",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_gemrup_ct",
     "transparantie": 0.7,
-    "attribution": "RUP's © Beleidsdomein Omgeving"
+    "attribution": "Gemeentelijke RUP's © Departement Omgeving"
+  },
+
+  "mercator:rup_gemeentelijk_deelgebieden": {
+    "type": "wms",
+    "label": "Gemeentelijk RUP — deelgebieden",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_gemrup_dg",
+    "transparantie": 0.6,
+    "attribution": "Gemeentelijke RUP deelgebieden © Departement Omgeving"
+  },
+
+  "_sectie_6c": "── Provinciale RUP's ────────────────────────",
+
+  "mercator:rup_provinciaal_contouren": {
+    "type": "wms",
+    "label": "Provinciaal RUP — contouren",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_prorup_ct",
+    "transparantie": 0.7,
+    "attribution": "Provinciale RUP's © Departement Omgeving"
+  },
+
+  "_sectie_6d": "── Gewestelijke RUP's ───────────────────────",
+
+  "mercator:rup_gewestelijk_contouren": {
+    "type": "wms",
+    "label": "Gewestelijk RUP — contouren",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_gewrup_ct",
+    "transparantie": 0.7,
+    "attribution": "Gewestelijke RUP's © Departement Omgeving"
+  },
+
+  "mercator:rup_gewestelijk_grondvlakken": {
+    "type": "wms",
+    "label": "Gewestelijk RUP — grondvlakvoorschriften",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "lu:lu_gewrup_ctspec_gv",
+    "transparantie": 0.5,
+    "attribution": "Gewestelijke RUP grondvlakken © Departement Omgeving"
   },
 
   "_____________": "═══════════════════════════════════════════════════════════",
