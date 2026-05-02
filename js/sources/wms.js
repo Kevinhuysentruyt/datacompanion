@@ -1,10 +1,10 @@
 // ════════════════════════════════════════════════════════
-//  SOURCE: WMS (v9)
+//  SOURCE: WMS (v10)
 //
-//  v9: Twee-staps perceel-info via CapaKey REST API
-//  - Stap 1: GRB WFS → krijg capakey
-//  - Stap 2: CapaKey REST → volledige details (gemeente, sectie, perceel, adres)
-//  - Erfgoed: link naar inventaris zoekpagina met gemeente-filter
+//  v10: Eerlijke en werkende oplossing
+//  - Percelen: capakey + REST details (zoals v9)
+//  - Erfgoed: gemeente uit capakey + zoeklinks die WERKEN
+//    (geen valse beloften over deeplinks naar specifieke objecten)
 // ════════════════════════════════════════════════════════
 
 export function laadLaag(laagConfig, map, statusEl) {
@@ -32,7 +32,7 @@ export function laadLaag(laagConfig, map, statusEl) {
 }
 
 // ──────────────────────────────────────────────────────
-// PERCELEN — twee-staps: WFS (capakey) + CapaKey REST (details)
+// PERCELEN — twee-staps via WFS + CapaKey REST
 // ──────────────────────────────────────────────────────
 function activeerPerceelKlik(laag, map) {
   let actief = false;
@@ -48,7 +48,6 @@ function activeerPerceelKlik(laag, map) {
       .openOn(map);
 
     try {
-      // Stap 1: Krijg de capakey via WFS
       const bbox = bboxRondPunt(e.latlng, 5);
       const capakey = await haalCapakeyOp(bbox);
 
@@ -57,7 +56,6 @@ function activeerPerceelKlik(laag, map) {
         return;
       }
 
-      // Stap 2: Krijg de volledige details via CapaKey REST
       popup.setContent('<div class="perceel-popup-loading"><span class="loader-mini"></span>Perceeldetails ophalen...</div>');
       const details = await haalPerceelDetails(capakey);
       popup.setContent(formatPerceelPopup(capakey, details));
@@ -102,22 +100,13 @@ async function haalCapakeyOp(bbox) {
   return p.CAPAKEY || p.capakey || p.CAPA_KEY || null;
 }
 
-// CapaKey REST API v2 — geeft volledige details
-// URL formaat: /capakey/v2/parcel/{parcelCode1}/{parcelCode2}
-// Capakey "34042D0402/00_000" splitsen in:
-//   - parcelCode1 = "34042D0402"
-//   - parcelCode2 = "00_000"
 async function haalPerceelDetails(capakey) {
   const delen = capakey.split('/');
-  if (delen.length !== 2) {
-    throw new Error(`Capakey-formaat onverwacht: ${capakey}`);
-  }
+  if (delen.length !== 2) return null;
   const [code1, code2] = delen;
   const url = `https://geo.api.vlaanderen.be/capakey/v2/parcel/${encodeURIComponent(code1)}/${encodeURIComponent(code2)}?data=adp&status=actual`;
-
   const res = await fetch(url);
   if (!res.ok) {
-    // Niet kritiek: we kunnen toch nog de capakey zelf tonen
     console.warn(`CapaKey REST gaf ${res.status} voor ${capakey}`);
     return null;
   }
@@ -155,11 +144,13 @@ function formatPerceelPopup(capakey, details) {
 }
 
 // ──────────────────────────────────────────────────────
-// ERFGOED — links naar inventaris + geoportaal van Onroerend Erfgoed
+// ERFGOED — eerlijke aanpak: gemeentecontext + zoeklinks
 // ──────────────────────────────────────────────────────
-// We kunnen geen API-call doen (CORS geblokkeerd). In plaats daarvan:
-// - Link naar inventaris-zoekpagina gefilterd op de gemeente uit de config
-// - Link naar het Geoportaal van Onroerend Erfgoed
+// De inventaris en het geoportaal van Onroerend Erfgoed hebben geen
+// publieke deeplink-API voor coördinaten. We tonen daarom:
+//   1. De gemeente waar geklikt werd (uit capakey-lookup)
+//   2. Het type erfgoed-laag
+//   3. Werkende links naar de zoekformulieren
 function activeerErfgoedKlik(laag, map, laagConfig) {
   let actief = false;
   laag.on('add', () => { actief = true; });
@@ -170,7 +161,13 @@ function activeerErfgoedKlik(laag, map, laagConfig) {
 
     const { lat, lng } = e.latlng;
 
-    // Probeer de gemeente te vinden via een capakey-call (we zitten al op WGS84)
+    // Stap 1: open popup met loader
+    const popup = L.popup({ maxWidth: 340 })
+      .setLatLng(e.latlng)
+      .setContent('<div class="erfgoed-popup-loading"><span class="loader-mini"></span>Locatie identificeren...</div>')
+      .openOn(map);
+
+    // Stap 2: probeer de gemeente te bepalen
     let gemeente = null;
     try {
       const bbox = bboxRondPunt(e.latlng, 10);
@@ -180,51 +177,41 @@ function activeerErfgoedKlik(laag, map, laagConfig) {
         gemeente = details?.municipalityName || null;
       }
     } catch (err) {
-      console.warn('Gemeente niet gevonden voor erfgoed-popup:', err);
+      console.warn('Gemeente niet gevonden:', err);
     }
 
-    // Bouw URLs op
+    // Stap 3: bouw popup met de info die we wel hebben
     const inventarisType = bepaalInventarisType(laagConfig.layer);
-    let inventarisUrl;
-    if (gemeente) {
-      inventarisUrl = `https://inventaris.onroerenderfgoed.be/${inventarisType}/zoeken?gemeente=${encodeURIComponent(gemeente)}`;
-    } else {
-      inventarisUrl = `https://inventaris.onroerenderfgoed.be/${inventarisType}/zoeken`;
-    }
+    const inventarisZoekUrl = `https://inventaris.onroerenderfgoed.be/${inventarisType}/zoeken`;
     const geoportaalUrl = 'https://geo.onroerenderfgoed.be/';
 
-    L.popup({ maxWidth: 320 })
-      .setLatLng(e.latlng)
-      .setContent(`
-        <div class="erfgoed-popup">
-          <div class="erfgoed-titel">${escapeHtml(laagConfig.label)}</div>
-          ${gemeente ? `<div class="perceel-popup-rij"><span>Gemeente:</span> ${escapeHtml(gemeente)}</div>` : ''}
-          <div class="erfgoed-uitleg">
-            Bekijk alle <strong>${escapeHtml(laagConfig.label.toLowerCase())}</strong>${gemeente ? ` in <strong>${escapeHtml(gemeente)}</strong>` : ''}
-            in de officiële inventaris van Onroerend Erfgoed,
-            inclusief foto's, datering en beschermingsbesluit.
-          </div>
-          <div class="erfgoed-link">
-            <a href="${inventarisUrl}" target="_blank" rel="noopener">
-              Open in inventaris →
-            </a>
-          </div>
-          <div class="erfgoed-link" style="border-top:none;padding-top:0;margin-top:4px">
-            <a href="${geoportaalUrl}" target="_blank" rel="noopener">
-              Open Geoportaal Onroerend Erfgoed →
-            </a>
-          </div>
-          <div class="erfgoed-coords">
-            <small>Locatie: ${lat.toFixed(5)}°, ${lng.toFixed(5)}°</small>
-          </div>
+    const gemeenteHint = gemeente
+      ? `<div class="erfgoed-hint">💡 Vul <strong>${escapeHtml(gemeente)}</strong> in bij gemeente om te filteren.</div>`
+      : '';
+
+    popup.setContent(`
+      <div class="erfgoed-popup">
+        <div class="erfgoed-titel">${escapeHtml(laagConfig.label)}</div>
+        ${gemeente ? `<div class="erfgoed-rij"><span class="erfgoed-key">Gemeente:</span> ${escapeHtml(gemeente)}</div>` : ''}
+        <div class="erfgoed-rij"><span class="erfgoed-key">Coördinaat:</span> ${lat.toFixed(5)}°, ${lng.toFixed(5)}°</div>
+
+        ${gemeenteHint}
+
+        <div class="erfgoed-link">
+          <a href="${inventarisZoekUrl}" target="_blank" rel="noopener">
+            Zoek in inventaris →
+          </a>
         </div>
-      `)
-      .openOn(map);
+        <div class="erfgoed-link" style="border-top:none;padding-top:0;margin-top:4px">
+          <a href="${geoportaalUrl}" target="_blank" rel="noopener">
+            Open Geoportaal →
+          </a>
+        </div>
+      </div>
+    `);
   });
 }
 
-// Bepaalt of we naar erfgoedobjecten of aanduidingsobjecten moeten linken
-// op basis van de WMS-laagnaam.
 function bepaalInventarisType(wmsLayer) {
   const beschermd = ['bes_monument', 'bes_landschap', 'bes_arch_site', 'bes_sd_gezicht', 'erfgoedls', 'unesco'];
   const isBeschermd = beschermd.some(b => wmsLayer.includes(b));
