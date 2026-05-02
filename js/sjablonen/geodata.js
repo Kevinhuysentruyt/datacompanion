@@ -2,9 +2,9 @@
 //  SJABLOON: Geodata (v6)
 //
 //  Wijzigingen v6:
+//  - XYZ tile source toegevoegd (OpenFreeMap, Stadia, ...)
 //  - Kaart-afbakening per loket via "kaart_afbakening" config
 //  - maxBounds + viscosity + min/max zoom toegepast na fitBounds
-//  - Werkt met of zonder kaart-afbakening.js helper
 //
 //  Eerdere wijzigingen (v5):
 //  - Inklapbare rubrieken per groep
@@ -16,18 +16,19 @@ import { resolveSource } from '../core.js';
 import { laadLaag as laadWMS } from '../sources/wms.js';
 import { laadLaag as laadPOI } from '../sources/poi.js';
 import { laadLaag as laadGeoJSON } from '../sources/geojson.js';
+import { laadLaag as laadXYZ } from '../sources/xyz.js';
 import { maakToggle } from '../renderers/toggle.js';
 import { maakRadio } from '../renderers/radio.js';
 
 const SOURCES = {
   'wms':         laadWMS,
   'poi':         laadPOI,
-  'geojson_url': laadGeoJSON
+  'geojson_url': laadGeoJSON,
+  'xyz':         laadXYZ
 };
 
 // ──────────────────────────────────────────────────────
-// Defaults voor kaart-afbakening (kunnen via config worden
-// overschreven per loket onder "kaart_afbakening")
+// Defaults voor kaart-afbakening
 // ──────────────────────────────────────────────────────
 const AFBAKENING_DEFAULTS = {
   modus: 'soft_lock',
@@ -57,32 +58,25 @@ export function renderSjabloonGeodata(container, loket, state) {
     </div>
   `;
 
-  // Kaart initialiseren
   const cfg = state.config;
   const centrum = cfg.gemeente.fallback_centrum || [50.9, 4.0];
-
-  // Bouw afbakening-config met defaults
   const afbakening = { ...AFBAKENING_DEFAULTS, ...(loket.kaart_afbakening || {}) };
 
-  // Kaart-opties: minZoom/maxZoom worden meteen meegegeven bij init
   const mapOpties = { attributionControl: true };
   if (afbakening.modus !== 'geen') {
     if (afbakening.min_zoom !== undefined) mapOpties.minZoom = afbakening.min_zoom;
     if (afbakening.max_zoom !== undefined) mapOpties.maxZoom = afbakening.max_zoom;
-    if (afbakening.modus === 'hard_lock') mapOpties.maxBoundsViscosity = 1.0;
-    else mapOpties.maxBoundsViscosity = afbakening.viscosity ?? 0.7;
+    mapOpties.maxBoundsViscosity = afbakening.modus === 'hard_lock' ? 1.0 : (afbakening.viscosity ?? 0.7);
   }
 
   const map = L.map('map', mapOpties).setView(centrum, 13);
   state.mapInstance = map;
 
-  // Panes voor z-index
   map.createPane('achtergrond');
   map.getPane('achtergrond').style.zIndex = 200;
   map.createPane('kaartlagen');
   map.getPane('kaartlagen').style.zIndex = 400;
 
-  // Lagen organiseren per groep
   const groepen = loket.groepen || [];
   const isAchtergrondGroep = (g) => {
     const lbl = (g.label || '').toLowerCase();
@@ -92,7 +86,7 @@ export function renderSjabloonGeodata(container, loket, state) {
   const kaartGroepen = groepen.filter(g => !isAchtergrondGroep(g));
   const achtergrondGroep = groepen.find(isAchtergrondGroep);
 
-  // ── KAARTLAGEN PER RUBRIEK RENDEREN ────────────────────
+  // ── KAARTLAGEN PER RUBRIEK ─────────────────────────────
   const rubriekContainer = document.getElementById('kaartlagen-rubrieken');
 
   if (kaartGroepen.length === 0) {
@@ -102,7 +96,6 @@ export function renderSjabloonGeodata(container, loket, state) {
       const groepEl = document.createElement('div');
       groepEl.className = 'layer-group layer-group-rubriek';
 
-      // Eerste rubriek standaard open, rest gesloten
       const startOpen = idx === 0;
       groepEl.innerHTML = `
         <button class="rubriek-header${startOpen ? ' rubriek-open' : ''}" type="button">
@@ -113,7 +106,6 @@ export function renderSjabloonGeodata(container, loket, state) {
         <div class="rubriek-content${startOpen ? '' : ' rubriek-gesloten'}"></div>
       `;
 
-      // Klik-handler voor inklappen
       const headerBtn = groepEl.querySelector('.rubriek-header');
       const contentEl = groepEl.querySelector('.rubriek-content');
       headerBtn.addEventListener('click', () => {
@@ -121,7 +113,6 @@ export function renderSjabloonGeodata(container, loket, state) {
         contentEl.classList.toggle('rubriek-gesloten');
       });
 
-      // Lagen in deze rubriek
       (groep.lagen || []).forEach(laag => {
         const el = bouwLaagControl(laag, map, 'toggle', null, null, null, 'kaartlagen');
         if (el) contentEl.appendChild(el);
@@ -131,7 +122,7 @@ export function renderSjabloonGeodata(container, loket, state) {
     });
   }
 
-  // ── ACHTERGROND RENDEREN ───────────────────────────────
+  // ── ACHTERGROND ────────────────────────────────────────
   const achterContainer = document.getElementById('achtergrond-container');
   const achtergrondLagen = achtergrondGroep ? (achtergrondGroep.lagen || []) : [];
 
@@ -155,16 +146,13 @@ export function renderSjabloonGeodata(container, loket, state) {
         const bb = d?.geometrie?.boundingBox;
         if (!bb || !state.mapInstance) return;
 
-        // bb formaat: { minX, maxX, minY, maxY } waar X=lng, Y=lat
         const bounds = L.latLngBounds(
           [bb.minY, bb.minX],
           [bb.maxY, bb.maxX]
         );
 
-        // 1. Initiële view: focus op gemeente
         state.mapInstance.fitBounds(bounds, { padding: [30, 30] });
 
-        // 2. Afbakening toepassen (tenzij modus = "geen")
         if (afbakening.modus !== 'geen') {
           const margeFactor = (afbakening.marge_percentage || 0) / 100;
           const breedte = bb.maxX - bb.minX;
@@ -176,19 +164,17 @@ export function renderSjabloonGeodata(container, loket, state) {
           );
 
           state.mapInstance.setMaxBounds(maxBounds);
-          console.log(`Kaart-afbakening toegepast: ${afbakening.modus}, marge ${afbakening.marge_percentage}%, viscosity ${afbakening.viscosity}`);
         }
       })
-      .catch(err => {
-        console.warn('Basisregisters niet bereikbaar:', err);
-      });
+      .catch(err => console.warn('Basisregisters niet bereikbaar:', err));
   }
 
-  // Kaart hergrootte forceren na render
   setTimeout(() => map.invalidateSize(), 100);
 }
 
-// Bouwt een laag-control
+// ──────────────────────────────────────────────────────
+// Bouwt een laag-control (toggle of radio)
+// ──────────────────────────────────────────────────────
 function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam) {
   let laag;
   try {
@@ -217,7 +203,6 @@ function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam
     return null;
   }
 
-  // Foutafhandeling op tile-niveau
   if (kaartlaag && typeof kaartlaag.on === 'function') {
     kaartlaag.on('tileerror', (err) => {
       console.warn(`Tile-fout voor ${laag.label}:`, err.tile?.src);
