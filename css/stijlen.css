@@ -682,3 +682,29 @@ header {
     min-height: 400px;
   }
 }
+
+/* ════════════════════════════════════════════════════════
+   PANEL SECTIE-TITELS (Kaartlagen / scheiding)
+   ════════════════════════════════════════════════════════ */
+.panel-sectie-titel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--primair);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--primair);
+  opacity: 0.7;
+}
+
+.panel-sectie-scheiding {
+  margin-top: 16px;
+  margin-bottom: 0;
+  border-top: 2px solid var(--border);
+}
+
+/* Achtergrond-rubriek: geen top-margin op de rubriek zelf */
+.layer-group-achtergrond {
+  margin-top: 8px;
+}
