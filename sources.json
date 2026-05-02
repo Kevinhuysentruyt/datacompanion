@@ -1,195 +1,295 @@
-// ════════════════════════════════════════════════════════
-//  SOURCE: WMS (v8)
-//
-//  v8: Werkende oplossing zonder CORS-issues
-//  - Percelen: WFS naar GRB met Lambert72 BBOX (CORS werkt)
-//  - Erfgoed: link-popup naar inventaris.onroerenderfgoed.be
-//    (Onroerend Erfgoed WFS staat geen CORS toe)
-// ════════════════════════════════════════════════════════
+{
+  "$schema": "Data Companion — Broncatalogus v2.7",
+  "_doel": "Catalogus van LIVE Vlaamse open data APIs",
+  "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
+  "_update": "april 2026 — zuiveringsgebieden verwijderd",
 
-export function laadLaag(laagConfig, map, statusEl) {
-  const opties = {
-    layers: laagConfig.layer,
-    format: 'image/png',
-    transparent: true,
-    version: '1.3.0',
-    attribution: laagConfig.attribution || ''
-  };
+  "_": "═══════════════════════════════════════════════════════════",
+  "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
+  "__": "═══════════════════════════════════════════════════════════",
 
-  if (laagConfig._pane) opties.pane = laagConfig._pane;
+  "geopunt:grb": {
+    "type": "wms",
+    "label": "GRB basiskaart",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_BSK",
+    "transparantie": 0.9,
+    "attribution": "GRB © Digitaal Vlaanderen"
+  },
 
-  const wmsLaag = L.tileLayer.wms(laagConfig.url, opties);
+  "geopunt:grb_grijs": {
+    "type": "wms",
+    "label": "GRB basiskaart (grijswaarden)",
+    "url": "https://geo.api.vlaanderen.be/GRB-basiskaart-grijs/wms",
+    "layer": "GRB_BSK_GRIJS",
+    "transparantie": 0.9,
+    "attribution": "GRB Grijs © Digitaal Vlaanderen"
+  },
 
-  if (laagConfig.klikbaar) {
-    activeerPerceelKlik(wmsLaag, map);
+  "geopunt:orthofoto_2021_zomer": {
+    "type": "wms",
+    "label": "Orthofoto zomer 2021 (40cm)",
+    "url": "https://geo.api.vlaanderen.be/OMZ/wms",
+    "layer": "OMZRGB21VL",
+    "transparantie": 1.0,
+    "attribution": "Orthofotomozaïek zomer 2021 © Digitaal Vlaanderen"
+  },
+
+  "geopunt:orthofoto_2025_winter": {
+    "type": "wms",
+    "label": "Orthofoto winter 2025 (15cm) — meest recent",
+    "url": "https://geo.api.vlaanderen.be/OMWRGBMRVL/wms",
+    "layer": "Ortho",
+    "transparantie": 1.0,
+    "attribution": "Orthofotomozaïek winter 2025 © Digitaal Vlaanderen"
+  },
+
+  "___": "═══════════════════════════════════════════════════════════",
+  "_sectie_2": "2. KADASTRALE LAGEN (Geopunt GRB)",
+  "____": "═══════════════════════════════════════════════════════════",
+
+  "geopunt:percelen": {
+    "type": "wms",
+    "label": "Kadastrale percelen (ADP)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_ADP",
+    "transparantie": 0.7,
+    "attribution": "GRB Administratief Perceel © Digitaal Vlaanderen"
+  },
+
+  "geopunt:gebouwen": {
+    "type": "wms",
+    "label": "Gebouwen aan de grond (GBG)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_GBG",
+    "transparantie": 0.8,
+    "attribution": "GRB Gebouwen © Digitaal Vlaanderen"
+  },
+
+  "geopunt:wegen": {
+    "type": "wms",
+    "label": "Wegbanen (WBN)",
+    "url": "https://geo.api.vlaanderen.be/GRB/wms",
+    "layer": "GRB_WBN",
+    "transparantie": 0.8,
+    "attribution": "GRB Wegbanen © Digitaal Vlaanderen"
+  },
+
+  "_____": "═══════════════════════════════════════════════════════════",
+  "_sectie_3": "3. ADMINISTRATIEVE GRENZEN",
+  "______": "═══════════════════════════════════════════════════════════",
+
+  "geopunt:gemeentegrenzen": {
+    "type": "wfs",
+    "label": "Gemeentegrenzen Vlaanderen",
+    "url": "https://geo.api.vlaanderen.be/VRBG/wfs",
+    "typename": "VRBG:Refgem",
+    "count": 400,
+    "stijl": {
+      "color": "#2980b9",
+      "weight": 1.5,
+      "fillColor": "#2980b9",
+      "fillOpacity": 0.04,
+      "dashArray": "5 4"
+    },
+    "popup_label": "Gemeente",
+    "popup_titel": "{NAAM}",
+    "popup_body": "NIS-code: {NISCODE}",
+    "attribution": "VRBG Gemeentegrenzen © Digitaal Vlaanderen"
+  },
+
+  "_______": "═══════════════════════════════════════════════════════════",
+  "_sectie_4": "4. WATER & KLIMAAT (VMM)",
+  "________": "═══════════════════════════════════════════════════════════",
+
+  "vmm:overstromingsgebied_recent": {
+    "type": "wms",
+    "label": "Recent overstroomde gebieden (sinds 1988)",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "RecOvstrGeb",
+    "transparantie": 0.7,
+    "attribution": "Recent overstroomde gebieden © VMM"
+  },
+
+  "vmm:overstromingsgebied_natuurlijk": {
+    "type": "wms",
+    "label": "Van nature overstroombare gebieden",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "NatOverstrGeb",
+    "transparantie": 0.6,
+    "attribution": "Natuurlijk overstroombaar © VMM"
+  },
+
+  "vmm:waterlopen_vha": {
+    "type": "wms",
+    "label": "VHA-waterlopen (Vlaamse Hydrografische Atlas)",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "VHAG",
+    "transparantie": 0.8,
+    "attribution": "VHA Waterlopen © VMM"
+  },
+
+  "vmm:waterloop_categorietraject": {
+    "type": "wms",
+    "label": "Waterlopen per beheerder/categorie",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "VhaCattraj",
+    "transparantie": 0.8,
+    "attribution": "VHA Categorietraject © VMM"
+  },
+
+  "vmm:bekkens": {
+    "type": "wms",
+    "label": "Hydrografische bekkens",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "WsBekken",
+    "transparantie": 0.4,
+    "attribution": "Bekkens © VMM"
+  },
+
+  "vmm:rioolinventaris_punten": {
+    "type": "wms",
+    "label": "Rioolinventaris — punten (overstort, gemaal, ...)",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Rioolpunt",
+    "transparantie": 0.9,
+    "attribution": "Rioolinventaris © VMM"
+  },
+
+  "vmm:rioolinventaris_strengen": {
+    "type": "wms",
+    "label": "Rioolinventaris — strengen",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Rioolstrng",
+    "transparantie": 0.7,
+    "attribution": "Rioolinventaris © VMM"
+  },
+
+  "vmm:hillshade": {
+    "type": "wms",
+    "label": "Hoogtemodel — Hillshade (5m)",
+    "url": "https://geo.api.vlaanderen.be/VMM/wms",
+    "layer": "Hillshade",
+    "transparantie": 0.6,
+    "attribution": "Digitaal Hoogtemodel Vlaanderen © VMM"
+  },
+
+  "_________": "═══════════════════════════════════════════════════════════",
+  "_sectie_5": "5. ONROEREND ERFGOED — klik opent inventaris.onroerenderfgoed.be",
+  "__________": "═══════════════════════════════════════════════════════════",
+
+  "erfgoed:beschermd_monument": {
+    "type": "wms",
+    "label": "Beschermde monumenten",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:bes_monument",
+    "transparantie": 0.7,
+    "klikbaar_inventaris": true,
+    "attribution": "Beschermde monumenten © Onroerend Erfgoed"
+  },
+
+  "erfgoed:beschermd_landschap": {
+    "type": "wms",
+    "label": "Beschermde cultuurhistorische landschappen",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:bes_landschap",
+    "transparantie": 0.6,
+    "klikbaar_inventaris": true,
+    "attribution": "Beschermde landschappen © Onroerend Erfgoed"
+  },
+
+  "erfgoed:beschermd_archeologisch": {
+    "type": "wms",
+    "label": "Beschermde archeologische sites",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:bes_arch_site",
+    "transparantie": 0.6,
+    "klikbaar_inventaris": true,
+    "attribution": "Beschermde archeologische sites © Onroerend Erfgoed"
+  },
+
+  "erfgoed:stads_dorpsgezicht": {
+    "type": "wms",
+    "label": "Beschermde stads- en dorpsgezichten",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:bes_sd_gezicht",
+    "transparantie": 0.5,
+    "klikbaar_inventaris": true,
+    "attribution": "Stads- en dorpsgezichten © Onroerend Erfgoed"
+  },
+
+  "erfgoed:bouwkundig_inventaris": {
+    "type": "wms",
+    "label": "Bouwkundig erfgoed (inventaris)",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:bouwkundig_element",
+    "transparantie": 0.7,
+    "klikbaar_inventaris": true,
+    "attribution": "Bouwkundig erfgoed © Onroerend Erfgoed"
+  },
+
+  "erfgoed:landschappelijk_inventaris": {
+    "type": "wms",
+    "label": "Landschappelijk erfgoed (inventaris)",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:landschappelijk_element",
+    "transparantie": 0.7,
+    "klikbaar_inventaris": true,
+    "attribution": "Landschappelijk erfgoed © Onroerend Erfgoed"
+  },
+
+  "erfgoed:archeologisch_inventaris": {
+    "type": "wms",
+    "label": "Archeologisch erfgoed (inventaris)",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:archeologisch_element",
+    "transparantie": 0.7,
+    "klikbaar_inventaris": true,
+    "attribution": "Archeologisch erfgoed © Onroerend Erfgoed"
+  },
+
+  "erfgoed:erfgoedlandschappen": {
+    "type": "wms",
+    "label": "Erfgoedlandschappen",
+    "url": "https://geo.onroerenderfgoed.be/geoserver/wms",
+    "layer": "vioe_geoportaal:erfgoedls",
+    "transparantie": 0.5,
+    "klikbaar_inventaris": true,
+    "attribution": "Erfgoedlandschappen © Onroerend Erfgoed"
+  },
+
+  "___________": "═══════════════════════════════════════════════════════════",
+  "_sectie_6": "6. RUIMTELIJKE ORDENING (MercatorNet) — laagnamen NOG TE VERIFIËREN",
+  "____________": "═══════════════════════════════════════════════════════════",
+
+  "mercator:gewestplan": {
+    "type": "wms",
+    "label": "Gewestplan",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "ruimtelijke_ordening:Gwp_Bestemming_2002",
+    "transparantie": 0.6,
+    "attribution": "Gewestplan © Beleidsdomein Omgeving"
+  },
+
+  "mercator:rups": {
+    "type": "wms",
+    "label": "RUP's",
+    "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+    "layer": "ruimtelijke_ordening:RupGrens",
+    "transparantie": 0.7,
+    "attribution": "RUP's © Beleidsdomein Omgeving"
+  },
+
+  "_____________": "═══════════════════════════════════════════════════════════",
+  "_sectie_7": "7. DOV BODEM — laagnamen NOG TE VERIFIËREN",
+  "______________": "═══════════════════════════════════════════════════════════",
+
+  "dov:bodemkaart": {
+    "type": "wms",
+    "label": "Bodemkaart Vlaanderen",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "bodemkaart:bodemkaart",
+    "transparantie": 0.7,
+    "attribution": "Bodemkaart © DOV"
   }
-
-  if (laagConfig.klikbaar_inventaris) {
-    activeerErfgoedKlik(wmsLaag, map, laagConfig);
-  }
-
-  return wmsLaag;
-}
-
-// ──────────────────────────────────────────────────────
-// PERCELEN — via GRB WFS (Lambert72 BBOX, GML output)
-// ──────────────────────────────────────────────────────
-function activeerPerceelKlik(laag, map) {
-  let actief = false;
-  laag.on('add', () => { actief = true; });
-  laag.on('remove', () => { actief = false; });
-
-  map.on('click', async (e) => {
-    if (!actief || !map.hasLayer(laag)) return;
-
-    const popup = L.popup({ maxWidth: 320 })
-      .setLatLng(e.latlng)
-      .setContent('<div class="perceel-popup-loading"><span class="loader-mini"></span>Perceel zoeken...</div>')
-      .openOn(map);
-
-    try {
-      // Stap 1: WGS84 → Lambert72 conversie via een eenvoudige formule
-      // Voor Vlaanderen volstaat een proj4-achtige benadering, maar we gebruiken
-      // de Geopunt geolocation API NIET (geen CORS).
-      // We doen het via de WFS direct in WGS84-bbox:
-      const bbox = bboxRondPunt(e.latlng, 5); // 5 meter buffer
-      const feature = await haalPerceelOp(bbox);
-
-      if (!feature) {
-        popup.setContent('<div class="perceel-popup-fout">Geen perceel op deze locatie</div>');
-        return;
-      }
-      popup.setContent(formatPerceelPopup(feature));
-    } catch (err) {
-      console.error('Perceel-fout:', err);
-      popup.setContent(`<div class="perceel-popup-fout">${escapeHtml(err.message || 'Fout bij ophalen perceel')}</div>`);
-    }
-  });
-}
-
-// Maak een BBOX rond een lat/lng punt met een buffer in meters (geschat)
-function bboxRondPunt(latlng, meters) {
-  // Op 51° breedte: 1° lat ≈ 111 km, 1° lng ≈ 70 km
-  const dLat = meters / 111000;
-  const dLng = meters / 70000;
-  return {
-    minLat: latlng.lat - dLat,
-    maxLat: latlng.lat + dLat,
-    minLng: latlng.lng - dLng,
-    maxLng: latlng.lng + dLng
-  };
-}
-
-async function haalPerceelOp(bbox) {
-  // Gebruik EPSG:4326 met juiste assen-volgorde voor WFS 2.0.0
-  // WFS 2.0.0 met EPSG:4326 verwacht lat,lng order
-  const url = new URL('https://geo.api.vlaanderen.be/GRB/wfs');
-  url.search = new URLSearchParams({
-    service: 'WFS',
-    version: '2.0.0',
-    request: 'GetFeature',
-    typeNames: 'GRB:ADP',
-    outputFormat: 'application/json',
-    srsName: 'urn:ogc:def:crs:EPSG::4326',
-    bbox: `${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng},urn:ogc:def:crs:EPSG::4326`,
-    count: 1
-  }).toString();
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`WFS HTTP ${res.status}: ${txt.slice(0, 100)}`);
-  }
-  const ct = res.headers.get('content-type') || '';
-  if (!ct.includes('json')) {
-    const txt = await res.text();
-    console.warn('WFS gaf geen JSON terug:', txt.slice(0, 300));
-    throw new Error('WFS gaf geen JSON terug');
-  }
-  const data = await res.json();
-  return data.features?.[0] || null;
-}
-
-function formatPerceelPopup(feature) {
-  const p = feature.properties || {};
-
-  // Probeer alle mogelijke veldnamen (capakey wisselt per dataset)
-  const capakey = p.CAPAKEY || p.capakey || p.CAPA_KEY || '—';
-  const gemeente = p.GEMEENTE || p.gemeente || p.MUNI_NAME || p.muni_name || '—';
-  const sectie = p.SECTIE || p.sectie || '—';
-  const grondnr = p.GRONDNR || p.grondnr || p.PERCNR || p.percnr || '—';
-  const opp = p.OPPERVL || p.oppervl || p.SHAPE_AREA || null;
-
-  const oppText = opp ? `${Number(opp).toLocaleString('nl-BE', { maximumFractionDigits: 0 })} m²` : null;
-
-  return `
-    <div class="perceel-popup">
-      <div class="perceel-popup-titel">${escapeHtml(capakey)}</div>
-      <div class="perceel-popup-rij"><span>Gemeente:</span> ${escapeHtml(gemeente)}</div>
-      <div class="perceel-popup-rij"><span>Sectie:</span> ${escapeHtml(sectie)} / Perceel ${escapeHtml(String(grondnr))}</div>
-      ${oppText ? `<div class="perceel-popup-rij"><span>Oppervlakte:</span> ${oppText}</div>` : ''}
-      <div class="perceel-popup-link">
-        <a href="https://eservices.minfin.fgov.be/ecad-web/?capakey=${encodeURIComponent(capakey)}" target="_blank" rel="noopener">
-          Open in CadGIS →
-        </a>
-      </div>
-    </div>
-  `;
-}
-
-// ──────────────────────────────────────────────────────
-// ERFGOED — directe link naar inventaris (geen API-call)
-// ──────────────────────────────────────────────────────
-// Onroerend Erfgoed WFS staat geen CORS toe vanaf externe origins.
-// Daarom maken we een popup met een directe link naar de
-// inventaris.onroerenderfgoed.be zoekpagina rond de klikpunt.
-// Daar krijgt de gebruiker alle masterdata (foto's, geschiedenis,
-// beschermingsbesluit, ...).
-function activeerErfgoedKlik(laag, map, laagConfig) {
-  let actief = false;
-  laag.on('add', () => { actief = true; });
-  laag.on('remove', () => { actief = false; });
-
-  map.on('click', (e) => {
-    if (!actief || !map.hasLayer(laag)) return;
-
-    const { lat, lng } = e.latlng;
-    const inventarisUrl = `https://inventaris.onroerenderfgoed.be/?lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}&zoom=18`;
-    const geoportaalUrl = `https://geo.onroerenderfgoed.be/#/?layer=${encodeURIComponent(laagConfig.layer)}&zoom=18&center=${lat.toFixed(6)},${lng.toFixed(6)}`;
-
-    L.popup({ maxWidth: 320 })
-      .setLatLng(e.latlng)
-      .setContent(`
-        <div class="erfgoed-popup">
-          <div class="erfgoed-titel">${escapeHtml(laagConfig.label)}</div>
-          <div class="erfgoed-uitleg">
-            Bekijk alle <strong>${escapeHtml(laagConfig.label.toLowerCase())}</strong>
-            op deze locatie in de officiële inventaris van Onroerend Erfgoed,
-            inclusief foto's, datering, beschermingsbesluit en geschiedenis.
-          </div>
-          <div class="erfgoed-link">
-            <a href="${inventarisUrl}" target="_blank" rel="noopener">
-              Open in inventaris →
-            </a>
-          </div>
-          <div class="erfgoed-link" style="border-top:none;padding-top:0;margin-top:4px">
-            <a href="${geoportaalUrl}" target="_blank" rel="noopener">
-              Open in geoportaal →
-            </a>
-          </div>
-          <div class="erfgoed-coords">
-            <small>Locatie: ${lat.toFixed(5)}°, ${lng.toFixed(5)}°</small>
-          </div>
-        </div>
-      `)
-      .openOn(map);
-  });
-}
-
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
