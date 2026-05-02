@@ -17,7 +17,7 @@
     { "naam": "Geopunt / Digitaal Vlaanderen", "url": "https://www.geopunt.be" },
     { "naam": "Vlaamse Milieumaatschappij", "url": "https://klimaat.vmm.be" },
     { "naam": "Onroerend Erfgoed", "url": "https://www.onroerenderfgoed.be" },
-    { "naam": "Beleidsdomein Omgeving", "url": "https://www.omgeving.vlaanderen.be" },
+    { "naam": "Departement Omgeving (MercatorNet)", "url": "https://www.mercator.vlaanderen.be" },
     { "naam": "DOV - Databank Ondergrond Vlaanderen", "url": "https://www.dov.vlaanderen.be" }
   ],
 
@@ -43,7 +43,17 @@
           ]
         },
         {
-          "label": "Water",
+          "label": "Ruimtelijke ordening",
+          "lagen": [
+            { "bron": "mercator:gewestplan_grondvlakken", "rol": "kaartlaag", "transparantie": 0.6 },
+            { "bron": "mercator:gewestplan_overdrukken", "rol": "kaartlaag", "transparantie": 0.5 },
+            { "bron": "mercator:rup_gewestelijk_contouren", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "mercator:rup_provinciaal_contouren", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "mercator:rup_gemeentelijk_contouren", "rol": "kaartlaag", "transparantie": 0.7 }
+          ]
+        },
+        {
+          "label": "Water & overstroming",
           "lagen": [
             { "bron": "vmm:waterlopen_vha", "rol": "kaartlaag", "transparantie": 0.9 },
             { "bron": "vmm:overstromingsgebied_recent", "rol": "kaartlaag", "transparantie": 0.6 },
@@ -72,10 +82,8 @@
           ]
         },
         {
-          "label": "RO & bodem",
+          "label": "Bodem",
           "lagen": [
-            { "bron": "mercator:gewestplan", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "mercator:rups", "rol": "kaartlaag", "transparantie": 0.6 },
             { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 }
           ]
         },
