@@ -1,10 +1,10 @@
 /* ═══════════════════════════════════════════════════════════
-   Data Companion — Visuele opmaak (v4 - WFS popups)
+   Data Companion — Visuele opmaak (v5)
+   v5: Robuuste layout die niet inklapt + erfgoed-hint styling
    ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* ── CSS-variabelen ── */
 :root {
   --bg:#f4f2ee;
   --surface:#fff;
@@ -103,17 +103,27 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   CONTENT AREA
+   CONTENT AREA — robuuste layout, kan niet inklappen
    ════════════════════════════════════════════════════════ */
 .content {
-  flex: 1;
+  flex: 1 1 auto;
   overflow: auto;
   padding: 24px;
   background: var(--bg);
+  min-height: 0;
 }
-.content-inner { max-width: 1400px; margin: 0 auto; }
+.content-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-.loket-header { margin-bottom: 20px; }
+.loket-header {
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
 .loket-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 .loket-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
 
@@ -145,24 +155,30 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   GEODATA SJABLOON (kaart + zijpaneel)
+   GEODATA SJABLOON — VASTE HOOGTE, kan NIET inklappen
    ════════════════════════════════════════════════════════ */
 .geodata-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-rows: 1fr;
   gap: 16px;
-  height: calc(100vh - 220px);
+  flex: 1 1 auto;
   min-height: 500px;
+  height: 100%;
   overflow: hidden;
 }
+
 .geodata-panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
+  min-height: 0;
 }
+
 .geodata-map {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -170,12 +186,24 @@ header {
   overflow: hidden;
   position: relative;
   height: 100%;
-}
-#map {
+  min-height: 500px;
   width: 100%;
-  height: 100%;
-  min-height: 400px;
+}
+
+#map {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 500px !important;
   border-radius: var(--r);
+  position: absolute;
+  inset: 0;
+}
+
+/* Leaflet container — forceer dat het altijd de volledige ruimte vult */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 500px !important;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -276,9 +304,7 @@ header {
   padding: 8px 4px;
 }
 
-/* ════════════════════════════════════════════════════════
-   LAYER ITEM — tekst links + pill rechts
-   ════════════════════════════════════════════════════════ */
+/* Layer item — tekst + pill */
 .layer-item {
   display: flex;
   align-items: center;
@@ -296,9 +322,7 @@ header {
   line-height: 1.3;
 }
 
-/* ════════════════════════════════════════════════════════
-   PILL-TOGGLE
-   ════════════════════════════════════════════════════════ */
+/* Pill toggle */
 .tgl {
   position: relative;
   display: inline-block;
@@ -342,9 +366,7 @@ header {
   transform: translateX(16px);
 }
 
-/* ════════════════════════════════════════════════════════
-   TRANSPARANTIE-SLIDER
-   ════════════════════════════════════════════════════════ */
+/* Slider */
 .layer-slider {
   display: flex;
   align-items: center;
@@ -393,9 +415,7 @@ header {
   flex: 0 0 auto;
 }
 
-/* ════════════════════════════════════════════════════════
-   RADIO (achtergrondkeuze)
-   ════════════════════════════════════════════════════════ */
+/* Radio */
 .layer-item-radio { padding: 0; }
 
 .radio-label {
@@ -437,9 +457,7 @@ header {
   min-width: 0;
 }
 
-/* ════════════════════════════════════════════════════════
-   STATUS-TEKST
-   ════════════════════════════════════════════════════════ */
+/* Status */
 .layer-status {
   font-size: 10px;
   color: var(--muted);
@@ -521,7 +539,7 @@ header {
 }
 
 /* ════════════════════════════════════════════════════════
-   POPUPS — Leaflet & custom
+   POPUPS
    ════════════════════════════════════════════════════════ */
 .leaflet-popup-content-wrapper {
   border-radius: var(--r) !important;
@@ -543,7 +561,7 @@ header {
 .ptit { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
 .pbod { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
-/* ── Perceel-popup (capakey via WFS) ── */
+/* Perceel-popup */
 .perceel-popup {
   font-size: 13px;
   line-height: 1.5;
@@ -588,30 +606,19 @@ header {
 }
 .perceel-popup-fout { color: var(--err); }
 
-/* ── Erfgoed-popup (via WFS) ── */
+/* Erfgoed-popup */
 .erfgoed-popup {
   font-size: 13px;
   line-height: 1.5;
   min-width: 240px;
   max-width: 340px;
 }
-.erfgoed-feature {
-  margin-bottom: 4px;
-}
 .erfgoed-titel {
   font-weight: 600;
   font-size: 14px;
   color: var(--primair);
-  margin-bottom: 4px;
-  line-height: 1.3;
-}
-.erfgoed-type {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
   margin-bottom: 8px;
-  font-weight: 600;
+  line-height: 1.3;
 }
 .erfgoed-rij {
   margin-bottom: 4px;
@@ -622,6 +629,15 @@ header {
   font-weight: 600;
   color: var(--muted);
   margin-right: 4px;
+}
+.erfgoed-hint {
+  margin: 10px 0;
+  padding: 8px 10px;
+  background: rgba(230, 126, 34, .1);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text);
 }
 .erfgoed-link {
   margin-top: 10px;
@@ -648,15 +664,17 @@ header {
 .erfgoed-popup-fout { color: var(--err); }
 
 /* ════════════════════════════════════════════════════════
-   MOBIELE WEERGAVE
+   MOBIEL
    ════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .geodata-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
     height: auto;
   }
   .geodata-panel {
     max-height: 300px;
+    height: auto;
   }
   .geodata-map {
     height: 60vh;
