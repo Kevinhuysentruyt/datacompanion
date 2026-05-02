@@ -1,26 +1,43 @@
 {
   "$schema": "Data Companion v3 — Gemeente Config",
-
   "gemeente": {
     "naam": "Zwevegem",
     "niscode": "34042",
-    "fallback_centrum": [50.81, 3.34]
+    "fallback_centrum": [
+      50.81,
+      3.34
+    ]
   },
-
   "dashboard": {
     "titel": "Zwevegem in cijfers",
     "subtitel": "Beleidsdashboard · SDG-monitoring",
-    "kleuren": { "primair": "#1a5c3a", "accent": "#e67e22" }
+    "kleuren": {
+      "primair": "#1a5c3a",
+      "accent": "#e67e22"
+    }
   },
-
   "bronvermelding": [
-    { "naam": "Geopunt / Digitaal Vlaanderen", "url": "https://www.geopunt.be" },
-    { "naam": "Vlaamse Milieumaatschappij", "url": "https://klimaat.vmm.be" },
-    { "naam": "Onroerend Erfgoed", "url": "https://www.onroerenderfgoed.be" },
-    { "naam": "Departement Omgeving (MercatorNet)", "url": "https://www.mercator.vlaanderen.be" },
-    { "naam": "DOV - Databank Ondergrond Vlaanderen", "url": "https://www.dov.vlaanderen.be" }
+    {
+      "naam": "Geopunt / Digitaal Vlaanderen",
+      "url": "https://www.geopunt.be"
+    },
+    {
+      "naam": "Vlaamse Milieumaatschappij",
+      "url": "https://klimaat.vmm.be"
+    },
+    {
+      "naam": "Onroerend Erfgoed",
+      "url": "https://www.onroerenderfgoed.be"
+    },
+    {
+      "naam": "Departement Omgeving (MercatorNet)",
+      "url": "https://www.mercator.vlaanderen.be"
+    },
+    {
+      "naam": "DOV - Databank Ondergrond Vlaanderen",
+      "url": "https://www.dov.vlaanderen.be"
+    }
   ],
-
   "loketten": [
     {
       "id": "kaart",
@@ -28,7 +45,6 @@
       "icoon": "🗺️",
       "sjabloon": "geodata",
       "beschrijving": "Klik op percelen of erfgoedlagen voor info",
-
       "kaart_afbakening": {
         "modus": "soft_lock",
         "marge_percentage": 10,
@@ -36,7 +52,6 @@
         "max_zoom": 19,
         "viscosity": 0.85
       },
-
       "groepen": [
         {
           "label": "Ruimtelijke planning",
@@ -48,65 +63,191 @@
               "klikbaar": true,
               "label": "Kadastrale percelen (klikbaar)"
             },
-            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "geopunt:wegen", "rol": "kaartlaag", "transparantie": 0.7 }
+            {
+              "bron": "geopunt:gebouwen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "geopunt:wegen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            }
           ]
         },
         {
           "label": "Ruimtelijke ordening",
           "lagen": [
-            { "bron": "mercator:gewestplan_grondvlakken", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "mercator:gewestplan_overdrukken", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "mercator:rup_gewestelijk_contouren", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "mercator:rup_provinciaal_contouren", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "mercator:rup_gemeentelijk_contouren", "rol": "kaartlaag", "transparantie": 0.7 }
+            {
+              "bron": "mercator:gewestplan_grondvlakken",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "mercator:gewestplan_overdrukken",
+              "rol": "kaartlaag",
+              "transparantie": 0.5
+            },
+            {
+              "bron": "mercator:rup_gewestelijk_contouren",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "mercator:rup_provinciaal_contouren",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "mercator:rup_gemeentelijk_contouren",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            }
           ]
         },
         {
           "label": "Water & overstroming",
           "lagen": [
-            { "bron": "vmm:waterlopen_vha", "rol": "kaartlaag", "transparantie": 0.9 },
-            { "bron": "vmm:overstromingsgebied_recent", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "vmm:overstromingsgebied_natuurlijk", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "vmm:bekkens", "rol": "kaartlaag", "transparantie": 0.4 }
+            {
+              "bron": "vmm:waterlopen_vha",
+              "rol": "kaartlaag",
+              "transparantie": 0.9
+            },
+            {
+              "bron": "vmm:overstromingsgebied_recent",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "vmm:overstromingsgebied_natuurlijk",
+              "rol": "kaartlaag",
+              "transparantie": 0.5
+            },
+            {
+              "bron": "vmm:bekkens",
+              "rol": "kaartlaag",
+              "transparantie": 0.4
+            }
           ]
         },
         {
           "label": "Riolering",
           "lagen": [
-            { "bron": "vmm:rioolinventaris_strengen", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "vmm:rioolinventaris_punten", "rol": "kaartlaag", "transparantie": 0.9 }
+            {
+              "bron": "vmm:rioolinventaris_strengen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "vmm:rioolinventaris_punten",
+              "rol": "kaartlaag",
+              "transparantie": 0.9
+            }
           ]
         },
         {
           "label": "Bodem & erosie",
           "lagen": [
-            { "bron": "dov:bodemkaart", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "dov:basislandgebruik", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "dov:erosiegevoeligheid_gemeente", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "dov:erosie_per_perceel", "rol": "kaartlaag", "transparantie": 0.7 }
+            {
+              "bron": "dov:bodemkaart",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "dov:basislandgebruik",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "dov:erosiegevoeligheid_gemeente",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "dov:erosie_per_perceel",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            }
           ]
         },
         {
           "label": "Erfgoed (klik voor inventaris)",
           "lagen": [
-            { "bron": "erfgoed:beschermd_monument", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "erfgoed:beschermd_landschap", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "erfgoed:stads_dorpsgezicht", "rol": "kaartlaag", "transparantie": 0.5 },
-            { "bron": "erfgoed:beschermd_archeologisch", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "erfgoed:bouwkundig_inventaris", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "erfgoed:landschappelijk_inventaris", "rol": "kaartlaag", "transparantie": 0.6 },
-            { "bron": "erfgoed:archeologisch_inventaris", "rol": "kaartlaag", "transparantie": 0.7 },
-            { "bron": "erfgoed:erfgoedlandschappen", "rol": "kaartlaag", "transparantie": 0.5 }
+            {
+              "bron": "erfgoed:beschermd_monument",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "erfgoed:beschermd_landschap",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "erfgoed:stads_dorpsgezicht",
+              "rol": "kaartlaag",
+              "transparantie": 0.5
+            },
+            {
+              "bron": "erfgoed:beschermd_archeologisch",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "erfgoed:bouwkundig_inventaris",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "erfgoed:landschappelijk_inventaris",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "erfgoed:archeologisch_inventaris",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "erfgoed:erfgoedlandschappen",
+              "rol": "kaartlaag",
+              "transparantie": 0.5
+            }
           ]
         },
         {
           "label": "Achtergrond",
           "lagen": [
-            { "bron": "geopunt:grb", "rol": "achtergrond", "transparantie": 0.9 },
-            { "bron": "geopunt:grb_grijs", "rol": "achtergrond", "transparantie": 0.9 },
-            { "bron": "geopunt:orthofoto_2025_winter", "rol": "achtergrond", "transparantie": 1.0 },
-            { "bron": "geopunt:orthofoto_2021_zomer", "rol": "achtergrond", "transparantie": 1.0 }
+            {
+              "bron": "geopunt:grb",
+              "rol": "achtergrond",
+              "transparantie": 0.9
+            },
+            {
+              "bron": "geopunt:grb_grijs",
+              "rol": "achtergrond",
+              "transparantie": 0.9
+            },
+            {
+              "bron": "geopunt:orthofoto_2025_winter",
+              "rol": "achtergrond",
+              "transparantie": 1.0
+            },
+            {
+              "bron": "geopunt:orthofoto_2021_zomer",
+              "rol": "achtergrond",
+              "transparantie": 1.0
+            },
+            {
+              "bron": "xyz:openfreemap_positron",
+              "rol": "achtergrond",
+              "transparantie": 1.0
+            },
+            {
+              "bron": "xyz:openfreemap_liberty",
+              "rol": "achtergrond",
+              "transparantie": 1.0
+            }
           ]
         }
       ]
@@ -118,8 +259,15 @@
       "badge": "soon",
       "sjabloon": "evolutie",
       "beschrijving": "Bevolkingsmonitor en sociale indicatoren",
-      "indicatoren": ["inwoners", "vergrijzing", "kansarmoede"],
-      "periode": { "van": 2014, "tot": 2023 }
+      "indicatoren": [
+        "inwoners",
+        "vergrijzing",
+        "kansarmoede"
+      ],
+      "periode": {
+        "van": 2014,
+        "tot": 2023
+      }
     }
   ]
 }
