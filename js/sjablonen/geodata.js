@@ -1,15 +1,11 @@
 // ════════════════════════════════════════════════════════
-//  SJABLOON: Geodata (v6)
+//  SJABLOON: Geodata (v7)
 //
-//  Wijzigingen v6:
-//  - XYZ tile source toegevoegd (OpenFreeMap, Stadia, ...)
-//  - Kaart-afbakening per loket via "kaart_afbakening" config
-//  - maxBounds + viscosity + min/max zoom toegepast na fitBounds
-//
-//  Eerdere wijzigingen (v5):
-//  - Inklapbare rubrieken per groep
-//  - Vaste hoogte voor kaartcontainer (geen herschikking)
-//  - Foutafhandeling per laag (1 fout = niet alles down)
+//  Wijzigingen v7:
+//  - Achtergrond-groep ook samenklapbaar (zoals kaartlagen)
+//  - Titel "Kaartlagen" boven de rubrieken
+//  - XYZ/MapLibre GL source toegevoegd
+//  - Kaart-afbakening per loket
 // ════════════════════════════════════════════════════════
 
 import { resolveSource } from '../core.js';
@@ -27,9 +23,6 @@ const SOURCES = {
   'xyz':         laadXYZ
 };
 
-// ──────────────────────────────────────────────────────
-// Defaults voor kaart-afbakening
-// ──────────────────────────────────────────────────────
 const AFBAKENING_DEFAULTS = {
   modus: 'soft_lock',
   marge_percentage: 15,
@@ -46,11 +39,9 @@ export function renderSjabloonGeodata(container, loket, state) {
     </div>
     <div class="geodata-layout">
       <aside class="geodata-panel">
+        <div class="panel-sectie-titel">Kaartlagen</div>
         <div id="kaartlagen-rubrieken"></div>
-        <div class="layer-group layer-group-bottom">
-          <div class="layer-group-title">Achtergrond</div>
-          <div id="achtergrond-container"></div>
-        </div>
+        <div id="achtergrond-rubriek"></div>
       </aside>
       <div class="geodata-map">
         <div id="map"></div>
@@ -93,51 +84,85 @@ export function renderSjabloonGeodata(container, loket, state) {
     rubriekContainer.innerHTML = '<div class="layer-empty">Geen kaartlagen</div>';
   } else {
     kaartGroepen.forEach((groep, idx) => {
-      const groepEl = document.createElement('div');
-      groepEl.className = 'layer-group layer-group-rubriek';
-
-      const startOpen = idx === 0;
-      groepEl.innerHTML = `
-        <button class="rubriek-header${startOpen ? ' rubriek-open' : ''}" type="button">
-          <span class="rubriek-arrow">▶</span>
-          <span class="rubriek-titel">${groep.label || 'Rubriek'}</span>
-          <span class="rubriek-aantal">${(groep.lagen || []).length}</span>
-        </button>
-        <div class="rubriek-content${startOpen ? '' : ' rubriek-gesloten'}"></div>
-      `;
-
-      const headerBtn = groepEl.querySelector('.rubriek-header');
-      const contentEl = groepEl.querySelector('.rubriek-content');
-      headerBtn.addEventListener('click', () => {
-        headerBtn.classList.toggle('rubriek-open');
-        contentEl.classList.toggle('rubriek-gesloten');
-      });
-
-      (groep.lagen || []).forEach(laag => {
-        const el = bouwLaagControl(laag, map, 'toggle', null, null, null, 'kaartlagen');
-        if (el) contentEl.appendChild(el);
-      });
-
-      rubriekContainer.appendChild(groepEl);
+      const groepEl = maakRubriek(
+        groep.label || 'Rubriek',
+        groep.lagen || [],
+        idx === 0,  // eerste open
+        map,
+        'kaartlagen',
+        'toggle'
+      );
+      if (groepEl) rubriekContainer.appendChild(groepEl);
     });
   }
 
-  // ── ACHTERGROND ────────────────────────────────────────
-  const achterContainer = document.getElementById('achtergrond-container');
+  // ── ACHTERGROND — ook samenklapbaar ───────────────────
+  const achterContainer = document.getElementById('achtergrond-rubriek');
   const achtergrondLagen = achtergrondGroep ? (achtergrondGroep.lagen || []) : [];
+  const achtergrondLabel = achtergrondGroep?.label || 'Achtergrond';
 
   if (achtergrondLagen.length === 0) {
     achterContainer.innerHTML = '<div class="layer-empty">Geen achtergrond geconfigureerd</div>';
   } else {
     const radioNaam = `achtergrond-${Date.now()}`;
-    const groep = [];
-    achtergrondLagen.forEach((laag, idx) => {
-      const el = bouwLaagControl(laag, map, 'radio', radioNaam, idx, groep, 'achtergrond');
-      if (el) achterContainer.appendChild(el);
+    const groepArray = [];
+
+    // Bouw rubriek-wrapper
+    const achterRubriekEl = document.createElement('div');
+    achterRubriekEl.className = 'layer-group layer-group-rubriek layer-group-achtergrond';
+
+    // Start gesloten
+    achterRubriekEl.innerHTML = `
+      <button class="rubriek-header" type="button">
+        <span class="rubriek-arrow">▶</span>
+        <span class="rubriek-titel">${achtergrondLabel}</span>
+        <span class="rubriek-aantal">${achtergrondLagen.length}</span>
+      </button>
+      <div class="rubriek-content rubriek-gesloten"></div>
+    `;
+
+    const headerBtn = achterRubriekEl.querySelector('.rubriek-header');
+    const contentEl = achterRubriekEl.querySelector('.rubriek-content');
+    headerBtn.addEventListener('click', () => {
+      headerBtn.classList.toggle('rubriek-open');
+      contentEl.classList.toggle('rubriek-gesloten');
     });
+
+    achtergrondLagen.forEach((laagConfig, idx) => {
+      let laag;
+      try { laag = resolveSource(laagConfig); }
+      catch (e) { console.warn(`Bron niet gevonden: ${laagConfig.bron}`); return; }
+
+      const bronType = laag.type || laag.bron;
+      const sourceFn = SOURCES[bronType];
+      if (!sourceFn) return;
+
+      const laagMetPane = { ...laag, _pane: 'achtergrond' };
+      let kaartlaag;
+      try { kaartlaag = sourceFn(laagMetPane, map, null); }
+      catch (e) { console.error(`Fout bij laden van ${laag.label}:`, e); return; }
+
+      if (!kaartlaag) return;
+
+      const item = document.createElement('div');
+      item.className = 'layer-control';
+      const toggleEl = maakRadio(laag.label || 'Naamloos', kaartlaag, map, radioNaam, idx === 0, groepArray);
+      groepArray.push(kaartlaag);
+      item.appendChild(toggleEl);
+
+      const startOpacity = laag.transparantie ?? 1.0;
+      item.appendChild(bouwSlider(kaartlaag, startOpacity));
+      contentEl.appendChild(item);
+    });
+
+    // Scheidingslijn + label boven achtergrond
+    const scheiding = document.createElement('div');
+    scheiding.className = 'panel-sectie-scheiding';
+    achterContainer.appendChild(scheiding);
+    achterContainer.appendChild(achterRubriekEl);
   }
 
-  // ── AUTO-ZOOM + AFBAKENING VIA BASISREGISTERS ──────────
+  // ── AUTO-ZOOM + AFBAKENING ─────────────────────────────
   if (cfg.gemeente.niscode) {
     fetch(`https://api.basisregisters.vlaanderen.be/v2/gemeenten/${cfg.gemeente.niscode}`,
       { headers: { Accept: 'application/json' } })
@@ -146,23 +171,17 @@ export function renderSjabloonGeodata(container, loket, state) {
         const bb = d?.geometrie?.boundingBox;
         if (!bb || !state.mapInstance) return;
 
-        const bounds = L.latLngBounds(
-          [bb.minY, bb.minX],
-          [bb.maxY, bb.maxX]
-        );
-
+        const bounds = L.latLngBounds([bb.minY, bb.minX], [bb.maxY, bb.maxX]);
         state.mapInstance.fitBounds(bounds, { padding: [30, 30] });
 
         if (afbakening.modus !== 'geen') {
           const margeFactor = (afbakening.marge_percentage || 0) / 100;
           const breedte = bb.maxX - bb.minX;
           const hoogte = bb.maxY - bb.minY;
-
           const maxBounds = L.latLngBounds(
             [bb.minY - hoogte * margeFactor, bb.minX - breedte * margeFactor],
             [bb.maxY + hoogte * margeFactor, bb.maxX + breedte * margeFactor]
           );
-
           state.mapInstance.setMaxBounds(maxBounds);
         }
       })
@@ -173,16 +192,43 @@ export function renderSjabloonGeodata(container, loket, state) {
 }
 
 // ──────────────────────────────────────────────────────
-// Bouwt een laag-control (toggle of radio)
+// Bouw een inklapbare rubriek
+// ──────────────────────────────────────────────────────
+function maakRubriek(label, lagen, startOpen, map, paneNaam, modus, radioNaam, groepArray) {
+  const groepEl = document.createElement('div');
+  groepEl.className = 'layer-group layer-group-rubriek';
+
+  groepEl.innerHTML = `
+    <button class="rubriek-header${startOpen ? ' rubriek-open' : ''}" type="button">
+      <span class="rubriek-arrow">▶</span>
+      <span class="rubriek-titel">${label}</span>
+      <span class="rubriek-aantal">${lagen.length}</span>
+    </button>
+    <div class="rubriek-content${startOpen ? '' : ' rubriek-gesloten'}"></div>
+  `;
+
+  const headerBtn = groepEl.querySelector('.rubriek-header');
+  const contentEl = groepEl.querySelector('.rubriek-content');
+  headerBtn.addEventListener('click', () => {
+    headerBtn.classList.toggle('rubriek-open');
+    contentEl.classList.toggle('rubriek-gesloten');
+  });
+
+  lagen.forEach((laagConfig, idx) => {
+    const el = bouwLaagControl(laagConfig, map, modus || 'toggle', radioNaam, idx, groepArray, paneNaam);
+    if (el) contentEl.appendChild(el);
+  });
+
+  return groepEl;
+}
+
+// ──────────────────────────────────────────────────────
+// Bouw een laag-control (toggle of radio)
 // ──────────────────────────────────────────────────────
 function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam) {
   let laag;
-  try {
-    laag = resolveSource(laagConfig);
-  } catch (e) {
-    console.warn(`Bron niet gevonden: ${laagConfig.bron}`, e);
-    return null;
-  }
+  try { laag = resolveSource(laagConfig); }
+  catch (e) { console.warn(`Bron niet gevonden: ${laagConfig.bron}`, e); return null; }
 
   const bronType = laag.type || laag.bron;
   const sourceFn = SOURCES[bronType];
@@ -196,14 +242,12 @@ function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam
   statusEl.className = 'layer-status';
 
   let kaartlaag;
-  try {
-    kaartlaag = sourceFn(laagMetPane, map, statusEl);
-  } catch (e) {
-    console.error(`Fout bij laden van ${laag.label}:`, e);
-    return null;
-  }
+  try { kaartlaag = sourceFn(laagMetPane, map, statusEl); }
+  catch (e) { console.error(`Fout bij laden van ${laag.label}:`, e); return null; }
 
-  if (kaartlaag && typeof kaartlaag.on === 'function') {
+  if (!kaartlaag) return null;
+
+  if (typeof kaartlaag.on === 'function') {
     kaartlaag.on('tileerror', (err) => {
       console.warn(`Tile-fout voor ${laag.label}:`, err.tile?.src);
     });
