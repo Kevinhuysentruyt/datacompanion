@@ -352,28 +352,22 @@
   "xyz:openfreemap_positron": {
     "type": "xyz",
     "label": "OpenFreeMap Positron (licht)",
-    "url": "https://tiles.openfreemap.org/styles/positron/{z}/{x}/{y}.png",
+    "style_url": "https://tiles.openfreemap.org/styles/positron",
     "transparantie": 1.0,
-    "min_zoom": 0,
-    "max_zoom": 20,
     "attribution": "© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org'>OpenMapTiles</a> Data van <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
   },
   "xyz:openfreemap_bright": {
     "type": "xyz",
     "label": "OpenFreeMap Bright (kleurrijk)",
-    "url": "https://tiles.openfreemap.org/styles/bright/{z}/{x}/{y}.png",
+    "style_url": "https://tiles.openfreemap.org/styles/bright",
     "transparantie": 1.0,
-    "min_zoom": 0,
-    "max_zoom": 20,
     "attribution": "© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org'>OpenMapTiles</a> Data van <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
   },
   "xyz:openfreemap_liberty": {
     "type": "xyz",
     "label": "OpenFreeMap Liberty (OSM-stijl)",
-    "url": "https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png",
+    "style_url": "https://tiles.openfreemap.org/styles/liberty",
     "transparantie": 1.0,
-    "min_zoom": 0,
-    "max_zoom": 20,
     "attribution": "© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org'>OpenMapTiles</a> Data van <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
   }
 }
