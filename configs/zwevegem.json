@@ -48,7 +48,8 @@
               "klikbaar": true,
               "label": "Kadastrale percelen (klikbaar)"
             },
-            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 }
+            { "bron": "geopunt:gebouwen", "rol": "kaartlaag", "transparantie": 0.7 },
+            { "bron": "geopunt:wegen", "rol": "kaartlaag", "transparantie": 0.7 }
           ]
         },
         {
