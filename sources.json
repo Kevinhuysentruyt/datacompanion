@@ -1,8 +1,8 @@
 {
-  "$schema": "Data Companion — Broncatalogus v3.0",
+  "$schema": "Data Companion — Broncatalogus v3.1",
   "_doel": "Catalogus van LIVE Vlaamse open data APIs",
   "_licentie": "Modellicentie Gratis Hergebruik Vlaanderen v1.0 — commercieel toegestaan",
-  "_update": "april 2026 — DOV-lagen toegevoegd",
+  "_update": "april 2026 — DOV bodembedekking + vereenvoudigde bodemkaart",
 
   "_": "═══════════════════════════════════════════════════════════",
   "_sectie_1": "1. ACHTERGRONDKAARTEN (Geopunt)",
@@ -356,13 +356,22 @@
   "_sectie_7": "7. BODEM & ONDERGROND (DOV)",
   "______________": "═══════════════════════════════════════════════════════════",
 
-  "dov:bodemkaart": {
+  "dov:bodemkaart_vereenvoudigd": {
     "type": "wms",
-    "label": "Bodemkaart Vlaanderen (bodemserie)",
+    "label": "Bodemkaart Vlaanderen (vereenvoudigde legende)",
     "url": "https://www.dov.vlaanderen.be/geoserver/wms",
-    "layer": "bodemkaart:bodemtypes_bodemserie",
+    "layer": "bodemkaart:bodemtypes_bodemserie_eenvoudig",
     "transparantie": 0.6,
-    "attribution": "Bodemkaart © DOV"
+    "attribution": "Bodemkaart vereenvoudigd © DOV"
+  },
+
+  "dov:basislandgebruik": {
+    "type": "wms",
+    "label": "Bodembedekking (akkerland/grasland/bos/infrastructuur, 2022)",
+    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
+    "layer": "erosie:basislandgebruik_2022",
+    "transparantie": 0.6,
+    "attribution": "Basislandgebruik 2022 © DOV"
   },
 
   "dov:erosiegevoeligheid_gemeente": {
@@ -381,14 +390,5 @@
     "layer": "erosie:erosie_potentiele_bodemerosiekaart_per_perceel_2014",
     "transparantie": 0.7,
     "attribution": "Potentiële bodemerosie per perceel © DOV"
-  },
-
-  "dov:erosiebestrijding": {
-    "type": "wms",
-    "label": "Uitgevoerde erosiebestrijdingswerken",
-    "url": "https://www.dov.vlaanderen.be/geoserver/wms",
-    "layer": "erosie:erosiebestrijding_gemeente",
-    "transparantie": 0.8,
-    "attribution": "Erosiebestrijdingswerken © DOV"
   }
 }
