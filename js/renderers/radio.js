@@ -2,7 +2,9 @@
 //  RENDERER: Radio (achtergrond-keuze)
 //  Slechts één laag uit de groep is tegelijk actief
 //
-//  v5: scroll-positie bewaren bij wisselen achtergrond
+//  v6: voorkomt dat browser naar radio-input scrollt bij
+//      aanklikken — dit veroorzaakte het "springen" van
+//      de pagina naar boven
 // ════════════════════════════════════════════════════════
 export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   const item = document.createElement('div');
@@ -17,6 +19,13 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   `;
   const input = item.querySelector('input');
 
+  // Voorkom dat de browser naar het input-element scrollt bij focus
+  // Dit is de oorzaak van het "springen" van de pagina
+  input.addEventListener('focus', (e) => {
+    e.preventDefault();
+    input.blur();
+  });
+
   if (isStandaard) {
     kaartlaag.addTo(kaart);
     if (kaartlaag._laadFn) kaartlaag._laadFn();
@@ -25,9 +34,11 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   input.addEventListener('change', () => {
     if (!input.checked) return;
 
-    // Bewaar scroll-positie van het zijpaneel
+    // Bewaar scroll-positie van paneel én pagina
     const panel = document.querySelector('.geodata-panel');
-    const scrollTop = panel ? panel.scrollTop : 0;
+    const content = document.querySelector('.content');
+    const panelScroll = panel ? panel.scrollTop : 0;
+    const contentScroll = content ? content.scrollTop : 0;
 
     // Eerst toevoegen, dan verwijderen
     if (!kaart.hasLayer(kaartlaag)) {
@@ -44,8 +55,9 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
         });
       }
 
-      // Herstel scroll-positie
-      if (panel) panel.scrollTop = scrollTop;
+      // Herstel beide scroll-posities
+      if (panel) panel.scrollTop = panelScroll;
+      if (content) content.scrollTop = contentScroll;
     });
   });
 
