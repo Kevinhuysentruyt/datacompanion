@@ -2,8 +2,7 @@
 //  RENDERER: Radio (achtergrond-keuze)
 //  Slechts één laag uit de groep is tegelijk actief
 //
-//  v4: geen invalidateSize hier — dat doet de ResizeObserver
-//      in geodata.js. Terug naar simpele add-then-remove.
+//  v5: scroll-positie bewaren bij wisselen achtergrond
 // ════════════════════════════════════════════════════════
 export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   const item = document.createElement('div');
@@ -26,7 +25,11 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   input.addEventListener('change', () => {
     if (!input.checked) return;
 
-    // Eerst toevoegen, dan verwijderen (geen leeg moment)
+    // Bewaar scroll-positie van het zijpaneel
+    const panel = document.querySelector('.geodata-panel');
+    const scrollTop = panel ? panel.scrollTop : 0;
+
+    // Eerst toevoegen, dan verwijderen
     if (!kaart.hasLayer(kaartlaag)) {
       kaartlaag.addTo(kaart);
       if (kaartlaag._laadFn) kaartlaag._laadFn();
@@ -40,6 +43,9 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
           }
         });
       }
+
+      // Herstel scroll-positie
+      if (panel) panel.scrollTop = scrollTop;
     });
   });
 
