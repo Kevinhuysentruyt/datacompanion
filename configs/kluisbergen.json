@@ -57,13 +57,6 @@
           "label": "Ruimtelijke ordening",
           "lagen": [
             {
-              "bron": "geopunt:percelen",
-              "rol": "kaartlaag",
-              "transparantie": 0.5,
-              "klikbaar": true,
-              "label": "Kadastrale percelen (klikbaar)"
-            },
-            {
               "bron": "geopunt:gebouwen",
               "rol": "kaartlaag",
               "transparantie": 0.7
@@ -74,17 +67,14 @@
               "transparantie": 0.7
             },
             {
-              "bron": "mercator:gewestplan_grondvlakken",
+              "bron": "geopunt:percelen",
               "rol": "kaartlaag",
-              "transparantie": 0.6
+              "transparantie": 0.5,
+              "klikbaar": true,
+              "label": "Kadastrale percelen (klikbaar)"
             },
             {
-              "bron": "mercator:gewestplan_overdrukken",
-              "rol": "kaartlaag",
-              "transparantie": 0.5
-            },
-            {
-              "bron": "mercator:rup_gewestelijk_contouren",
+              "bron": "mercator:rup_gemeentelijk_contouren",
               "rol": "kaartlaag",
               "transparantie": 0.7
             },
@@ -94,9 +84,19 @@
               "transparantie": 0.7
             },
             {
-              "bron": "mercator:rup_gemeentelijk_contouren",
+              "bron": "mercator:rup_gewestelijk_contouren",
               "rol": "kaartlaag",
               "transparantie": 0.7
+            },
+            {
+              "bron": "mercator:gewestplan_overdrukken",
+              "rol": "kaartlaag",
+              "transparantie": 0.5
+            },
+            {
+              "bron": "mercator:gewestplan_grondvlakken",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
             }
           ]
         },
