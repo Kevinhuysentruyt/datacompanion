@@ -101,7 +101,101 @@
           ]
         },
         {
-          "label": "Water & overstroming",
+          "label": "Wegen en infrastructuur",
+          "lagen": [
+            {
+              "bron": "vmm:rioolinventaris_strengen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "vmm:rioolinventaris_punten",
+              "rol": "kaartlaag",
+              "transparantie": 0.9
+            }
+          ]
+        },
+        {
+          "label": "Groen",
+          "lagen": [
+            {
+              "bron": "dov:bodemkaart",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "dov:basislandgebruik",
+              "rol": "kaartlaag",
+              "transparantie": 0.6
+            },
+            {
+              "bron": "dov:erosie_per_perceel",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            }
+          ]
+        },
+        {
+          "label": "Achtergrond",
+          "lagen": [
+            {
+              "bron": "geopunt:grb_grijs",
+              "rol": "achtergrond",
+              "transparantie": 0.9
+            },
+            {
+              "bron": "geopunt:orthofoto_2025_winter",
+              "rol": "achtergrond",
+              "transparantie": 1.0
+            },
+            {
+              "bron": "geopunt:orthofoto_2021_zomer",
+              "rol": "achtergrond",
+              "transparantie": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    [
+    {
+      "id": "kaart",
+      "label": "Omgeving",
+      "icoon": "🗺️",
+      "sjabloon": "geodata",
+      "beschrijving": "Klik op percelen of erfgoedlagen voor info",
+      "kaart_afbakening": {
+        "modus": "soft_lock",
+        "marge_percentage": 10,
+        "min_zoom": 12,
+        "max_zoom": 19,
+        "viscosity": 0.85
+      },
+      "groepen": [
+        {
+          "label": "Ruimtelijke ordening",
+          "lagen": [
+            {
+              "bron": "geopunt:gebouwen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "geopunt:wegen",
+              "rol": "kaartlaag",
+              "transparantie": 0.7
+            },
+            {
+              "bron": "geopunt:percelen",
+              "rol": "kaartlaag",
+              "transparantie": 0.5,
+              "klikbaar": true,
+              "label": "Kadastrale percelen (klikbaar)"
+            }
+          ]
+        },
+        {
+          "label": "Water",
           "lagen": [
             {
               "bron": "vmm:waterlopen_vha",
@@ -124,24 +218,9 @@
               "transparantie": 0.4
             }
           ]
-        },
+         },
         {
-          "label": "Riolering",
-          "lagen": [
-            {
-              "bron": "vmm:rioolinventaris_strengen",
-              "rol": "kaartlaag",
-              "transparantie": 0.7
-            },
-            {
-              "bron": "vmm:rioolinventaris_punten",
-              "rol": "kaartlaag",
-              "transparantie": 0.9
-            }
-          ]
-        },
-        {
-          "label": "Bodem & erosie",
+          "label": "Groen",
           "lagen": [
             {
               "bron": "dov:bodemkaart",
@@ -150,11 +229,6 @@
             },
             {
               "bron": "dov:basislandgebruik",
-              "rol": "kaartlaag",
-              "transparantie": 0.6
-            },
-            {
-              "bron": "dov:erosiegevoeligheid_gemeente",
               "rol": "kaartlaag",
               "transparantie": 0.6
             },
@@ -214,32 +288,12 @@
           "label": "Achtergrond",
           "lagen": [
             {
-              "bron": "geopunt:grb",
-              "rol": "achtergrond",
-              "transparantie": 0.9
-            },
-            {
               "bron": "geopunt:grb_grijs",
               "rol": "achtergrond",
               "transparantie": 0.9
             },
             {
-              "bron": "geopunt:orthofoto_2025_winter",
-              "rol": "achtergrond",
-              "transparantie": 1.0
-            },
-            {
               "bron": "geopunt:orthofoto_2021_zomer",
-              "rol": "achtergrond",
-              "transparantie": 1.0
-            },
-            {
-              "bron": "xyz:openfreemap_positron",
-              "rol": "achtergrond",
-              "transparantie": 1.0
-            },
-            {
-              "bron": "xyz:openfreemap_liberty",
               "rol": "achtergrond",
               "transparantie": 1.0
             }
