@@ -172,7 +172,7 @@
       },
       "groepen": [
         {
-          "label": "Ruimtelijke ordening",
+          "label": "Wonen",
           "lagen": [
             {
               "bron": "geopunt:gebouwen",
