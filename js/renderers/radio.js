@@ -2,8 +2,7 @@
 //  RENDERER: Radio (achtergrond-keuze)
 //  Slechts één laag uit de groep is tegelijk actief
 //
-//  v2: Add-then-remove ipv remove-then-add — voorkomt
-//      "flip" van de kaart bij wisselen van achtergrond.
+//  v3: invalidateSize na switch via kaart-referentie
 // ════════════════════════════════════════════════════════
 export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   const item = document.createElement('div');
@@ -27,26 +26,27 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   input.addEventListener('change', () => {
     if (!input.checked) return;
 
-    // ── 1. EERST de nieuwe laag toevoegen ──────────────
-    // Dit zorgt ervoor dat de pane nooit leeg is tijdens
-    // de switch, wat het "flippen" van de kaart voorkomt.
+    // 1. Eerst nieuwe laag toevoegen (voorkomt leeg moment → flip)
     if (!kaart.hasLayer(kaartlaag)) {
       kaartlaag.addTo(kaart);
       if (kaartlaag._laadFn) kaartlaag._laadFn();
     }
 
-    // ── 2. DAARNA de andere lagen verwijderen ──────────
-    // Kleine vertraging zodat de nieuwe laag eerst kan
-    // beginnen renderen voordat de oude wegvalt.
-    if (groep) {
-      requestAnimationFrame(() => {
+    // 2. Andere lagen verwijderen
+    requestAnimationFrame(() => {
+      if (groep) {
         groep.forEach(andere => {
           if (andere !== kaartlaag && kaart.hasLayer(andere)) {
             kaart.removeLayer(andere);
           }
         });
-      });
-    }
+      }
+
+      // 3. Forceer kaart-resize zodat Leaflet de juiste afmetingen kent
+      setTimeout(() => {
+        kaart.invalidateSize({ animate: false });
+      }, 50);
+    });
   });
 
   return item;
