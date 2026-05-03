@@ -2,20 +2,8 @@ Dashboard:  https://kevinhuysentruyt.github.io/datacompanion/?gemeente=zwevegem
 Beheer:     https://kevinhuysentruyt.github.io/datacompanion/beheer.html
 https://kevinhuysentruyt.github.io/datacompanion/wms-test.html
 
-GEMEENTEPLAN
-Bebouwing                  ROOD
-  Kadaster (+ mastrdata)
-  Gebouwen
-Erfgoed                    GRIJS
-  Diverse  (+ mastrdata)
-Water                      BLAUW
-Bodem en natuur            GROEN
-  Bodemkaart
-  Natuur ?  (+ mastrdata)
-Ondergrond                  BRUIN
-  DOV       (+ masterdata)
-
-RUIMTELIJKE PLANNING
-  Bebouwing + riolering + BPA/RUP/etc.
+TOEVOEGEN
+- Wegennet
+- Legendes
 
 OSM variant
