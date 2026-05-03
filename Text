@@ -10,25 +10,17 @@ ALGEMEEN
 Kaarten + indicatoren
 
 TOEVOEGEN
-- Wegennet
-- GIPOD (openbare werken)
 - Legendes
+- OSM variant
 
-OSM variant
-
-Directie Ruimte (GRB grijs + zomerkaart)
+Directie Ruimte
 - Ruimtelijke ordening
       + RUP masterdata / Vlakken ipv contouren
 - Wegen in infrastructuur
-      + wegennet en GIPOD
+      + wegennet en GIPOD (openbare werken)
 - Groen: Erosie, bodem, etc.
       Bodembedekkingskaart (BBK), 1 m resolutie, opname 2021
 
 Burger
-- Erfgoed
-      condenser in 1 laag + doorklik naar coördinaat werkt niet
-- Kadaster
-- Water
-- Groen
-- Bodem en erosie
+- Erfgoed: condenser in 1 laag + doorklik naar coördinaat werkt niet
 
