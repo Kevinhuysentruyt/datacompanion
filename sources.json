@@ -10,7 +10,7 @@
     "type": "wms",
     "label": "GRB basiskaart",
     "url": "https://geo.api.vlaanderen.be/GRB/wms",
-    "layer": "GRB_BSK",
+    "layer": "GRBgis",
     "transparantie": 0.9,
     "attribution": "GRB © Digitaal Vlaanderen"
   },
