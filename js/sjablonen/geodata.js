@@ -1,11 +1,10 @@
 // ════════════════════════════════════════════════════════
-//  SJABLOON: Geodata (v8)
+//  SJABLOON: Geodata (v9)
 //
-//  Wijzigingen v8:
-//  - Achtergrond-lagen via dezelfde bouwLaagControl als kaartlagen
-//  - Fixes voor xyz-lagen die niet zichtbaar waren
-//  - Achtergrond samenklapbaar, start gesloten
-//  - Titel "Kaartlagen" boven rubrieken
+//  Wijzigingen v9:
+//  - ResizeObserver op kaart-container: automatisch
+//    invalidateSize() bij elke resize — lost "halve scherm"
+//    definitief op bij wisselen achtergrond
 // ════════════════════════════════════════════════════════
 
 import { resolveSource } from '../core.js';
@@ -43,7 +42,7 @@ export function renderSjabloonGeodata(container, loket, state) {
         <div id="kaartlagen-rubrieken"></div>
         <div id="achtergrond-rubriek"></div>
       </aside>
-      <div class="geodata-map">
+      <div class="geodata-map" id="geodata-map-container">
         <div id="map"></div>
       </div>
     </div>
@@ -67,6 +66,21 @@ export function renderSjabloonGeodata(container, loket, state) {
   map.getPane('achtergrond').style.zIndex = 200;
   map.createPane('kaartlagen');
   map.getPane('kaartlagen').style.zIndex = 400;
+
+  // ── RESIZEOBSERVER — houdt kaartgrootte altijd correct ──
+  // Triggert invalidateSize() telkens de container van grootte
+  // verandert, ook bij wisselen van achtergrond-laag.
+  const mapContainer = document.getElementById('geodata-map-container');
+  if (mapContainer && typeof ResizeObserver !== 'undefined') {
+    const resizeObserver = new ResizeObserver(() => {
+      if (state.mapInstance) {
+        state.mapInstance.invalidateSize({ animate: false });
+      }
+    });
+    resizeObserver.observe(mapContainer);
+    // Cleanup bij loket-wissel
+    state._resizeObserver = resizeObserver;
+  }
 
   const groepen = loket.groepen || [];
   const isAchtergrondGroep = (g) => {
@@ -113,7 +127,7 @@ export function renderSjabloonGeodata(container, loket, state) {
     });
   }
 
-  // ── ACHTERGROND — samenklapbaar, via zelfde bouwLaagControl ──
+  // ── ACHTERGROND — samenklapbaar ────────────────────────
   const achterContainer = document.getElementById('achtergrond-rubriek');
 
   if (!achtergrondGroep || (achtergrondGroep.lagen || []).length === 0) {
@@ -122,14 +136,12 @@ export function renderSjabloonGeodata(container, loket, state) {
     const achtergrondLagen = achtergrondGroep.lagen || [];
     const achtergrondLabel = achtergrondGroep.label || 'Achtergrond';
     const radioNaam = `achtergrond-${Date.now()}`;
-    const groepArray = [];  // voor radio-exclusiviteit
+    const groepArray = [];
 
-    // Scheidingslijn
     const scheiding = document.createElement('div');
     scheiding.className = 'panel-sectie-scheiding';
     achterContainer.appendChild(scheiding);
 
-    // Inklapbare wrapper — start GESLOTEN
     const achterRubriekEl = document.createElement('div');
     achterRubriekEl.className = 'layer-group layer-group-rubriek';
     achterRubriekEl.innerHTML = `
@@ -146,16 +158,16 @@ export function renderSjabloonGeodata(container, loket, state) {
     headerBtn.addEventListener('click', () => {
       headerBtn.classList.toggle('rubriek-open');
       contentEl.classList.toggle('rubriek-gesloten');
+      // Invalidate na open/sluit animatie
+      setTimeout(() => {
+        if (state.mapInstance) state.mapInstance.invalidateSize({ animate: false });
+      }, 250);
     });
 
-    // Lagen via bouwLaagControl — exact dezelfde aanpak als kaartlagen
     achtergrondLagen.forEach((laagConfig, idx) => {
       const el = bouwLaagControl(laagConfig, map, 'radio', radioNaam, idx, groepArray, 'achtergrond');
-      if (el) {
-        contentEl.appendChild(el);
-      } else {
-        console.warn('Achtergrond-laag kon niet worden gebouwd:', laagConfig.bron);
-      }
+      if (el) contentEl.appendChild(el);
+      else console.warn('Achtergrond-laag kon niet worden gebouwd:', laagConfig.bron);
     });
 
     achterContainer.appendChild(achterRubriekEl);
@@ -187,12 +199,13 @@ export function renderSjabloonGeodata(container, loket, state) {
       .catch(err => console.warn('Basisregisters niet bereikbaar:', err));
   }
 
-  setTimeout(() => map.invalidateSize(), 100);
+  // Initiële invalidateSize
+  setTimeout(() => map.invalidateSize({ animate: false }), 100);
+  setTimeout(() => map.invalidateSize({ animate: false }), 500);
 }
 
 // ──────────────────────────────────────────────────────
 // Bouw een laag-control (toggle of radio)
-// Gebruikt door ZOWEL kaartlagen als achtergrond-lagen
 // ──────────────────────────────────────────────────────
 function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam) {
   let laag;
@@ -206,7 +219,7 @@ function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam
   const bronType = laag.type || laag.bron;
   const sourceFn = SOURCES[bronType];
   if (!sourceFn) {
-    console.warn(`Onbekende source type: "${bronType}" voor "${laag.label || laagConfig.bron}" — controleer sources.json`);
+    console.warn(`Onbekende source type: "${bronType}" voor "${laag.label || laagConfig.bron}"`);
     return null;
   }
 
@@ -222,10 +235,7 @@ function bouwLaagControl(laagConfig, map, modus, radioNaam, idx, groep, paneNaam
     return null;
   }
 
-  if (!kaartlaag) {
-    console.warn(`Source functie gaf null terug voor: ${laag.label}`);
-    return null;
-  }
+  if (!kaartlaag) return null;
 
   if (typeof kaartlaag.on === 'function') {
     kaartlaag.on('tileerror', (err) => {
