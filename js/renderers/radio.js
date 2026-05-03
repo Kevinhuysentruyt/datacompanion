@@ -1,10 +1,6 @@
 // ════════════════════════════════════════════════════════
 //  RENDERER: Radio (achtergrond-keuze)
-//  Slechts één laag uit de groep is tegelijk actief
-//
-//  v6: voorkomt dat browser naar radio-input scrollt bij
-//      aanklikken — dit veroorzaakte het "springen" van
-//      de pagina naar boven
+//  v7: mousedown preventDefault voorkomt focus+scroll
 // ════════════════════════════════════════════════════════
 export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   const item = document.createElement('div');
@@ -18,12 +14,17 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
     </label>
   `;
   const input = item.querySelector('input');
+  const labelEl = item.querySelector('label');
 
-  // Voorkom dat de browser naar het input-element scrollt bij focus
-  // Dit is de oorzaak van het "springen" van de pagina
-  input.addEventListener('focus', (e) => {
+  // mousedown preventDefault voorkomt dat de browser focus geeft
+  // aan het input-element en daarna automatisch scrollt
+  labelEl.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    input.blur();
+    // Manueel de radio activeren want we blokkeren het default gedrag
+    if (!input.checked) {
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   });
 
   if (isStandaard) {
@@ -34,13 +35,6 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
   input.addEventListener('change', () => {
     if (!input.checked) return;
 
-    // Bewaar scroll-positie van paneel én pagina
-    const panel = document.querySelector('.geodata-panel');
-    const content = document.querySelector('.content');
-    const panelScroll = panel ? panel.scrollTop : 0;
-    const contentScroll = content ? content.scrollTop : 0;
-
-    // Eerst toevoegen, dan verwijderen
     if (!kaart.hasLayer(kaartlaag)) {
       kaartlaag.addTo(kaart);
       if (kaartlaag._laadFn) kaartlaag._laadFn();
@@ -54,10 +48,6 @@ export function maakRadio(label, kaartlaag, kaart, naam, isStandaard, groep) {
           }
         });
       }
-
-      // Herstel beide scroll-posities
-      if (panel) panel.scrollTop = panelScroll;
-      if (content) content.scrollTop = contentScroll;
     });
   });
 
