@@ -49,7 +49,7 @@
         "modus": "soft_lock",
         "marge_percentage": 10,
         "min_zoom": 12,
-        "max_zoom": 19,
+        "max_zoom": 25,
         "viscosity": 0.85
       },
       "groepen": [
