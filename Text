@@ -6,6 +6,7 @@ ALGEMEEN
 - Personalizeren (achtergrond)
 - PDF-print
 - Legende
+Kaarten + indicatoren
 
 TOEVOEGEN
 - Wegennet
@@ -16,7 +17,7 @@ OSM variant
 
 Directie Ruimte (GRB grijs + zomerkaart)
 - Ruimtelijke ordening
-      + RUP masterdata
+      + RUP masterdata / Vlakken ipv contouren
 - Wegen in infrastructuur
       + wegennet en GIPOD
 - Groen: Erosie, bodem, etc.
