@@ -105,6 +105,7 @@ header {
    CONTENT AREA
    ════════════════════════════════════════════════════════ */
 .content {
+  scroll-behavior: instant;
   flex: 1 1 auto;
   overflow: auto;
   padding: 24px;
@@ -164,6 +165,7 @@ header {
   overflow: hidden;
 }
 .geodata-panel {
+  scroll-behavior: instant;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
@@ -625,6 +627,7 @@ header {
     height: auto;
     max-height: none;
   }
-  .geodata-panel { max-height: 300px; height: auto; }
+  .geodata-panel {
+  scroll-behavior: instant; max-height: 300px; height: auto; }
   .geodata-map { height: 60vh; min-height: 400px; }
 }
