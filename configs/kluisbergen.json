@@ -41,7 +41,7 @@
   "loketten": [
     {
       "id": "kaart",
-      "label": "Geodata",
+      "label": "Geodata DIENST RUIMTE",
       "icoon": "🗺️",
       "sjabloon": "geodata",
       "beschrijving": "Klik op percelen of erfgoedlagen voor info",
@@ -157,10 +157,9 @@
         }
       ]
     },
-    [
     {
       "id": "kaart",
-      "label": "Omgeving",
+      "label": "Geodata INWONERS",
       "icoon": "🗺️",
       "sjabloon": "geodata",
       "beschrijving": "Klik op percelen of erfgoedlagen voor info",
