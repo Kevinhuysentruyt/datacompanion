@@ -1,9 +1,6 @@
 // ════════════════════════════════════════════════════════
 //  RENDERER: Toggle (laag aan/uit knop)
-//  Componeert een toggle-knop voor het zijpaneel
-//  en koppelt aan- of uitzetten van de laag op de kaart
-//
-//  v2: voorkomt browser auto-scroll bij focus op checkbox
+//  v3: mousedown preventDefault voorkomt focus+scroll
 // ════════════════════════════════════════════════════════
 export function maakToggle(label, kaartlaag, kaart) {
   const item = document.createElement('div');
@@ -17,32 +14,22 @@ export function maakToggle(label, kaartlaag, kaart) {
     </label>
   `;
   const input = item.querySelector('input');
+  const labelEl = item.querySelector('label');
 
-  // Voorkom browser auto-scroll bij focus
-  input.addEventListener('focus', (e) => {
+  // mousedown preventDefault voorkomt auto-scroll bij focus
+  labelEl.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    input.blur();
+    input.checked = !input.checked;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
   input.addEventListener('change', e => {
-    // Bewaar scroll-positie
-    const panel = document.querySelector('.geodata-panel');
-    const content = document.querySelector('.content');
-    const panelScroll = panel ? panel.scrollTop : 0;
-    const contentScroll = content ? content.scrollTop : 0;
-
     if (e.target.checked) {
       kaartlaag.addTo(kaart);
       if (kaartlaag._laadFn) kaartlaag._laadFn();
     } else {
       kaart.removeLayer(kaartlaag);
     }
-
-    // Herstel scroll-posities
-    requestAnimationFrame(() => {
-      if (panel) panel.scrollTop = panelScroll;
-      if (content) content.scrollTop = contentScroll;
-    });
   });
 
   return item;
